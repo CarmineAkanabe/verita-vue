@@ -20,6 +20,12 @@ const router = createRouter({
                     component: () => import('@/pages/public/About.vue'),
                     meta: { title: 'About Verita — Confidential Consultation' },
                 },
+                {
+                    path: 'cases/submit',
+                    name: 'submit-case',
+                    component: () => import('@/pages/cases/CaseSubmission.vue'),
+                    meta: { title: 'Submit Incident Report — Verita' },
+                },
             ],
         },
         {
