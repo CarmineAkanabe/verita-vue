@@ -22,7 +22,39 @@ const router = createRouter({
                 },
             ],
         },
-        { path: '/auth', component: () => import('@/layouts/AuthLayout.vue'), beforeEnter: guestOnlyStaff, children: [] },
+        {
+            path: '/auth',
+            component: () => import('@/layouts/AuthLayout.vue'),
+            beforeEnter: guestOnlyStaff,
+            children: [
+                {
+                    path: '',
+                    redirect: { name: 'staff-login' },
+                },
+                {
+                    path: 'login',
+                    name: 'staff-login',
+                    component: () => import('@/pages/auth/StaffLogin.vue'),
+                    meta: { title: 'Staff Sign In — Verita' },
+                },
+            ],
+        },
+        {
+            path: '/cases',
+            component: () => import('@/layouts/AuthLayout.vue'),
+            children: [
+                {
+                    path: '',
+                    redirect: { name: 'case-entry' },
+                },
+                {
+                    path: 'verify-pin',
+                    name: 'case-entry',
+                    component: () => import('@/pages/auth/CaseEntry.vue'),
+                    meta: { title: 'Track Case with PIN — Verita' },
+                },
+            ],
+        },
         { path: '/app', component: () => import('@/layouts/DashboardLayout.vue'), children: [] },
         {
             path: '/:pathMatch(.*)*',

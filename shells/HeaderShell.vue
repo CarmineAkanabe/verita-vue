@@ -1,12 +1,36 @@
 <!-- shells/HeaderShell.vue -->
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
+import { logoutStaffApi } from '@/features/auth/api'
+import { toast } from '@/plugins/toast'
 import AppButton from '@/components/common/AppButton.vue'
-import { MenuIcon, XIcon, ShieldCheckIcon } from '@lucide/vue'
+import {
+  MenuIcon,
+  XIcon,
+  ShieldCheckIcon,
+  LogOutIcon,
+  UserCheckIcon,
+} from '@lucide/vue'
 
+const router = useRouter()
 const auth = useAuthStore()
 const mobileMenuOpen = ref(false)
+const isLoggingOut = ref(false)
+
+async function handleLogout() {
+  isLoggingOut.value = true
+  try {
+    await logoutStaffApi()
+  } finally {
+    auth.logoutStaff()
+    toast.success('Signed out of staff session.')
+    isLoggingOut.value = false
+    mobileMenuOpen.value = false
+    await router.push('/auth/login')
+  }
+}
 </script>
 
 <template>
@@ -56,8 +80,29 @@ const mobileMenuOpen = ref(false)
       <!-- Desktop Header Actions -->
       <div class="hidden md:flex items-center gap-3">
         <template v-if="auth.isStaffAuthenticated">
+          <div class="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-muted/60 border border-border/80 text-xs">
+            <UserCheckIcon class="size-3.5 text-primary" />
+            <span class="font-medium text-foreground">
+              {{ auth.user?.firstName || 'Staff' }}
+            </span>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-primary/10 text-primary">
+              {{ auth.user?.role === 'MANAGER' ? 'Manager' : 'Dept Head' }}
+            </span>
+          </div>
+
           <AppButton to="/app" variant="secondary" size="sm">
             Staff Portal
+          </AppButton>
+
+          <AppButton
+            variant="ghost"
+            size="sm"
+            class="text-muted-foreground hover:text-destructive cursor-pointer"
+            :loading="isLoggingOut"
+            @click="handleLogout"
+          >
+            <LogOutIcon class="size-3.5 mr-1" />
+            Sign out
           </AppButton>
         </template>
         <template v-else>
@@ -118,8 +163,23 @@ const mobileMenuOpen = ref(false)
 
         <div class="pt-4 border-t border-border flex flex-col gap-2">
           <template v-if="auth.isStaffAuthenticated">
+            <div class="flex items-center justify-between p-2 rounded-lg bg-muted/60 border border-border text-xs mb-1">
+              <span class="font-medium text-foreground">{{ auth.user?.firstName }} {{ auth.user?.lastName }}</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary">
+                {{ auth.user?.role }}
+              </span>
+            </div>
             <AppButton to="/app" variant="secondary" class="w-full justify-center" @click="mobileMenuOpen = false">
               Staff Portal
+            </AppButton>
+            <AppButton
+              variant="outline"
+              class="w-full justify-center text-destructive border-destructive/30"
+              :loading="isLoggingOut"
+              @click="handleLogout"
+            >
+              <LogOutIcon class="size-3.5 mr-1.5" />
+              Sign out
             </AppButton>
           </template>
           <template v-else>

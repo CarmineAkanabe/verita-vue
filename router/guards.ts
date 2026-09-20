@@ -18,7 +18,7 @@ export const requireCaseAuth: NavigationGuardWithThis<undefined> = () => {
 
 export const guestOnlyStaff: NavigationGuardWithThis<undefined> = () => {
     const auth = useAuthStore()
-    if (auth.isStaffAuthenticated) return { name: 'account-dashboard' }
+    if (auth.isStaffAuthenticated) return { path: '/app' }
 }
 
 // TODO(phase7): data-init guard — hydrate `user` from GET /account/dashboard
