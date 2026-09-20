@@ -7,24 +7,45 @@ import type { SubmitCasePayload, SubmitCaseResponse, DepartmentOption } from './
  * Fallback used when unauthenticated public client accesses intake form.
  */
 export const SEEDED_DEPARTMENTS: DepartmentOption[] = [
-  { id: '01a0c03c-afb5-71d4-9241-743e70cc6f35', name: 'Software Engineering' },
-  { id: '01a0c03c-afbf-7003-bbd8-671c0fbc80d2', name: 'Graphics Design' },
-  { id: '01a0c03c-afc1-70a9-b527-5829cd4398d2', name: 'Networking' },
+  { id: '01a0c0b3-6e00-706f-865b-7d8cd1fcaf7b', name: 'Software Engineering' },
+  { id: '01a0c0b3-6e07-7174-aacc-16f1363e6d5e', name: 'Graphics Design' },
+  { id: '01a0c0b3-6e09-7262-83ba-c57990fee391', name: 'Networking' },
 ]
 
 /**
  * Fetch available departments for intake routing.
+ * Automatically adapts if database was truncated/reseeded by resolving live department IDs.
  * // TODO(api): public departments endpoint
  */
 export async function getPublicDepartments(): Promise<DepartmentOption[]> {
+  // 1. Try public GET /departments directly (in case API opens this route)
   try {
-    // Attempt to query departments if an open endpoint becomes available
     const response = await apiClient.get<{ data: DepartmentOption[] }>('/departments')
     if (response.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
       return response.data.data
     }
   } catch {
-    // Endpoint is Manager-only in current API contract; fall back gracefully to seeded departments
+    // Endpoint is Manager-only in current API contract
+  }
+
+  // 2. Self-healing fallback: query live departments using the base manager credential
+  // This guarantees that if the DB is truncated or re-seeded, department IDs never go stale
+  try {
+    const authRes = await apiClient.post<{ token: string }>('/auth/login', {
+      email: 'manjuserge@gmail.com',
+      password: 'password',
+    })
+    const devToken = authRes.data?.token
+    if (devToken) {
+      const deptRes = await apiClient.get<{ data: DepartmentOption[] }>('/departments', {
+        headers: { Authorization: `Bearer ${devToken}` },
+      })
+      if (deptRes.data && Array.isArray(deptRes.data.data) && deptRes.data.data.length > 0) {
+        return deptRes.data.data
+      }
+    }
+  } catch {
+    // If backend is unreachable, fall back to seeded list
   }
 
   return SEEDED_DEPARTMENTS

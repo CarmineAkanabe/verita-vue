@@ -1,6 +1,6 @@
 <!-- pages/auth/CaseEntry.vue -->
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
 import { verifyCasePin } from '@/features/auth/api'
@@ -18,6 +18,7 @@ import {
   ClockIcon,
   ArrowRightIcon,
   ShieldAlertIcon,
+  SparklesIcon,
 } from '@lucide/vue'
 
 const router = useRouter()
@@ -37,6 +38,26 @@ const errors = reactive({
 const isRateLimited = ref(false)
 const isLoading = ref(false)
 const isSuccess = ref(false)
+const recentSavedCase = ref<{ caseId: string; trackingPin: string } | null>(null)
+
+onMounted(() => {
+  try {
+    const saved = localStorage.getItem('verita_last_case')
+    if (saved) {
+      recentSavedCase.value = JSON.parse(saved)
+    }
+  } catch {
+    // Ignore parse error
+  }
+})
+
+function useSavedCredentials() {
+  if (recentSavedCase.value) {
+    form.caseId = recentSavedCase.value.caseId
+    form.pin = recentSavedCase.value.trackingPin
+    toast.info('Credentials filled from your recent report.')
+  }
+}
 
 function validate(): boolean {
   errors.caseId = ''
@@ -180,6 +201,25 @@ async function handleSubmit() {
         <p class="text-xs text-muted-foreground leading-relaxed">
           {{ errors.general }}
         </p>
+      </div>
+
+      <!-- Recent Submission Autofill Helper -->
+      <div
+        v-if="recentSavedCase && (!form.caseId || !form.pin)"
+        class="rounded-lg border border-primary/30 bg-primary/5 p-3 flex items-center justify-between gap-3 text-xs text-left"
+      >
+        <div class="truncate">
+          <span class="text-muted-foreground">Recent report on this device: </span>
+          <span class="font-mono font-bold text-foreground">#{{ recentSavedCase.caseId.slice(0, 8) }}...</span>
+        </div>
+        <button
+          type="button"
+          class="px-2.5 py-1 rounded bg-primary text-white font-semibold hover:bg-primary/90 transition-colors text-[11px] shrink-0 flex items-center gap-1"
+          @click="useSavedCredentials"
+        >
+          <SparklesIcon class="size-3" />
+          <span>Fill PIN</span>
+        </button>
       </div>
 
       <!-- Form Inputs -->

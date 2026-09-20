@@ -23,6 +23,7 @@ import {
   ArrowRightIcon,
   CopyIcon,
   PrinterIcon,
+  DownloadIcon,
   AlertTriangleIcon,
   CheckCircle2Icon,
   ClockIcon,
@@ -41,6 +42,13 @@ const isSubmitting = ref(false)
 const isRateLimited = ref(false)
 const isSubmitted = ref(false)
 const isEnteringDashboard = ref(false)
+const recentSavedCase = ref<{
+  caseId: string
+  trackingPin: string
+  status: string
+  timestamp: string
+  departmentName: string
+} | null>(null)
 
 // Submission Result
 const submittedResult = ref<SubmitCaseResponse['data'] | null>(null)
@@ -92,6 +100,15 @@ onMounted(async () => {
     departments.value = await getPublicDepartments()
   } catch {
     // Fallback handled in API function
+  }
+
+  try {
+    const saved = localStorage.getItem('verita_last_case')
+    if (saved) {
+      recentSavedCase.value = JSON.parse(saved)
+    }
+  } catch {
+    // Ignore parse failure
   }
 })
 
@@ -185,6 +202,22 @@ async function handleSubmit() {
     submittedResult.value = result
     submittedTimestamp.value = new Date().toLocaleString()
     isSubmitted.value = true
+
+    // Save to browser localStorage so the user never gets locked out if they forget to copy
+    try {
+      const savedPayload = {
+        caseId: result.caseId,
+        trackingPin: result.trackingPin,
+        status: result.status,
+        timestamp: submittedTimestamp.value,
+        departmentName: selectedDepartmentName.value,
+      }
+      localStorage.setItem('verita_last_case', JSON.stringify(savedPayload))
+      recentSavedCase.value = savedPayload
+    } catch {
+      // LocalStorage quota or private mode fallback
+    }
+
     toast.success('Incident report submitted successfully.')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (err: any) {
@@ -258,6 +291,36 @@ Date: ${submittedTimestamp.value}
 NOTE: Keep these credentials safe. They cannot be recovered if lost.`
 
   await copyToClipboard(credsText, 'Case credentials')
+}
+
+function downloadCredentialsTxt() {
+  if (!submittedResult.value) return
+  const text = `=================================================
+VERITA CONFIDENTIAL INCIDENT CREDENTIALS
+=================================================
+Case Identifier : ${submittedResult.value.caseId}
+Tracking PIN    : ${submittedResult.value.trackingPin}
+Status          : ${submittedResult.value.status}
+Department      : ${selectedDepartmentName.value}
+Date Submitted  : ${submittedTimestamp.value}
+=================================================
+IMPORTANT:
+Keep this text file in a safe location.
+Because this reporting system operates with zero-knowledge
+anonymity, this PIN cannot be reset, recovered, or emailed.
+Use this Case ID and PIN at any time on the tracking page:
+/cases/verify-pin
+=================================================`
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `verita-case-${submittedResult.value.trackingPin}.txt`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+  toast.success('Credentials backup file downloaded.')
 }
 
 function printReceipt() {
@@ -453,22 +516,30 @@ async function proceedToDashboard() {
 
           <!-- Post-Submission Action CTAs -->
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-            <div class="flex items-center gap-3 w-full sm:w-auto">
+            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
               <button
                 type="button"
-                class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-border hover:bg-muted text-foreground text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-xs"
-                @click="copyAllCredentials"
+                class="px-3.5 py-2.5 rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-xs"
+                @click="downloadCredentialsTxt"
               >
-                <CopyIcon class="size-4" />
-                <span>Copy Credentials</span>
+                <DownloadIcon class="size-4" />
+                <span>Download Credentials (.txt)</span>
               </button>
               <button
                 type="button"
-                class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-border hover:bg-muted text-foreground text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-xs"
+                class="px-3.5 py-2.5 rounded-lg border border-border hover:bg-muted text-foreground text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-xs"
+                @click="copyAllCredentials"
+              >
+                <CopyIcon class="size-4" />
+                <span>Copy</span>
+              </button>
+              <button
+                type="button"
+                class="px-3.5 py-2.5 rounded-lg border border-border hover:bg-muted text-foreground text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-xs"
                 @click="printReceipt"
               >
                 <PrinterIcon class="size-4" />
-                <span>Print Receipt</span>
+                <span>Print</span>
               </button>
             </div>
 
@@ -492,6 +563,39 @@ async function proceedToDashboard() {
     <!-- FORM VIEW: Two-Column Structured Intake                                   -->
     <!-- ========================================================================= -->
     <div v-else class="space-y-6">
+      <!-- Recent Submission Alert on this Device (Recovery Seam) -->
+      <div
+        v-if="recentSavedCase"
+        class="p-4 rounded-xl border border-primary/30 bg-primary/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-left shadow-xs"
+      >
+        <div class="space-y-1">
+          <div class="font-bold text-foreground flex items-center gap-1.5">
+            <CheckCircle2Icon class="size-4 text-primary" />
+            <span>Saved Credentials from Recent Report</span>
+          </div>
+          <p class="text-muted-foreground">
+            Case ID: <span class="font-mono text-foreground font-semibold">{{ recentSavedCase.caseId }}</span> •
+            PIN: <span class="font-mono text-primary font-bold tracking-wider">{{ recentSavedCase.trackingPin }}</span>
+            <span v-if="recentSavedCase.timestamp" class="text-muted-foreground/60 hidden md:inline"> ({{ recentSavedCase.timestamp }})</span>
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            class="px-2.5 py-1.5 rounded-md bg-card border border-border hover:bg-muted text-foreground text-xs font-medium transition-colors"
+            @click="copyToClipboard(`Case ID: ${recentSavedCase.caseId}\nTracking PIN: ${recentSavedCase.trackingPin}`, 'Saved credentials')"
+          >
+            Copy
+          </button>
+          <router-link
+            to="/cases/verify-pin"
+            class="px-3 py-1.5 rounded-md bg-primary text-white hover:bg-primary/90 text-xs font-semibold transition-colors flex items-center gap-1"
+          >
+            Track with PIN &rarr;
+          </router-link>
+        </div>
+      </div>
+
       <!-- Anonymity & Evidence Hygiene Banner -->
       <div class="border-l-4 border-primary bg-primary/5 border border-primary/20 p-5 rounded-lg">
         <div class="flex items-start gap-3.5">
