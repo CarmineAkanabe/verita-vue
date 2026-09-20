@@ -1,6 +1,13 @@
 // features/cases/api.ts
 import { apiClient } from '@/shared/api/client'
-import type { SubmitCasePayload, SubmitCaseResponse, DepartmentOption } from './types'
+import type {
+  SubmitCasePayload,
+  SubmitCaseResponse,
+  DepartmentOption,
+  ReporterCaseDashboard,
+  ReporterDashboardResponse,
+  EscalateCaseResponse,
+} from './types'
 
 /**
  * Hardcoded seeded departments for anonymous case routing.
@@ -82,4 +89,64 @@ export async function submitCase(
   })
 
   return response.data.data
+}
+
+/**
+ * Fetch the current Case Reporter Dashboard.
+ * Uses caseToken via interceptor for /cases/me.
+ */
+export async function getReporterDashboard(): Promise<ReporterCaseDashboard> {
+  const response = await apiClient.get<ReporterDashboardResponse>('/cases/me')
+  return response.data.data
+}
+
+/**
+ * Add additional supporting evidence to an existing case.
+ * Triggers AI reprocessing on the backend per API documentation.
+ */
+export async function addReporterEvidence(files: File[]): Promise<ReporterCaseDashboard> {
+  const formData = new FormData()
+  for (const file of files) {
+    formData.append('evidence[]', file)
+  }
+
+  const response = await apiClient.post<ReporterDashboardResponse>('/cases/me/evidence', formData)
+  return response.data.data
+}
+
+/**
+ * Escalate a case directly to the Executive Manager.
+ * Returns escalatedAt timestamp per API documentation.
+ */
+export async function escalateCase(): Promise<EscalateCaseResponse> {
+  const response = await apiClient.post<EscalateCaseResponse>('/cases/me/escalate')
+  return response.data
+}
+
+/**
+ * Fetch private evidence file stream as a Blob.
+ */
+export async function getEvidenceBlob(evidenceId: string): Promise<{ blob: Blob; contentType: string }> {
+  const response = await apiClient.get(`/cases/me/evidence/${encodeURIComponent(evidenceId)}`, {
+    responseType: 'blob',
+  })
+  return {
+    blob: response.data,
+    contentType: (response.headers['content-type'] as string) || 'application/octet-stream',
+  }
+}
+
+/**
+ * Download an attached evidence file.
+ */
+export async function downloadEvidenceFile(evidenceId: string, filename: string): Promise<void> {
+  const { blob } = await getEvidenceBlob(evidenceId)
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }

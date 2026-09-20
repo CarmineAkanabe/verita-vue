@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { guestOnlyStaff } from './guards';
+import { guestOnlyStaff, requireCaseAuth } from './guards';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -25,6 +25,13 @@ const router = createRouter({
                     name: 'submit-case',
                     component: () => import('@/pages/cases/CaseSubmission.vue'),
                     meta: { title: 'Submit Incident Report — Verita' },
+                },
+                {
+                    path: 'cases/me',
+                    name: 'case-dashboard',
+                    beforeEnter: requireCaseAuth,
+                    component: () => import('@/pages/cases/CaseDashboard.vue'),
+                    meta: { title: 'Incident Dossier Dashboard — Verita' },
                 },
             ],
         },

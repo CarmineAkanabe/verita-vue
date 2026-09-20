@@ -43,3 +43,41 @@ export interface SubmitCaseResponse {
     status: CaseStatus
   }
 }
+
+export interface TimelineEvent {
+  id?: string
+  date?: string
+  time?: string
+  timestamp?: string
+  eventDate?: string
+  event?: string
+  title?: string
+  description?: string
+  source?: string
+}
+
+export interface ReporterCaseDashboard {
+  caseId: string
+  status: CaseStatus
+  description: string
+  purposeOfTransaction: string
+  amountInvolved: string | number
+  personInvolved: string
+  transactionDate: string
+  evidence: EvidenceItem[]
+  aiProcessingFailed?: boolean
+  aiSummary?: string | null
+  aiTimeline?: TimelineEvent[] | string | null
+  aiFindings?: string[] | string | null
+  escalatedAt?: string | null
+  assignedTo?: string | null
+}
+
+export interface ReporterDashboardResponse {
+  data: ReporterCaseDashboard
+}
+
+export interface EscalateCaseResponse {
+  escalatedAt: string
+}
+
