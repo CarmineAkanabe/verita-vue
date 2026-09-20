@@ -1,7 +1,8 @@
-<script setup lang="ts">
-import { Button } from "@/components/ui/button";
-</script>
 
+<script setup lang="ts">
+import { Toaster } from '@/plugins/toats'
+</script>
 <template>
-  <Button variant="destructive">Click me</Button>
+  <router-view />
+  <Toaster />
 </template>
