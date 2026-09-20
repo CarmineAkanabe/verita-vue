@@ -1,6 +1,7 @@
+<!-- shells/SidebarShell.vue -->
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
 import { logoutStaffApi } from '@/features/auth/api'
 import { toast } from '@/plugins/toast'
@@ -9,12 +10,34 @@ import {
   HomeIcon,
   ShieldCheckIcon,
   LockIcon,
-  SparklesIcon,
+  LayoutDashboardIcon,
+  BellIcon,
+  UserCogIcon,
+  BriefcaseIcon,
+  Building2Icon,
+  UsersIcon,
+  BarChart3Icon,
 } from '@lucide/vue'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const isLoggingOut = ref(false)
+
+const isManager = computed(() => auth.user?.role === 'MANAGER')
+
+const userInitials = computed(() => {
+  const f = auth.user?.firstName?.[0] || 'S'
+  const l = auth.user?.lastName?.[0] || ''
+  return (f + l).toUpperCase()
+})
+
+function isActive(path: string) {
+  if (path === '/app/dashboard') {
+    return route.path === '/app' || route.path === '/app/dashboard'
+  }
+  return route.path.startsWith(path)
+}
 
 async function handleLogout() {
   isLoggingOut.value = true
@@ -51,8 +74,14 @@ async function handleLogout() {
     <!-- User Profile Strip -->
     <div v-if="auth.user" class="p-4 border-b border-sidebar-border bg-sidebar-accent/40">
       <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-full bg-sidebar-primary/20 border border-sidebar-primary/40 flex items-center justify-center text-sidebar-primary font-bold text-sm shrink-0">
-          {{ (auth.user.firstName?.[0] || 'S') + (auth.user.lastName?.[0] || '') }}
+        <div class="h-10 w-10 rounded-full overflow-hidden bg-sidebar-primary/20 border border-sidebar-primary/40 flex items-center justify-center text-sidebar-primary font-bold text-sm shrink-0">
+          <img
+            v-if="auth.user.profilePicture"
+            :src="auth.user.profilePicture"
+            alt="Profile Avatar"
+            class="w-full h-full object-cover"
+          />
+          <span v-else>{{ userInitials }}</span>
         </div>
         <div class="min-w-0 flex-1">
           <p class="text-xs font-semibold text-white truncate">
@@ -66,32 +95,101 @@ async function handleLogout() {
       <div class="mt-2.5 flex items-center gap-1.5">
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-sidebar-primary/20 text-sidebar-primary border border-sidebar-primary/30 uppercase tracking-wider">
           <ShieldCheckIcon class="size-3" />
-          {{ auth.user.role === 'MANAGER' ? 'Executive Manager' : 'Department Head' }}
+          {{ isManager ? 'Executive Manager' : 'Department Head' }}
         </span>
       </div>
     </div>
 
     <!-- Navigation Area -->
     <div class="flex-1 p-3 space-y-1.5 overflow-y-auto">
-      <div class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-        Platform Navigation
+      <div class="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+        Staff Operations
       </div>
 
+      <!-- Dashboard -->
       <router-link
-        to="/app"
-        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-white bg-sidebar-accent border border-sidebar-border transition-colors"
+        to="/app/dashboard"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        :class="isActive('/app/dashboard') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
       >
-        <SparklesIcon class="size-4 text-sidebar-primary" />
+        <LayoutDashboardIcon class="size-4" :class="isActive('/app/dashboard') ? 'text-sidebar-primary' : ''" />
         <span>Staff Dashboard</span>
       </router-link>
 
+      <!-- Case Management Queue -->
       <router-link
-        to="/"
-        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50 transition-colors"
+        to="/app/cases"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        :class="isActive('/app/cases') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
       >
-        <HomeIcon class="size-4" />
-        <span>Public Portal Overview</span>
+        <BriefcaseIcon class="size-4" :class="isActive('/app/cases') ? 'text-sidebar-primary' : ''" />
+        <span>Cases &amp; Triage</span>
       </router-link>
+
+      <!-- Notifications -->
+      <router-link
+        to="/app/notifications"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        :class="isActive('/app/notifications') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
+      >
+        <BellIcon class="size-4" :class="isActive('/app/notifications') ? 'text-sidebar-primary' : ''" />
+        <span>Notifications</span>
+      </router-link>
+
+      <!-- Profile Settings -->
+      <router-link
+        to="/app/profile"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+        :class="isActive('/app/profile') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
+      >
+        <UserCogIcon class="size-4" :class="isActive('/app/profile') ? 'text-sidebar-primary' : ''" />
+        <span>Profile &amp; Security</span>
+      </router-link>
+
+      <!-- MANAGER-ONLY SECTION -->
+      <template v-if="isManager">
+        <div class="pt-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50 border-t border-sidebar-border/60 mt-3">
+          Governance Console
+        </div>
+
+        <router-link
+          to="/app/departments"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+          :class="isActive('/app/departments') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
+        >
+          <Building2Icon class="size-4" :class="isActive('/app/departments') ? 'text-sidebar-primary' : ''" />
+          <span>Departments</span>
+        </router-link>
+
+        <router-link
+          to="/app/department-heads"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+          :class="isActive('/app/department-heads') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
+        >
+          <UsersIcon class="size-4" :class="isActive('/app/department-heads') ? 'text-sidebar-primary' : ''" />
+          <span>Personnel Accounts</span>
+        </router-link>
+
+        <router-link
+          to="/app/reports/user-engagement"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+          :class="isActive('/app/reports') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
+        >
+          <BarChart3Icon class="size-4" :class="isActive('/app/reports') ? 'text-sidebar-primary' : ''" />
+          <span>Engagement Reports</span>
+        </router-link>
+      </template>
+
+      <!-- Public Site Link -->
+      <div class="pt-3 border-t border-sidebar-border/60 mt-3">
+        <router-link
+          to="/"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/50 transition-colors"
+        >
+          <HomeIcon class="size-4" />
+          <span>Public Portal</span>
+        </router-link>
+      </div>
     </div>
 
     <!-- Footer / Sign Out Section -->
