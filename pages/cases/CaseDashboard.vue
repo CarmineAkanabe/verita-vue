@@ -749,7 +749,7 @@ const hasAiReviewData = computed(() => {
               </div>
             </div>
 
-            <!-- Dialogue Channel Teaser (Phase 6 link) -->
+            <!-- Consultation Channel Link (Phase 6) -->
             <div class="bg-white border border-[#E2E5EE] rounded-xl p-6 shadow-xs space-y-4">
               <div class="flex items-start justify-between gap-4">
                 <div class="flex items-center gap-3">
@@ -766,24 +766,28 @@ const hasAiReviewData = computed(() => {
                   </div>
                 </div>
 
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F2F4F7] text-[#6B7280] border border-[#E2E5EE]">
-                  <ClockIcon class="size-3" />
-                  Standby
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Channel Active
                 </span>
               </div>
 
               <p class="text-xs sm:text-sm text-[#6B7280] leading-relaxed">
-                Once a Department Head claims this dossier or General Management assigns an officer, a secure real-time message stream will activate here. You will be able to answer follow-up questions and provide clarifications under full cryptographic anonymity.
+                Connect directly with the investigation supervisor handling this report. Exchange encrypted inquiries and provide supplemental details while retaining absolute anonymity.
               </p>
 
-              <div class="pt-2 flex items-center justify-between text-xs border-t border-[#E2E5EE]">
+              <div class="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs border-t border-[#E2E5EE]">
                 <span class="text-[#6B7280] text-[11px]">
-                  Notification will appear here upon department claim.
+                  Text &amp; emojis only · Submitter identity cryptographically sealed.
                 </span>
-                <span class="text-[#A2561B] font-semibold flex items-center gap-1">
-                  Channel Ready
+                <router-link
+                  :to="{ name: 'case-chat' }"
+                  class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#A2561B] hover:bg-[#843F01] text-white font-semibold transition-colors cursor-pointer"
+                >
+                  <MessageSquareIcon class="size-3.5" />
+                  <span>Open Consultation Channel</span>
                   <ChevronRightIcon class="size-3.5" />
-                </span>
+                </router-link>
               </div>
             </div>
           </div>

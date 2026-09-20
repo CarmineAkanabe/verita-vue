@@ -33,6 +33,13 @@ const router = createRouter({
                     component: () => import('@/pages/cases/CaseDashboard.vue'),
                     meta: { title: 'Incident Dossier Dashboard — Verita' },
                 },
+                {
+                    path: 'cases/me/chat',
+                    name: 'case-chat',
+                    beforeEnter: requireCaseAuth,
+                    component: () => import('@/pages/cases/CaseChat.vue'),
+                    meta: { title: 'Consultation Channel — Verita' },
+                },
             ],
         },
         {
