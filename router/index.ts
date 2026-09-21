@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { guestOnlyStaff, requireCaseAuth, requireStaffAuth } from './guards'
+import { guestOnlyStaff, requireCaseAuth, requireStaffAuth, requireRole } from './guards'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -119,6 +119,27 @@ const router = createRouter({
           name: 'staff-case-chat',
           component: () => import('@/pages/staff/cases/StaffCaseChat.vue'),
           meta: { title: 'Case Consultation — Verita' },
+        },
+        {
+          path: 'departments',
+          name: 'manager-departments',
+          beforeEnter: requireRole(['MANAGER']),
+          component: () => import('@/pages/staff/manager/ManageDepartments.vue'),
+          meta: { title: 'Manage Departments — Verita' },
+        },
+        {
+          path: 'department-heads',
+          name: 'manager-department-heads',
+          beforeEnter: requireRole(['MANAGER']),
+          component: () => import('@/pages/staff/manager/ManageAccounts.vue'),
+          meta: { title: 'Personnel Accounts — Verita' },
+        },
+        {
+          path: 'reports/user-engagement',
+          name: 'manager-engagement-reports',
+          beforeEnter: requireRole(['MANAGER']),
+          component: () => import('@/pages/staff/manager/EngagementReports.vue'),
+          meta: { title: 'Engagement Reports — Verita' },
         },
       ],
     },
