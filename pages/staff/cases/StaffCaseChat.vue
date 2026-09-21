@@ -6,13 +6,12 @@ import { useAuthStore } from '@/shared/stores/auth'
 import {
   getStaffCaseDetail,
   claimCase,
-  downloadStaffEvidenceFile,
 } from '@/features/cases/api'
 import {
   getStaffCaseMessages,
   sendStaffCaseMessage,
 } from '@/features/chat/api'
-import type { StaffCase, StaffEvidenceItem } from '@/features/cases/types'
+import type { StaffCase } from '@/features/cases/types'
 import type { ChatMessage } from '@/features/chat/types'
 import { toast } from '@/plugins/toast'
 import { getEcho } from '@/shared/realtime/socket-client'
@@ -26,9 +25,7 @@ import AppButton from '@/components/common/AppButton.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
 
 import {
-  ShieldCheckIcon,
   FileTextIcon,
-  DownloadIcon,
   LockIcon,
   HandHelpingIcon,
   MessageSquareIcon,
@@ -40,7 +37,7 @@ const auth = useAuthStore()
 
 const caseId = computed(() => route.params.id as string)
 
-// Case dossier details
+// Case details
 const caseData = ref<StaffCase | null>(null)
 const isCaseLoading = ref(true)
 const caseError = ref<string | null>(null)
@@ -271,51 +268,17 @@ async function handleClaimCase() {
     const updated = await claimCase(caseData.value.id)
     caseData.value.status = updated.status
     caseData.value.assignedTo = updated.assignedTo
-    toast.success('Docket claimed successfully. You can now communicate directly.')
+    toast.success('Case claimed successfully. You can now communicate directly.')
     await fetchMessages(false)
   } catch (err: any) {
-    toast.error(err?.message || 'Failed to claim docket.')
+    toast.error(err?.message || 'Failed to claim case.')
   } finally {
     isClaiming.value = false
   }
 }
 
-async function handleDownloadEvidence(item: StaffEvidenceItem, index: number) {
-  const ext = item.fileType === 'IMAGE' ? 'png' : 'pdf'
-  const filename = `Exhibit-${index + 1}-${caseId.value.slice(0, 8)}.${ext}`
-  try {
-    await downloadStaffEvidenceFile(caseId.value, item.id, filename)
-    toast.success(`Downloaded ${filename}`)
-  } catch (err: any) {
-    toast.error(err?.message || 'Failed to download evidence exhibit.')
-  }
-}
-
 function populateSuggestion(text: string) {
   handleSendMessage(text)
-}
-
-function formatAmount(amount: string | number | undefined): string {
-  if (amount === undefined || amount === null) return 'Non-financial'
-  const numeric = typeof amount === 'string' ? parseFloat(amount) : amount
-  if (isNaN(numeric)) return `${amount} FCFA`
-  return `${numeric.toLocaleString('fr-FR')} FCFA`
-}
-
-function formatDate(iso?: string) {
-  if (!iso) return '—'
-  try {
-    const d = new Date(iso)
-    return d.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } catch {
-    return iso
-  }
 }
 
 let currentChannel: any = null
@@ -420,295 +383,193 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <!-- Top Dossier Breadcrumb & Quick Reference Header -->
-    <div class="bg-white border border-[#E2E5EE] rounded-xl p-4 sm:p-5 shadow-xs">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <!-- Left: Context Titles -->
+  <div class="space-y-4 max-w-5xl mx-auto">
+    <!-- Top Case Reference & Quick Action Bar -->
+    <div class="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Left Context -->
         <div class="space-y-1">
           <div class="flex items-center gap-2 text-xs text-[#6B7280]">
-            <router-link to="/app/cases" class="hover:text-primary transition-colors">
-              Investigation Queue
+            <router-link to="/app/cases" class="hover:text-[#A2561B] transition-colors">
+              Cases
             </router-link>
             <span>/</span>
-            <router-link :to="`/app/cases/${caseId}`" class="hover:text-primary transition-colors font-mono">
-              #{{ caseId.slice(0, 12) }}...
+            <router-link :to="`/app/cases/${caseId}`" class="hover:text-[#A2561B] transition-colors font-mono">
+              #{{ caseId.slice(0, 14) }}...
             </router-link>
             <span>/</span>
-            <span class="text-[#22293A] font-medium">Consultation Stream</span>
+            <span class="text-[#22293A] font-semibold">Consultation</span>
           </div>
 
           <div class="flex flex-wrap items-center gap-2.5 pt-0.5">
             <h1 class="text-lg sm:text-xl font-bold text-[#22293A] tracking-tight">
-              Whistleblower Consultation Channel
+              Case Consultation Channel
             </h1>
             <StatusPill v-if="caseData" :status="caseData.status" />
             <span
               v-if="caseData?.concernsDepartmentHead"
-              class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200"
+              class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]"
             >
-              Conflict Safeguard
+              Department Head Bypassed
             </span>
           </div>
-          <p class="text-xs text-[#6B7280]">
-            Secure air-gapped dialogue relay under ISO 37002 Section 8.4 anti-retaliation privilege.
-          </p>
         </div>
 
-        <!-- Right: Actions & Return to Dossier -->
-        <div class="flex items-center gap-2.5 flex-wrap">
+        <!-- Right: View Case Details Link -->
+        <div class="flex items-center gap-2.5">
           <router-link
             :to="`/app/cases/${caseId}`"
-            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-[#E2E5EE] bg-[#F8F9FA] hover:bg-[#F2F4F7] text-[#22293A] transition-colors"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#22293A] transition-colors shadow-xs"
           >
-            <FileTextIcon class="size-4 text-[#6B7280]" />
-            <span>Open Case Dossier</span>
+            <FileTextIcon class="size-4 text-[#A2561B]" />
+            <span>View Case Details</span>
           </router-link>
         </div>
       </div>
     </div>
 
-    <!-- Main Workspace: Chat & Summary Sidebar Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-      <!-- Main Chat Relay Panel (8 cols on lg) -->
-      <div class="lg:col-span-8 bg-white border border-[#E2E5EE] rounded-xl shadow-xs flex flex-col h-[75vh] min-h-[580px] overflow-hidden">
-        <!-- Reusable Chat Header -->
-        <ChatHeader
-          :case-id="caseId"
-          :viewer="'STAFF'"
-          :back-to="`/app/cases/${caseId}`"
-          :is-reconnecting="isReconnecting"
+    <!-- Dedicated Full-View Chat Container -->
+    <div class="bg-[#FFFDF8] border border-[#EADBCE] rounded-2xl shadow-xs flex flex-col h-[75vh] min-h-[580px] overflow-hidden">
+      <!-- Reusable Chat Header -->
+      <ChatHeader
+        :case-id="caseId"
+        :viewer="'STAFF'"
+        :back-to="`/app/cases/${caseId}`"
+        :is-reconnecting="isReconnecting"
+      />
+
+      <!-- Message History Scroll Area -->
+      <div
+        ref="messageScrollRef"
+        class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/60"
+        @scroll="handleScroll"
+      >
+        <!-- Security Notice -->
+        <div class="text-center my-2">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCF4EE] border border-[#A2561B]/20 text-[11px] font-medium text-[#A2561B]">
+            <LockIcon class="size-3 shrink-0" />
+            <span>Confidential Channel · Whistleblower identity is protected</span>
+          </div>
+        </div>
+
+        <!-- Loading State: Skeletons -->
+        <div v-if="isMessagesLoading" class="space-y-4 py-4">
+          <div class="flex justify-start">
+            <div class="max-w-[70%] w-64 h-16 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE] animate-pulse rounded-tl-xs"></div>
+          </div>
+          <div class="flex justify-end">
+            <div class="max-w-[70%] w-72 h-20 rounded-2xl bg-[#FCF4EE] border border-[#A2561B]/20 animate-pulse rounded-tr-xs"></div>
+          </div>
+          <div class="flex justify-start">
+            <div class="max-w-[70%] w-56 h-14 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE] animate-pulse rounded-tl-xs"></div>
+          </div>
+        </div>
+
+        <!-- Error State Banner -->
+        <ErrorBanner
+          v-else-if="messagesError"
+          :message="messagesError"
+          action-text="Retry Sync"
+          @action="fetchMessages(false)"
         />
 
-        <!-- Message History Scroll Area -->
+        <!-- Empty State: No messages yet -->
         <div
-          ref="messageScrollRef"
-          class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/40"
-          @scroll="handleScroll"
+          v-else-if="messages.length === 0"
+          class="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4"
         >
-          <!-- Milestone Safeguard Notice -->
-          <div class="text-center my-2">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCF4EE] border border-[#A2561B]/20 text-[11px] font-medium text-[#A2561B]">
-              <LockIcon class="size-3 shrink-0" />
-              <span>AIR-GAPPED RELAY ACTIVE · IDENTITY OF SUBMITTER PROTECTED BY PLATFORM HARDWARE</span>
-            </div>
+          <div class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
+            <MessageSquareIcon class="size-6" />
           </div>
-
-          <!-- Loading State: Skeletons -->
-          <div v-if="isMessagesLoading" class="space-y-4 py-4">
-            <div class="flex justify-start">
-              <div class="max-w-[70%] w-64 h-16 rounded-2xl bg-gray-200 animate-pulse rounded-tl-xs"></div>
-            </div>
-            <div class="flex justify-end">
-              <div class="max-w-[70%] w-72 h-20 rounded-2xl bg-orange-100 animate-pulse rounded-tr-xs"></div>
-            </div>
-            <div class="flex justify-start">
-              <div class="max-w-[70%] w-56 h-14 rounded-2xl bg-gray-200 animate-pulse rounded-tl-xs"></div>
-            </div>
-          </div>
-
-          <!-- Error State Banner -->
-          <ErrorBanner
-            v-else-if="messagesError"
-            :message="messagesError"
-            action-text="Retry Sync"
-            @action="fetchMessages(false)"
-          />
-
-          <!-- Empty State: No messages yet -->
-          <div
-            v-else-if="messages.length === 0"
-            class="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4"
-          >
-            <div class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
-              <MessageSquareIcon class="size-6" />
-            </div>
-            <div class="max-w-md space-y-1">
-              <h3 class="text-sm font-bold text-[#22293A]">
-                No Consultation Messages Yet
-              </h3>
-              <p class="text-xs text-[#6B7280]">
-                The whistleblower has submitted their docket and is awaiting official investigator inquiry. All messages sent here are delivered confidentially into their private portal.
-              </p>
-            </div>
-
-            <!-- Starter Prompts (if authorized) -->
-            <div v-if="canSendMessage" class="w-full max-w-lg space-y-2 pt-2 text-left">
-              <p class="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider text-center">
-                Recommended Inquiry Prompts
-              </p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  v-for="(prompt, idx) in INQUIRY_SUGGESTIONS"
-                  :key="idx"
-                  type="button"
-                  class="p-2.5 rounded-lg border border-[#E2E5EE] bg-white hover:bg-[#F2F4F7] text-left text-xs text-[#22293A] transition-colors cursor-pointer"
-                  @click="populateSuggestion(prompt)"
-                >
-                  "{{ prompt }}"
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ideal State: Populated Messages -->
-          <div v-else class="space-y-1">
-            <MessageBubble
-              v-for="msg in messages"
-              :key="msg.id || msg.tempId"
-              :message="msg"
-              :viewer="'STAFF'"
-              @retry="handleRetryMessage"
-            />
-          </div>
-        </div>
-
-        <!-- Bottom Action/Composer Area -->
-        <div class="border-t border-[#E2E5EE] bg-white">
-          <!-- Authorized: Active Message Composer -->
-          <MessageComposer
-            v-if="canSendMessage"
-            :is-sending="isSending"
-            @send="handleSendMessage"
-          />
-
-          <!-- Read-Only: Manager Oversight Mode -->
-          <div
-            v-else-if="isManager"
-            class="p-4 bg-[#F8F9FA] text-xs text-[#6B7280] flex items-center justify-between gap-3 border-t border-[#E2E5EE]"
-          >
-            <div class="flex items-center gap-2">
-              <InfoIcon class="size-4 text-primary shrink-0" />
-              <span>
-                <strong>Executive Oversight Mode:</strong> You are viewing this consultation stream with administrative oversight permissions. Direct message dispatch is reserved for the assigned Department Head.
-              </span>
-            </div>
-          </div>
-
-          <!-- Read-Only: Unassigned Docket -->
-          <div
-            v-else-if="!isAssignedToMe && !isCaseClosed"
-            class="p-4 bg-[#FFFBEB] text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-[#FDE68A]"
-          >
-            <div class="flex items-center gap-2">
-              <HandHelpingIcon class="size-4 text-[#D97706] shrink-0" />
-              <span>
-                <strong>Docket Unassigned:</strong> You must claim this case to open direct dialogue with the whistleblower.
-              </span>
-            </div>
-            <AppButton
-              size="sm"
-              :loading="isClaiming"
-              @click="handleClaimCase"
-            >
-              Claim Case &amp; Start Dialogue
-            </AppButton>
-          </div>
-
-          <!-- Read-Only: Case Closed/Resolved -->
-          <div
-            v-else-if="isCaseClosed"
-            class="p-4 bg-[#F2F4F7] text-xs text-[#575E71] flex items-center gap-2 border-t border-[#E2E5EE]"
-          >
-            <LockIcon class="size-4 text-[#575E71] shrink-0" />
-            <span>
-              <strong>Consultation Stream Archived:</strong> This docket has been transitioned to {{ caseData?.status }}. The consultation stream is locked for evidentiary retention.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Dossier & Evidence Sidebar (4 cols on lg) -->
-      <div class="lg:col-span-4 space-y-4">
-        <!-- Particulars Card -->
-        <div class="bg-white border border-[#E2E5EE] rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
-          <div class="border-b border-[#E2E5EE] pb-3">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
-              Docket Particulars
+          <div class="max-w-md space-y-1">
+            <h3 class="text-sm font-bold text-[#22293A]">
+              No Consultation Messages Yet
             </h3>
+            <p class="text-xs text-[#6B7280]">
+              The whistleblower has submitted their report and is awaiting your inquiry. Messages sent here are delivered confidentially to their private dashboard.
+            </p>
           </div>
 
-          <div class="space-y-3 text-xs">
-            <div>
-              <span class="text-[#6B7280] block text-[11px]">Primary Category</span>
-              <span class="font-bold text-primary">{{ caseData?.category || '—' }}</span>
-            </div>
-
-            <div>
-              <span class="text-[#6B7280] block text-[11px]">Implicated Person / Unit</span>
-              <span class="font-semibold text-[#22293A]">{{ caseData?.personInvolved || 'Unspecified' }}</span>
-            </div>
-
-            <div>
-              <span class="text-[#6B7280] block text-[11px]">Reported Exposure</span>
-              <span class="font-bold font-mono text-[#22293A]">{{ formatAmount(caseData?.amountInvolved) }}</span>
-            </div>
-
-            <div>
-              <span class="text-[#6B7280] block text-[11px]">Incident / Transaction Date</span>
-              <span class="font-semibold text-[#22293A]">{{ formatDate(caseData?.transactionDate || caseData?.createdAt) }}</span>
-            </div>
-
-            <div>
-              <span class="text-[#6B7280] block text-[11px]">Transaction Narrative</span>
-              <p class="text-xs text-[#22293A] leading-relaxed line-clamp-4 mt-0.5 bg-[#F8F9FA] p-2 rounded-lg border border-[#E2E5EE]">
-                {{ caseData?.description || 'No description provided.' }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Evidence Exhibits Card -->
-        <div class="bg-white border border-[#E2E5EE] rounded-xl p-4 sm:p-5 shadow-xs space-y-3">
-          <div class="flex items-center justify-between border-b border-[#E2E5EE] pb-3">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
-              Evidence Exhibits ({{ caseData?.evidence?.length || 0 }})
-            </h3>
-            <span class="text-[10px] font-semibold text-[#6B7280]">
-              SHA-256 Verified
-            </span>
-          </div>
-
-          <div v-if="!caseData?.evidence || caseData.evidence.length === 0" class="py-4 text-center text-xs text-[#6B7280]">
-            No attachments submitted with this report.
-          </div>
-
-          <div v-else class="space-y-2">
-            <div
-              v-for="(item, idx) in caseData.evidence"
-              :key="item.id"
-              class="flex items-center justify-between p-2.5 rounded-lg border border-[#E2E5EE] bg-[#F8F9FA] hover:bg-[#F2F4F7] transition-colors text-xs"
-            >
-              <div class="flex items-center gap-2 overflow-hidden pr-2">
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-white border border-[#E2E5EE] text-primary shrink-0">
-                  {{ item.fileType }}
-                </span>
-                <span class="truncate font-medium text-[#22293A]">
-                  Exhibit-{{ idx + 1 }}.{{ item.fileType === 'IMAGE' ? 'png' : 'pdf' }}
-                </span>
-              </div>
-
+          <!-- Starter Prompts (if authorized) -->
+          <div v-if="canSendMessage" class="w-full max-w-lg space-y-2 pt-2 text-left">
+            <p class="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider text-center">
+              Suggested Inquiries
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button
+                v-for="(prompt, idx) in INQUIRY_SUGGESTIONS"
+                :key="idx"
                 type="button"
-                class="p-1.5 rounded text-[#6B7280] hover:text-[#22293A] hover:bg-white transition-colors cursor-pointer shrink-0"
-                title="Download Exhibit"
-                @click="handleDownloadEvidence(item, idx)"
+                class="p-2.5 rounded-lg border border-[#EADBCE] bg-white hover:bg-[#FAF7F2] text-left text-xs text-[#22293A] transition-colors cursor-pointer"
+                @click="populateSuggestion(prompt)"
               >
-                <DownloadIcon class="size-4" />
+                "{{ prompt }}"
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Compliance & Anonymity Assurance Notice -->
-        <div class="bg-[#FCF4EE] border border-[#A2561B]/20 rounded-xl p-4 space-y-2 text-xs">
-          <div class="flex items-center gap-2 font-bold text-[#A2561B]">
-            <ShieldCheckIcon class="size-4" />
-            <span>Anti-Retaliation Protocol</span>
+        <!-- Populated Messages List -->
+        <div v-else class="space-y-2">
+          <MessageBubble
+            v-for="msg in messages"
+            :key="msg.id || msg.tempId"
+            :message="msg"
+            :viewer="'STAFF'"
+            @retry="handleRetryMessage"
+          />
+        </div>
+      </div>
+
+      <!-- Bottom Action/Composer Area -->
+      <div class="border-t border-[#EADBCE] bg-[#FFFDF8]">
+        <!-- Authorized: Active Message Composer -->
+        <MessageComposer
+          v-if="canSendMessage"
+          :is-sending="isSending"
+          @send="handleSendMessage"
+        />
+
+        <!-- Read-Only: Manager Oversight Mode -->
+        <div
+          v-else-if="isManager"
+          class="p-4 bg-[#FAF7F2] text-xs text-[#6B7280] flex items-center gap-2 border-t border-[#EADBCE]"
+        >
+          <InfoIcon class="size-4 text-[#A2561B] shrink-0" />
+          <span>
+            <strong>Executive Oversight Mode:</strong> You are viewing this consultation with administrative oversight permissions. Direct message dispatch is reserved for the assigned Department Head.
+          </span>
+        </div>
+
+        <!-- Read-Only: Unassigned Case -->
+        <div
+          v-else-if="!isAssignedToMe && !isCaseClosed"
+          class="p-4 bg-[#FFFBEB] text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-[#FDE68A]"
+        >
+          <div class="flex items-center gap-2">
+            <HandHelpingIcon class="size-4 text-[#D97706] shrink-0" />
+            <span>
+              <strong>Case Unassigned:</strong> You must claim this case to send messages to the whistleblower.
+            </span>
           </div>
-          <p class="text-[11px] text-[#22293A] leading-relaxed">
-            All messages exchanged in this channel are co-signed and audited. Whistleblower telemetry is stripped prior to socket delivery per ISO 37002 Section 8.4 guidelines.
-          </p>
+          <AppButton
+            size="sm"
+            :loading="isClaiming"
+            @click="handleClaimCase"
+          >
+            Claim Case &amp; Start Discussion
+          </AppButton>
+        </div>
+
+        <!-- Read-Only: Case Closed/Resolved -->
+        <div
+          v-else-if="isCaseClosed"
+          class="p-4 bg-[#F2F4F7] text-xs text-[#575E71] flex items-center gap-2 border-t border-[#EADBCE]"
+        >
+          <LockIcon class="size-4 text-[#575E71] shrink-0" />
+          <span>
+            <strong>Case Closed:</strong> This case has been marked as {{ caseData?.status }}. This consultation stream is preserved for the official record.
+          </span>
         </div>
       </div>
     </div>

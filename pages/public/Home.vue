@@ -28,14 +28,14 @@ import {
           <!-- Hero Left Column -->
           <div class="lg:col-span-7 space-y-6 animate-fade-in-up">
             <!-- Live Security Status Tag with Pulse Indicator -->
-            <div class="inline-flex items-center gap-2.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-semibold text-muted-foreground shadow-xs">
+            <div class="inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold text-muted-foreground shadow-xs">
               <span class="relative flex h-2 w-2">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span class="text-foreground tracking-wide font-medium">Air-Gapped Enterprise Intake Active</span>
+              <span class="text-foreground tracking-wide font-medium">Private &amp; Confidential Intake Active</span>
               <span class="text-border">|</span>
-              <span class="text-[11px] text-primary font-mono font-bold">ZERO-LOG PROTOCOL</span>
+              <span class="text-[11px] text-primary font-mono font-bold">100% ANONYMOUS</span>
             </div>
 
             <!-- Headline -->
@@ -43,12 +43,11 @@ import {
               Integrity and accountability for the modern enterprise
             </h1>
 
-            <!-- Subtext targeting enterprises in general -->
+            <!-- Subtext -->
             <p class="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
-              Verita is an enterprise-grade ethics, compliance, and whistleblowing platform.
-              Securely report workplace misconduct, financial fraud, or compliance breaches with complete
-              air-gapped anonymity—no corporate account or email required. Submissions are organized by
-              objective AI assistance and investigated solely by human leaders.
+              Verita is a secure and anonymous case reporting platform. Safely report workplace misconduct,
+              financial discrepancies, or ethical concerns with complete privacy. No account or email required.
+              Submissions are organized with helpful AI assistance and investigated directly by human leaders.
             </p>
 
             <!-- Actions Row with micro-interactions -->
@@ -125,12 +124,12 @@ import {
                         <LockIcon class="size-3.5" />
                       </div>
                       <div>
-                        <p class="text-xs font-bold text-foreground">Air-Gapped Anonymity</p>
-                        <p class="text-[10px] text-muted-foreground">No tracking · Non-recoverable PIN</p>
+                        <p class="text-xs font-bold text-foreground">Confidential &amp; Anonymous</p>
+                        <p class="text-[10px] text-muted-foreground">No tracking · Private PIN</p>
                       </div>
                     </div>
                     <span class="font-mono text-[10px] font-bold bg-muted px-2 py-0.5 rounded border border-border text-foreground">
-                      ISO 37002:2021
+                      PROTECTED
                     </span>
                   </div>
                 </div>
@@ -199,7 +198,7 @@ import {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Card 1: Anonymous Reporting -->
           <AppCard
-            cardClass="border-border bg-card card-hover-lift"
+            cardClass="border-border bg-card card-creamy shadow-xs"
             contentClass="space-y-4"
           >
             <template #header>
@@ -211,28 +210,28 @@ import {
               </h3>
             </template>
             <p class="text-sm text-muted-foreground leading-relaxed">
-              No corporate email, directory profile, or user registration required. Submissions are tracked solely
-              via a unique Case ID and a one-time 6-digit cryptographic PIN, making retaliation impossible.
+              No account, work email, or registration required. Submissions are identified only
+              by a unique Case ID and a private 6-digit PIN, ensuring complete confidentiality.
             </p>
             <ul class="space-y-2 text-xs text-foreground pt-2 border-t border-border">
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Zero IP address or device fingerprinting</span>
+                <span>Zero personal or device tracking</span>
               </li>
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Encrypted multipart evidence vault</span>
+                <span>Secure encrypted file attachments</span>
               </li>
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Asymmetric real-time consultation chat</span>
+                <span>Private 2-way consultation chat</span>
               </li>
             </ul>
           </AppCard>
 
           <!-- Card 2: AI-Assisted Structuring -->
           <AppCard
-            cardClass="border-border bg-card card-hover-lift"
+            cardClass="border-border bg-card card-creamy shadow-xs"
             contentClass="space-y-4"
           >
             <template #header>
@@ -240,33 +239,33 @@ import {
                 <FileCheck2Icon class="size-5" />
               </div>
               <h3 class="text-lg font-bold tracking-tight text-foreground">
-                2. AI-Assisted Structuring
+                2. AI-Assisted Organization
               </h3>
             </template>
             <p class="text-sm text-muted-foreground leading-relaxed">
-              Gemini AI models automatically organize narrative descriptions and uploaded evidence into a
-              chronological timeline and highlight missing or conflicting facts.
-              <strong>The AI never determines guilt or scores credibility.</strong>
+              AI automatically organizes incident statements and uploaded proof into a
+              clear timeline and highlights missing information.
+              <strong>The AI never judges guilt or makes decisions.</strong>
             </p>
             <ul class="space-y-2 text-xs text-foreground pt-2 border-t border-border">
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Chronological incident reconstruction</span>
+                <span>Automatic chronological timeline</span>
               </li>
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Factual consistency &amp; gap identification</span>
+                <span>Highlights missing details &amp; discrepancies</span>
               </li>
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Zero automated algorithmic verdicts</span>
+                <span>100% human investigator decisions</span>
               </li>
             </ul>
           </AppCard>
 
           <!-- Card 3: Department Head Review -->
           <AppCard
-            cardClass="border-border bg-card card-hover-lift"
+            cardClass="border-border bg-card card-creamy shadow-xs"
             contentClass="space-y-4"
           >
             <template #header>
@@ -278,21 +277,21 @@ import {
               </h3>
             </template>
             <p class="text-sm text-muted-foreground leading-relaxed">
-              Cases are routed to the relevant department's shared review queue. Department Heads claim
-              cases, communicate directly with the reporter via anonymous chat, and make all investigative judgments.
+              Cases route securely to the relevant department head. Leaders review the facts,
+              communicate directly via anonymous chat, and resolve matters fairly.
             </p>
             <ul class="space-y-2 text-xs text-foreground pt-2 border-t border-border">
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Conflict-of-interest routing protection</span>
+                <span>Department Head bypass option</span>
               </li>
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Audited immutable status &amp; evidence trail</span>
+                <span>Secure, audited investigation records</span>
               </li>
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Escalation path to Executive Management</span>
+                <span>Executive Management oversight</span>
               </li>
             </ul>
           </AppCard>
@@ -400,47 +399,47 @@ import {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Step 1 -->
-          <div class="rounded-lg border border-border bg-card p-6 space-y-3 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-6 space-y-3 shadow-xs">
             <div class="flex items-center justify-between">
               <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-sm shadow-xs">
                 1
               </span>
-              <span class="text-xs font-mono text-muted-foreground">INTAKE</span>
+              <span class="text-xs font-mono text-muted-foreground">SUBMIT</span>
             </div>
-            <h3 class="text-base font-bold text-foreground">Submit Incident Anonymously</h3>
+            <h3 class="text-base font-bold text-foreground">Submit Your Report</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Fill the structured fraud report form: transaction purpose, amount involved, date, person involved,
-              narrative description, and upload supporting files (e.g. WhatsApp or payment screenshots).
+              Follow the 4-step guided form: select the department, provide details and amount, describe what occurred,
+              and upload any receipts or files.
             </p>
           </div>
 
           <!-- Step 2 -->
-          <div class="rounded-lg border border-border bg-card p-6 space-y-3 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-6 space-y-3 shadow-xs">
             <div class="flex items-center justify-between">
               <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-background font-bold text-sm shadow-xs">
                 2
               </span>
-              <span class="text-xs font-mono text-muted-foreground">SECURITY</span>
+              <span class="text-xs font-mono text-muted-foreground">CREDENTIALS</span>
             </div>
-            <h3 class="text-base font-bold text-foreground">Save Secure Credentials</h3>
+            <h3 class="text-base font-bold text-foreground">Save Your Tracking PIN</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Upon submission, you receive a generated <strong>Case ID</strong> and a <strong>6-digit Tracking PIN</strong>.
-              These credentials are displayed only once and cannot be reset or recovered. Store them safely.
+              Upon submission, you receive your <strong>Case ID</strong> and a <strong>Tracking PIN</strong>.
+              Keep these safe to check case progress and view responses.
             </p>
           </div>
 
           <!-- Step 3 -->
-          <div class="rounded-lg border border-border bg-card p-6 space-y-3 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-6 space-y-3 shadow-xs">
             <div class="flex items-center justify-between">
               <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-background font-bold text-sm shadow-xs">
                 3
               </span>
-              <span class="text-xs font-mono text-muted-foreground">COLLABORATE</span>
+              <span class="text-xs font-mono text-muted-foreground">CHAT &amp; UPDATES</span>
             </div>
-            <h3 class="text-base font-bold text-foreground">Track Updates &amp; Chat</h3>
+            <h3 class="text-base font-bold text-foreground">Track Progress &amp; Chat</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Log back in anytime with your Case ID and PIN. View the AI-structured timeline, add supplemental evidence
-              if requested, and chat with the assigned Department Head in real-time.
+              Log back in anytime with your PIN. View the incident timeline, check findings, and communicate
+              safely with the assigned investigator.
             </p>
           </div>
         </div>

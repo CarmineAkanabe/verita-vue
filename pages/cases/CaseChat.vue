@@ -14,7 +14,6 @@ import {
   MessageSquareIcon,
   LockIcon,
   Loader2Icon,
-  InfoIcon,
 } from '@lucide/vue'
 
 const router = useRouter()
@@ -87,8 +86,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-4rem)] bg-[#F2F4F7] text-[#22293A] py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-5xl h-[82vh] min-h-[580px] bg-white border border-[#E2E5EE] rounded-xl shadow-xs flex flex-col overflow-hidden">
+  <div class="min-h-[calc(100vh-4rem)] bg-[#F6F7F9] text-[#22293A] py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl h-[82vh] min-h-[580px] bg-[#FFFDF8] border border-[#EADBCE] rounded-2xl shadow-xs flex flex-col overflow-hidden">
       <!-- Consultation Header -->
       <ChatHeader
         :case-id="authStore.caseId || 'UNKNOWN'"
@@ -99,14 +98,14 @@ onUnmounted(() => {
       <!-- Message History Scroll Area -->
       <div
         ref="messageScrollRef"
-        class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/40"
+        class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/60"
         @scroll="handleScroll"
       >
-        <!-- Initial System Milestone Notice -->
-        <div class="text-center my-3">
+        <!-- Security Notice -->
+        <div class="text-center my-2">
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCF4EE] border border-[#A2561B]/20 text-[11px] font-medium text-[#A2561B]">
             <LockIcon class="size-3 shrink-0" />
-            <span>Encrypted investigation channel opened under Digimark internal compliance guidelines</span>
+            <span>Confidential Channel · Your identity is fully protected</span>
           </div>
         </div>
 
@@ -114,7 +113,7 @@ onUnmounted(() => {
         <div v-if="chatStore.isLoading && !chatStore.hasMessages" class="py-12 space-y-4 max-w-md mx-auto">
           <div class="flex items-center justify-center gap-2 text-xs text-[#6B7280]">
             <Loader2Icon class="size-4 animate-spin text-[#A2561B]" />
-            <span>Establishing secure message stream...</span>
+            <span>Connecting to secure chat...</span>
           </div>
         </div>
 
@@ -130,12 +129,8 @@ onUnmounted(() => {
             No Messages Exchanged Yet
           </h3>
           <p class="text-xs text-[#6B7280] leading-relaxed">
-            This confidential channel allows you to communicate directly with the assigned supervisor while maintaining total anonymity. Type a message below to begin consultation.
+            This confidential channel allows you to communicate directly with the assigned department head while staying completely anonymous. Type a message below to start.
           </p>
-          <div class="p-2.5 rounded-lg bg-white border border-[#E2E5EE] text-[11px] text-[#6B7280] inline-flex items-center gap-2 text-left">
-            <InfoIcon class="size-4 text-[#A2561B] shrink-0" />
-            <span>Messages are accessible only to you and authorized case investigators.</span>
-          </div>
         </div>
 
         <!-- Render Messages -->

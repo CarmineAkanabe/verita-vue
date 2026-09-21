@@ -114,7 +114,7 @@ async function loadDashboard(showToast = false) {
     const data = await getReporterDashboard()
     caseData.value = data
     if (showToast) {
-      toast.success('Dossier refreshed with latest data.')
+      toast.success('Case refreshed with latest data.')
     }
   } catch (err: any) {
     const status = err?.status ?? err?.response?.status
@@ -125,7 +125,7 @@ async function loadDashboard(showToast = false) {
       return
     }
     errorMessage.value =
-      err?.message || 'Unable to retrieve case dossier. Please check your network connection.'
+      err?.message || 'Unable to retrieve case details. Please check your network connection.'
     toast.error('Failed to load case data.')
   } finally {
     isLoading.value = false
@@ -354,7 +354,7 @@ const hasAiReviewData = computed(() => {
         <div class="h-12 w-12 rounded-full bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-center text-[#991B1B] mx-auto">
           <AlertTriangleIcon class="size-6" />
         </div>
-        <h3 class="text-base font-bold text-[#22293A]">Unable to Load Dossier</h3>
+        <h3 class="text-base font-bold text-[#22293A]">Unable to Load Case</h3>
         <p class="text-xs text-[#6B7280]">{{ errorMessage }}</p>
         <AppButton variant="default" size="sm" @click="loadDashboard()">
           Try Again
@@ -372,7 +372,7 @@ const hasAiReviewData = computed(() => {
             <div class="space-y-2">
               <div class="flex flex-wrap items-center gap-2.5">
                 <span class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Incident Dossier
+                  Case Summary
                 </span>
                 <StatusPill :status="caseData.status" />
 
@@ -549,7 +549,7 @@ const hasAiReviewData = computed(() => {
                 </h3>
                 <span class="inline-flex items-center gap-1 text-[11px] font-medium text-[#A2561B] bg-[#FCF4EE] px-2 py-0.5 rounded border border-[#A2561B]/20">
                   <ClockIcon class="size-3" />
-                  Synthesizing Dossier
+                  Analyzing Case
                 </span>
               </div>
 

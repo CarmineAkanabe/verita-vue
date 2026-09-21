@@ -183,7 +183,7 @@ const isImage = () => {
 
       <!-- Footer Bar -->
       <div class="px-5 py-2.5 border-t border-[#E2E5EE] bg-white flex items-center justify-between text-[11px] text-[#6B7280] shrink-0">
-        <span>Confidential Dossier Exhibit · Digimark Enterprise Chain of Custody</span>
+        <span>Confidential Case File</span>
         <button
           type="button"
           class="text-[#22293A] font-medium hover:underline cursor-pointer"

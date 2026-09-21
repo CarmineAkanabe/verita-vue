@@ -14,7 +14,6 @@ import type {
   StaffCase,
   CaseStatus,
   StaffEvidenceItem,
-  TimelineEvent,
 } from '@/features/cases/types'
 import { toast } from '@/plugins/toast'
 import AppButton from '@/components/common/AppButton.vue'
@@ -24,7 +23,6 @@ import {
   ArrowLeftIcon,
   CopyIcon,
   CheckIcon,
-  ShieldCheckIcon,
   FileTextIcon,
   DownloadIcon,
   EyeIcon,
@@ -33,6 +31,8 @@ import {
   AlertTriangleIcon,
   MessageSquareIcon,
   SparklesIcon,
+  ClockIcon,
+  CalendarIcon,
   XIcon,
 } from '@lucide/vue'
 
@@ -84,7 +84,7 @@ async function fetchCase() {
     caseData.value = data
     targetStatus.value = data.status
   } catch (err: any) {
-    error.value = err?.message || 'Failed to retrieve case investigation dossier.'
+    error.value = err?.message || 'Failed to retrieve case details.'
   } finally {
     isLoading.value = false
   }
@@ -98,9 +98,9 @@ async function handleClaim() {
     const updated = await claimCase(caseData.value.id)
     caseData.value.status = updated.status
     caseData.value.assignedTo = updated.assignedTo
-    toast.success('Dossier successfully claimed. Status transitioned to Investigation.')
+    toast.success('Case successfully claimed. Status transitioned to Investigation.')
   } catch (err: any) {
-    toast.error(err?.message || 'Failed to claim docket. It may have already been claimed by another officer.')
+    toast.error(err?.message || 'Failed to claim case. It may have already been claimed by another officer.')
   } finally {
     isClaiming.value = false
   }
@@ -123,7 +123,7 @@ async function submitStatusUpdate() {
   modalErrors.value = {}
 
   if (!statusNote.value.trim()) {
-    modalErrors.value.note = 'Investigation note is mandatory for any status update.'
+    modalErrors.value.note = 'Investigation note is required for any status update.'
     return
   }
 
@@ -133,7 +133,7 @@ async function submitStatusUpdate() {
   }
 
   if ((targetStatus.value === 'RESOLVED' || targetStatus.value === 'DISMISSED') && !resolutionSummary.value.trim()) {
-    modalErrors.value.resolutionSummary = `Resolution summary is strictly required when marking a docket as ${targetStatus.value}.`
+    modalErrors.value.resolutionSummary = `Resolution summary is required when marking a case as ${targetStatus.value}.`
     return
   }
 
@@ -152,10 +152,10 @@ async function submitStatusUpdate() {
       caseData.value.resolvedAt = updated.resolvedAt
     }
 
-    toast.success(`Dossier status successfully transitioned to ${targetStatus.value}.`)
+    toast.success(`Case status successfully updated to ${targetStatus.value}.`)
     closeStatusModal()
   } catch (err: any) {
-    toast.error(err?.message || 'Failed to update docket status.')
+    toast.error(err?.message || 'Failed to update case status.')
   } finally {
     isUpdatingStatus.value = false
   }
@@ -229,59 +229,171 @@ function formatDate(iso?: string) {
   }
 }
 
-const parsedFindings = computed<string[]>(() => {
-  if (!caseData.value?.aiFindings) return []
-  const raw = caseData.value.aiFindings
-  if (Array.isArray(raw)) {
-    return raw.map(String)
+function copyQuestion(text: string) {
+  navigator.clipboard.writeText(text)
+  toast.success('Investigation question copied.')
+}
+
+const structuredFindings = computed<{
+  discrepancies: string[]
+  completeness: string[]
+  clarifications: string[]
+  totalCount: number
+}>(() => {
+  const result = {
+    discrepancies: [] as string[],
+    completeness: [] as string[],
+    clarifications: [] as string[],
+    totalCount: 0,
   }
-  let obj: any = raw
+  if (!caseData.value?.aiFindings) return result
+
+  let raw: any = caseData.value.aiFindings
   if (typeof raw === 'string') {
     try {
-      obj = JSON.parse(raw)
+      raw = JSON.parse(raw)
     } catch {
-      return [raw]
+      result.discrepancies.push(String(raw))
+      result.totalCount = 1
+      return result
     }
   }
-  if (Array.isArray(obj)) {
-    return obj.map(String)
-  }
-  if (obj && typeof obj === 'object') {
-    const list: string[] = []
-    if (Array.isArray(obj.clarification)) {
-      list.push(...obj.clarification.map(String))
-    }
-    if (obj.consistency && typeof obj.consistency === 'object') {
-      for (const [k, v] of Object.entries(obj.consistency)) {
-        list.push(`${k.replace(/_/g, ' ')}: ${v ? 'Consistent' : 'Discrepancy detected'}`)
+
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    // 1. Consistency / Discrepancies
+    if (Array.isArray(raw.consistency)) {
+      result.discrepancies.push(...raw.consistency.map(String).filter(Boolean))
+    } else if (raw.consistency && typeof raw.consistency === 'object') {
+      for (const [k, v] of Object.entries(raw.consistency)) {
+        if (typeof v === 'string') {
+          result.discrepancies.push(v)
+        } else if (v === false) {
+          result.discrepancies.push(`Discrepancy identified in ${k.replace(/_/g, ' ')}`)
+        }
       }
     }
-    if (obj.completeness && typeof obj.completeness === 'object') {
-      const missing = Object.entries(obj.completeness)
-        .filter(([, v]) => !v)
-        .map(([k]) => k)
-      if (missing.length > 0) {
-        list.push(`Missing documentation: ${missing.join(', ')}`)
-      } else {
-        list.push('All primary intake criteria verified complete.')
+
+    // 2. Completeness / Gaps
+    if (Array.isArray(raw.completeness)) {
+      result.completeness.push(...raw.completeness.map(String).filter(Boolean))
+    } else if (raw.completeness && typeof raw.completeness === 'object') {
+      for (const [k, v] of Object.entries(raw.completeness)) {
+        if (typeof v === 'string') {
+          result.completeness.push(v)
+        } else if (v === false) {
+          result.completeness.push(`Missing verification for ${k.replace(/_/g, ' ')}`)
+        }
       }
     }
-    return list.length > 0 ? list : [JSON.stringify(obj)]
+
+    // 3. Clarifications / Recommended inquiry questions
+    const cl = raw.clarifications || raw.clarification
+    if (Array.isArray(cl)) {
+      result.clarifications.push(...cl.map(String).filter(Boolean))
+    } else if (typeof cl === 'string') {
+      result.clarifications.push(cl)
+    }
+  } else if (Array.isArray(raw)) {
+    result.discrepancies.push(...raw.map(String).filter(Boolean))
   }
-  return [String(obj)]
+
+  result.totalCount =
+    result.discrepancies.length +
+    result.completeness.length +
+    result.clarifications.length
+
+  return result
 })
 
-const parsedTimeline = computed<TimelineEvent[]>(() => {
-  if (!caseData.value?.aiTimeline) return []
-  if (Array.isArray(caseData.value.aiTimeline)) {
-    return caseData.value.aiTimeline as TimelineEvent[]
+interface NormalizedTimelineItem {
+  date: string
+  time?: string
+  event: string
+  description?: string
+  source?: 'ai' | 'milestone'
+}
+
+const parsedTimeline = computed<NormalizedTimelineItem[]>(() => {
+  const items: NormalizedTimelineItem[] = []
+
+  let raw: any = caseData.value?.aiTimeline
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw)
+    } catch {
+      raw = null
+    }
   }
-  try {
-    const parsed = JSON.parse(caseData.value.aiTimeline as string)
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
+
+  if (Array.isArray(raw) && raw.length > 0) {
+    for (const entry of (raw as any[])) {
+      if (typeof entry === 'string') {
+        const colonIdx = entry.indexOf(':')
+        if (colonIdx > 0 && colonIdx < 25) {
+          items.push({
+            date: entry.slice(0, colonIdx).trim(),
+            event: entry.slice(colonIdx + 1).trim(),
+            source: 'ai',
+          })
+        } else {
+          items.push({
+            date: 'Milestone',
+            event: entry,
+            source: 'ai',
+          })
+        }
+      } else if (entry && typeof entry === 'object') {
+        items.push({
+          date: entry.date || entry.eventDate || 'Milestone',
+          time: entry.time || '',
+          event: entry.event || entry.title || 'Case Event',
+          description: entry.description || entry.detail || '',
+          source: 'ai',
+        })
+      }
+    }
   }
+
+  // Baseline timeline synthesis: if no AI timeline exists, synthesize from case timestamps
+  if (items.length === 0 && caseData.value) {
+    if (caseData.value.transactionDate) {
+      items.push({
+        date: formatDate(caseData.value.transactionDate),
+        event: 'Incident Date',
+        description: `Incident occurred: ${caseData.value.purposeOfTransaction || 'Reported transaction'} (${formatAmount(caseData.value.amountInvolved)}).`,
+        source: 'milestone',
+      })
+    }
+
+    if (caseData.value.evidence && caseData.value.evidence.length > 0) {
+      items.push({
+        date: formatDate(caseData.value.createdAt),
+        event: 'Evidence Attached',
+        description: `${caseData.value.evidence.length} file(s) attached and preserved for forensic review.`,
+        source: 'milestone',
+      })
+    }
+
+    if (caseData.value.createdAt) {
+      items.push({
+        date: formatDate(caseData.value.createdAt),
+        event: 'Confidential Case Intake',
+        description: 'Case registered anonymously. Intake verified.',
+        source: 'milestone',
+      })
+    }
+
+    if (caseData.value.assignedTo) {
+      items.push({
+        date: 'Active',
+        event: 'Investigation In Progress',
+        description: 'Assigned to Department Head for examination and consultation.',
+        source: 'milestone',
+      })
+    }
+  }
+
+  return items
 })
 
 onMounted(() => {
@@ -291,24 +403,20 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Back & Header -->
-    <div class="border-b border-border pb-5 space-y-3">
+    <!-- Back & Header Bar -->
+    <div class="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-3">
       <div class="flex items-center justify-between">
         <router-link
           to="/app/cases"
-          class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors"
         >
           <ArrowLeftIcon class="size-4" />
-          <span>Back to Investigation Queue</span>
+          <span>Back to Cases</span>
         </router-link>
 
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <ShieldCheckIcon class="size-3" />
-            ISO 37002 Shield Active
-          </span>
-          <span v-if="caseData?.concernsDepartmentHead" class="px-2 py-0.5 rounded text-[10px] font-bold bg-destructive/15 text-destructive border border-destructive/30">
-            Conflict of Interest Flagged
+          <span v-if="caseData?.concernsDepartmentHead" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
+            Department Head Bypassed
           </span>
         </div>
       </div>
@@ -316,13 +424,13 @@ onMounted(() => {
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <div class="flex items-center gap-3">
-            <h1 class="text-2xl font-extrabold text-foreground font-mono tracking-tight">
-              Docket #{{ caseId.slice(0, 13) }}...
+            <h1 class="text-xl sm:text-2xl font-bold text-[#22293A] font-mono tracking-tight">
+              Case #{{ caseId.slice(0, 14) }}...
             </h1>
             <button
               type="button"
-              class="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
-              title="Copy Full UUID"
+              class="p-1 rounded hover:bg-[#FAF7F2] text-[#6B7280] hover:text-[#22293A] cursor-pointer"
+              title="Copy Full Case ID"
               @click="copyCaseId"
             >
               <CheckIcon v-if="copiedId" class="size-4 text-emerald-600" />
@@ -330,9 +438,9 @@ onMounted(() => {
             </button>
             <StatusPill v-if="caseData" :status="caseData.status" />
           </div>
-          <p class="text-xs text-muted-foreground mt-1">
-            Filed on <strong class="text-foreground font-mono">{{ formatDate(caseData?.createdAt || caseData?.transactionDate) }}</strong>
-            · Category: <span class="font-bold text-primary">{{ caseData?.category }}</span>
+          <p class="text-xs text-[#6B7280] mt-1">
+            Submitted on <strong class="text-[#22293A]">{{ formatDate(caseData?.createdAt || caseData?.transactionDate) }}</strong>
+            · Category: <span class="font-bold text-[#A2561B]">{{ caseData?.category }}</span>
           </p>
         </div>
 
@@ -346,7 +454,7 @@ onMounted(() => {
             @click="handleClaim"
           >
             <HandHelpingIcon class="size-4 mr-1.5" />
-            Claim Case &amp; Begin Investigation
+            Claim Case
           </AppButton>
 
           <!-- Update Status Button (assigned officer only) -->
@@ -357,16 +465,16 @@ onMounted(() => {
             @click="openStatusModal"
           >
             <CheckCircle2Icon class="size-4 mr-1.5" />
-            Update Status &amp; Findings
+            Update Status
           </AppButton>
 
           <!-- Consultation Channel Link -->
           <router-link
             :to="`/app/cases/${caseData?.id}/chat`"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border transition-colors"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs"
           >
             <MessageSquareIcon class="size-3.5" />
-            <span>Consultation Messages</span>
+            <span>Open Case Chat</span>
           </router-link>
         </div>
       </div>
@@ -381,172 +489,242 @@ onMounted(() => {
 
     <!-- Loading Skeleton -->
     <div v-if="isLoading" class="space-y-6 animate-pulse">
-      <div class="h-44 bg-muted/40 rounded-lg border border-border"></div>
+      <div class="h-44 bg-muted/40 rounded-xl border border-border"></div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 h-72 bg-muted/40 rounded-lg border border-border"></div>
-        <div class="h-72 bg-muted/40 rounded-lg border border-border"></div>
+        <div class="lg:col-span-2 h-72 bg-muted/40 rounded-xl border border-border"></div>
+        <div class="h-72 bg-muted/40 rounded-xl border border-border"></div>
       </div>
     </div>
 
-    <!-- Loaded Case Dossier -->
+    <!-- Loaded Case Details -->
     <div v-else-if="caseData" class="space-y-6">
       <!-- Resolution Summary Banner (if resolved/dismissed) -->
       <div
         v-if="caseData.resolutionSummary"
-        class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-1"
+        class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1"
       >
         <div class="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider text-[10px]">
           <CheckCircle2Icon class="size-3.5" />
-          <span>Official Case Resolution Summary</span>
-          <span v-if="caseData.resolvedAt" class="font-mono text-muted-foreground">({{ formatDate(caseData.resolvedAt) }})</span>
+          <span>Case Resolution Summary</span>
+          <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt) }})</span>
         </div>
-        <p class="text-xs text-foreground font-medium leading-relaxed">
+        <p class="text-xs text-[#22293A] font-medium leading-relaxed">
           {{ caseData.resolutionSummary }}
         </p>
       </div>
 
-      <!-- Quick Metrics Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div class="p-4 rounded-lg bg-card border border-border">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Disputed Exposure
+      <!-- Quick Metrics Grid (Creamy Cards) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Amount Involved -->
+        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+            Amount Involved
           </span>
-          <p class="text-xl font-extrabold text-foreground font-mono mt-1">
+          <p class="text-xl font-extrabold text-[#A2561B] font-mono mt-1">
             {{ formatAmount(caseData.amountInvolved) }}
           </p>
         </div>
 
-        <div class="p-4 rounded-lg bg-card border border-border">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Implicated Entity / Person
+        <!-- Person / Unit Involved -->
+        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+            Person / Unit Involved
           </span>
-          <p class="text-sm font-bold text-foreground truncate mt-1" :title="caseData.personInvolved">
+          <p class="text-sm font-bold text-[#22293A] truncate mt-1" :title="caseData.personInvolved">
             {{ caseData.personInvolved || 'Unspecified' }}
           </p>
         </div>
 
-        <div class="p-4 rounded-lg bg-card border border-border">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Incident Transaction Date
+        <!-- Date of Incident -->
+        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+            Date of Incident
           </span>
-          <p class="text-sm font-bold text-foreground font-mono mt-1">
+          <p class="text-sm font-bold text-[#22293A] font-mono mt-1">
             {{ caseData.transactionDate || 'Not specified' }}
           </p>
         </div>
 
-        <div class="p-4 rounded-lg bg-card border border-border">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Investigator Assignment
+        <!-- Assigned Officer -->
+        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+            Assigned Officer
           </span>
-          <p class="text-sm font-bold text-foreground mt-1">
+          <p class="text-sm font-bold text-[#22293A] mt-1">
             {{ isAssignedToMe ? 'Assigned to You' : caseData.assignedTo ? 'Assigned to Staff' : 'Unclaimed' }}
           </p>
         </div>
       </div>
 
-      <!-- Main Columns: Left = Forensic AI & Narrative, Right = Evidence & Meta -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Left 2 Cols -->
-        <div class="lg:col-span-2 space-y-6">
-          <!-- AI Forensic Review Section -->
-          <div class="bg-card border border-border rounded-lg p-5 space-y-5">
-            <div class="flex items-center justify-between border-b border-border pb-3">
-              <div class="flex items-center gap-2">
-                <div class="p-1.5 rounded bg-primary/10 text-primary">
-                  <SparklesIcon class="size-4" />
-                </div>
-                <div>
-                  <h2 class="text-sm font-bold text-foreground uppercase tracking-wider">
-                    AI Forensic Synthesis
-                  </h2>
-                  <span class="text-[11px] text-muted-foreground">
-                    Automated document sanitization, cross-referencing, and event structuring
-                  </span>
-                </div>
-              </div>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                VERITA-LLM-CORE
-              </span>
+      <!-- PREMIER HERO SECTION: AI Case Analysis -->
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-[#FAF6FF] via-[#F8F3EA] to-[#F8F3EA] border-2 border-[#DDD6FE] shadow-xs space-y-6">
+        <div class="flex items-center justify-between border-b border-[#E2D5C3] pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 rounded-lg bg-[#8B5CF6]/15 text-[#7C3AED]">
+              <SparklesIcon class="size-5" />
             </div>
-
-            <!-- Executive Summary -->
-            <div v-if="caseData.aiSummary" class="space-y-1.5">
-              <h3 class="text-xs font-bold text-foreground uppercase tracking-wider text-muted-foreground">
-                Executive Incident Summary
-              </h3>
-              <p class="text-xs text-foreground leading-relaxed bg-muted/30 p-3 rounded border border-border">
-                {{ caseData.aiSummary }}
+            <div>
+              <h2 class="text-base font-bold text-[#22293A]">
+                AI Case Analysis &amp; Findings
+              </h2>
+              <p class="text-xs text-[#6B7280]">
+                Automated summary, verified risk indicators, and incident chronology
               </p>
             </div>
-            <div v-else class="text-xs text-muted-foreground italic py-2">
-              Automated AI synthesis is pending or unavailable for this disclosure.
-            </div>
+          </div>
+          <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-[#EDE9FE] text-[#7C3AED] border border-[#DDD6FE]">
+            AI Generated
+          </span>
+        </div>
 
-            <!-- Risk Findings / Red Flags -->
-            <div v-if="parsedFindings.length > 0" class="space-y-2">
-              <h3 class="text-xs font-bold text-foreground uppercase tracking-wider text-muted-foreground">
-                Corroborated Risk Indicators &amp; Red Flags
-              </h3>
-              <ul class="space-y-1.5">
-                <li
-                  v-for="(finding, idx) in parsedFindings"
-                  :key="idx"
-                  class="flex items-start gap-2 text-xs text-foreground bg-primary/5 p-2.5 rounded border border-primary/15"
-                >
-                  <AlertTriangleIcon class="size-3.5 text-primary shrink-0 mt-0.5" />
-                  <span>{{ finding }}</span>
-                </li>
-              </ul>
-            </div>
+        <!-- AI Executive Summary -->
+        <div v-if="caseData.aiSummary" class="space-y-2">
+          <h3 class="text-xs font-bold text-[#4B5563] uppercase tracking-wider">
+            Incident Summary
+          </h3>
+          <p class="text-xs text-[#22293A] leading-relaxed bg-[#F8F3EA] p-4 rounded-xl border border-[#E2D5C3] shadow-xs">
+            {{ caseData.aiSummary }}
+          </p>
+        </div>
+        <div v-else class="text-xs text-[#6B7280] italic py-2">
+          AI analysis is pending or processing for this case.
+        </div>
 
-            <!-- Chronological Event Timeline -->
-            <div v-if="parsedTimeline.length > 0" class="space-y-3">
-              <h3 class="text-xs font-bold text-foreground uppercase tracking-wider text-muted-foreground">
-                Reconstructed Event Timeline
-              </h3>
-              <div class="relative border-l-2 border-primary/30 ml-3 space-y-4 py-1">
-                <div
-                  v-for="(event, eIdx) in parsedTimeline"
-                  :key="eIdx"
-                  class="relative pl-5 text-xs"
-                >
-                  <div class="absolute -left-[7px] top-1 size-3 rounded-full bg-primary border-2 border-card"></div>
-                  <div class="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
-                    <span>{{ event.date || event.eventDate || 'Milestone' }}</span>
-                    <span v-if="event.time">· {{ event.time }}</span>
-                  </div>
-                  <p class="font-bold text-foreground text-xs mt-0.5">
-                    {{ event.title || event.event }}
-                  </p>
-                  <p v-if="event.description" class="text-[11px] text-muted-foreground mt-0.5">
-                    {{ event.description }}
-                  </p>
-                </div>
+        <!-- Structured Key Findings & Red Flags -->
+        <div v-if="structuredFindings.totalCount > 0" class="space-y-4 pt-1">
+          <!-- 1. Factual Discrepancies & Contradictions -->
+          <div v-if="structuredFindings.discrepancies.length > 0" class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-bold text-[#BE123C] uppercase tracking-wider">
+                Factual Inconsistencies &amp; Contradictions ({{ structuredFindings.discrepancies.length }})
+              </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div
+                v-for="(item, idx) in structuredFindings.discrepancies"
+                :key="'disc-' + idx"
+                class="p-3.5 rounded-xl bg-[#FFF1F2] border border-[#FECDD3] text-xs text-[#881337] flex items-start gap-2.5 shadow-xs"
+              >
+                <AlertTriangleIcon class="size-4 text-[#E11D48] shrink-0 mt-0.5" />
+                <span class="leading-relaxed font-medium">{{ item }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Narrative Particulars -->
-          <div class="bg-card border border-border rounded-lg p-5 space-y-4">
-            <h2 class="text-sm font-bold text-foreground uppercase tracking-wider border-b border-border pb-3">
-              Reported Incident Narrative
+          <!-- 2. Documentation & Completeness Gaps -->
+          <div v-if="structuredFindings.completeness.length > 0" class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-bold text-[#B45309] uppercase tracking-wider">
+                Documentation &amp; Verification Gaps ({{ structuredFindings.completeness.length }})
+              </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div
+                v-for="(item, idx) in structuredFindings.completeness"
+                :key="'comp-' + idx"
+                class="p-3.5 rounded-xl bg-[#FFFBEB] border border-[#FDE68A] text-xs text-[#92400E] flex items-start gap-2.5 shadow-xs"
+              >
+                <FileTextIcon class="size-4 text-[#D97706] shrink-0 mt-0.5" />
+                <span class="leading-relaxed font-medium">{{ item }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Recommended Investigation Clarifications -->
+          <div v-if="structuredFindings.clarifications.length > 0" class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-[#4338CA] uppercase tracking-wider">
+                Recommended Inquiries for Whistleblower ({{ structuredFindings.clarifications.length }})
+              </span>
+              <span class="text-[10px] text-[#6B7280]">Click icon to copy question</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div
+                v-for="(item, idx) in structuredFindings.clarifications"
+                :key="'clar-' + idx"
+                class="p-3.5 rounded-xl bg-[#EEF2FF] border border-[#C7D2FE] text-xs text-[#312E81] flex items-start justify-between gap-2.5 shadow-xs group"
+              >
+                <div class="flex items-start gap-2">
+                  <MessageSquareIcon class="size-4 text-[#4F46E5] shrink-0 mt-0.5" />
+                  <span class="leading-relaxed">{{ item }}</span>
+                </div>
+                <button
+                  type="button"
+                  class="shrink-0 p-1 rounded hover:bg-[#E0E7FF] text-[#4F46E5] opacity-75 hover:opacity-100 cursor-pointer"
+                  title="Copy question"
+                  @click="copyQuestion(item)"
+                >
+                  <CopyIcon class="size-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comprehensive Incident Timeline Component -->
+        <div v-if="parsedTimeline.length > 0" class="space-y-3 pt-3 border-t border-[#E2D5C3]">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <ClockIcon class="size-4 text-[#A2561B]" />
+              <h3 class="text-xs font-bold text-[#22293A] uppercase tracking-wider">
+                Incident Chronology &amp; Timeline ({{ parsedTimeline.length }} Milestones)
+              </h3>
+            </div>
+            <span class="text-[10px] text-[#6B7280] font-medium">Reconstructed from statements and evidence</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div
+              v-for="(event, eIdx) in parsedTimeline"
+              :key="eIdx"
+              class="p-3.5 rounded-xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs flex flex-col justify-between space-y-2 hover:border-[#A2561B]/60 transition-colors"
+            >
+              <div>
+                <div class="flex items-center justify-between gap-1 mb-1.5">
+                  <span class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FAF7F2] border border-[#E2D5C3] text-[#A2561B]">
+                    <CalendarIcon class="size-3" />
+                    {{ event.date }}
+                  </span>
+                  <span v-if="event.time" class="font-mono text-[10px] text-[#6B7280]">
+                    {{ event.time }}
+                  </span>
+                </div>
+                <h4 class="font-bold text-[#22293A] text-xs leading-snug">
+                  {{ event.event }}
+                </h4>
+              </div>
+              <p v-if="event.description" class="text-[11px] text-[#6B7280] leading-relaxed pt-1.5 border-t border-[#E2D5C3]/70">
+                {{ event.description }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Narrative Particulars & Evidence Files (2 Columns) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left: Incident Narrative Details (2 cols) -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="p-6 rounded-2xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs space-y-4">
+            <h2 class="text-sm font-bold text-[#22293A] uppercase tracking-wider border-b border-[#E2D5C3] pb-3">
+              Report Details &amp; Narrative
             </h2>
 
-            <div class="space-y-3 text-xs">
+            <div class="space-y-4 text-xs">
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Transaction Purpose / Business Nature
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+                  Transaction Nature / Purpose
                 </span>
-                <p class="font-semibold text-foreground text-sm mt-0.5">
+                <p class="font-bold text-[#22293A] text-sm mt-0.5">
                   {{ caseData.purposeOfTransaction || 'Not specified' }}
                 </p>
               </div>
 
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Full Disclosure Description
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+                  Full Description
                 </span>
-                <div class="p-3 rounded bg-muted/30 border border-border mt-1 whitespace-pre-wrap leading-relaxed text-foreground font-mono text-xs">
+                <div class="p-3.5 rounded-xl bg-[#F2EAE0] border border-[#E2D5C3] mt-1 whitespace-pre-wrap leading-relaxed text-[#22293A] font-sans text-xs">
                   {{ caseData.description }}
                 </div>
               </div>
@@ -554,38 +732,34 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Right Col: Evidence Vault & Audit Integrity -->
+        <!-- Right: Attached Files (1 col) -->
         <div class="space-y-6">
-          <!-- Evidence Vault -->
-          <div class="bg-card border border-border rounded-lg p-5 space-y-4">
-            <div class="flex items-center justify-between border-b border-border pb-3">
-              <h2 class="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
-                <FileTextIcon class="size-4 text-primary" />
-                Evidence Vault ({{ caseData.evidence?.length || 0 }})
+          <div class="p-6 rounded-2xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-[#E2D5C3] pb-3">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#22293A] flex items-center gap-2">
+                <FileTextIcon class="size-4 text-[#A2561B]" />
+                Attached Files ({{ caseData.evidence?.length || 0 }})
               </h2>
-              <span class="text-[10px] font-mono text-muted-foreground">
-                Air-Gapped Stream
-              </span>
             </div>
 
-            <div v-if="!caseData.evidence || caseData.evidence.length === 0" class="text-xs text-muted-foreground py-6 text-center">
-              No evidence exhibits submitted with this case.
+            <div v-if="!caseData.evidence || caseData.evidence.length === 0" class="text-xs text-[#6B7280] py-6 text-center">
+              No files were attached with this case.
             </div>
 
             <div v-else class="space-y-2.5">
               <div
                 v-for="(item, idx) in caseData.evidence"
                 :key="item.id"
-                class="p-3 rounded border border-border bg-background text-xs space-y-2"
+                class="p-3 rounded-xl border border-[#E2D5C3] bg-[#F2EAE0] text-xs space-y-2"
               >
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold font-mono bg-primary/10 text-primary">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-[#A2561B]/10 text-[#A2561B]">
                       {{ item.fileType }}
                     </span>
-                    <span class="font-bold text-foreground">Exhibit #{{ idx + 1 }}</span>
+                    <span class="font-bold text-[#22293A]">File #{{ idx + 1 }}</span>
                   </div>
-                  <span class="text-[10px] font-mono text-muted-foreground">
+                  <span class="text-[10px] font-mono text-[#6B7280]">
                     {{ formatDate(item.uploadedAt) }}
                   </span>
                 </div>
@@ -593,7 +767,7 @@ onMounted(() => {
                 <div class="flex items-center justify-end gap-2 pt-1">
                   <button
                     type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border border-border hover:bg-muted text-foreground transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border border-[#EADBCE] bg-white hover:bg-[#F6F7F9] text-[#22293A] transition-colors cursor-pointer"
                     @click="handlePreviewEvidence(item, idx)"
                   >
                     <EyeIcon class="size-3" />
@@ -602,7 +776,7 @@ onMounted(() => {
 
                   <button
                     type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-primary text-white hover:bg-primary-700 transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-[#A2561B] text-white hover:bg-[#854310] transition-colors cursor-pointer"
                     @click="handleDownloadEvidence(item, idx)"
                   >
                     <DownloadIcon class="size-3" />
@@ -611,17 +785,6 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Compliance & Integrity Card -->
-          <div class="p-4 rounded-lg bg-muted/40 border border-border text-xs space-y-2">
-            <div class="flex items-center gap-2 text-foreground font-bold">
-              <ShieldCheckIcon class="size-4 text-emerald-600" />
-              <span>Investigator Audit Trail</span>
-            </div>
-            <p class="text-[11px] text-muted-foreground leading-relaxed">
-              In compliance with ISO 37002, any status update or case claim is permanently logged into the enterprise audit ledger. Whistleblower tracking PINs are never disclosed to staff.
-            </p>
           </div>
         </div>
       </div>

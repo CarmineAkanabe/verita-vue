@@ -63,24 +63,24 @@ async function copyCaseId() {
     </div>
 
     <!-- Main Header Bar -->
-    <div class="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <!-- Left: Back Button & Dossier ID -->
+    <div class="px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#FFFDF8]">
+      <!-- Left: Back Button & Case ID -->
       <div class="flex items-center gap-3">
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E2E5EE] bg-[#F8F9FA] hover:bg-[#F2F4F7] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer"
           @click="handleBack"
         >
           <ArrowLeftIcon class="size-3.5" />
-          <span>{{ viewer === 'STAFF' ? 'Back to Dossier' : 'Back to Dashboard' }}</span>
+          <span>{{ viewer === 'STAFF' ? 'Back to Case' : 'Back to Dashboard' }}</span>
         </button>
 
-        <div class="h-6 w-px bg-[#E2E5EE] hidden sm:block"></div>
+        <div class="h-6 w-px bg-[#EADBCE] hidden sm:block"></div>
 
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-              Dossier
+            <span class="text-xs font-bold text-[#A2561B] uppercase tracking-wider">
+              Case
             </span>
             <span class="text-xs sm:text-sm font-bold font-mono text-[#22293A]">
               {{ caseId.slice(0, 18) }}...
@@ -95,7 +95,7 @@ async function copyCaseId() {
             </button>
           </div>
           <p class="text-[11px] text-[#6B7280]">
-            {{ viewer === 'STAFF' ? 'Authorized Department Head Inquiry · ISO 37002 Protocol' : 'Encrypted Two-Way Consultation Channel · Digimark Compliance' }}
+            {{ viewer === 'STAFF' ? 'Direct Consultation Stream' : 'Confidential Case Consultation' }}
           </p>
         </div>
       </div>
@@ -104,7 +104,7 @@ async function copyCaseId() {
       <!-- If Viewer is STAFF: Counterpart is Anonymous Whistleblower -->
       <div
         v-if="viewer === 'STAFF'"
-        class="flex items-center gap-3 bg-[#F8F9FA] border border-[#E2E5EE] rounded-xl px-3.5 py-2"
+        class="flex items-center gap-3 bg-[#FAF7F2] border border-[#EADBCE] rounded-xl px-3.5 py-2"
       >
         <div class="h-9 w-9 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
           <ShieldCheckIcon class="size-5" />
@@ -115,11 +115,11 @@ async function copyCaseId() {
               Whistleblower (Reporter #{{ caseId.slice(0, 6) }})
             </span>
             <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-[#FCF4EE] text-[#A2561B] border border-[#A2561B]/20">
-              Air-Gapped
+              Anonymous
             </span>
           </div>
           <p class="text-[10px] text-[#6B7280]">
-            Identity Protected · Zero IP Logging Verified
+            Protected &amp; Confidential
           </p>
         </div>
       </div>
@@ -127,7 +127,7 @@ async function copyCaseId() {
       <!-- If Viewer is REPORTER: Counterpart is Department Head Officer -->
       <div
         v-else
-        class="flex items-center gap-3 bg-[#F8F9FA] border border-[#E2E5EE] rounded-xl px-3.5 py-2"
+        class="flex items-center gap-3 bg-[#FAF7F2] border border-[#EADBCE] rounded-xl px-3.5 py-2"
       >
         <div class="relative">
           <div class="h-9 w-9 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
@@ -168,20 +168,20 @@ async function copyCaseId() {
             </span>
           </div>
           <p class="text-[10px] text-[#6B7280]">
-            {{ departmentHead ? 'Assigned Department Head · Lead Investigator' : 'Queued for General Management triage' }}
+            {{ departmentHead ? 'Assigned Department Head' : 'Pending Review' }}
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Air-Gap Assurance Ribbon -->
-    <div class="px-4 sm:px-6 py-1.5 bg-[#F2F4F7] border-t border-[#E2E5EE] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#6B7280]">
+    <!-- Security Assurance Ribbon -->
+    <div class="px-4 sm:px-6 py-1.5 bg-[#F6F7F9] border-t border-[#EADBCE] flex items-center justify-between text-[11px] text-[#6B7280]">
       <div class="flex items-center gap-1.5">
         <ShieldCheckIcon class="size-3.5 text-[#A2561B]" />
-        <span>{{ viewer === 'STAFF' ? 'ISO 37002 Section 8.4 Anti-Retaliation Screening Active · Direct supervisor screened out' : 'Cryptographic Anonymity Enforced · Zero IP Tracking · TLS 1.3' }}</span>
+        <span>End-to-End Secure &amp; Confidential Channel</span>
       </div>
-      <span class="hidden md:inline">
-        Notice: All communications form part of the official corporate compliance record.
+      <span class="hidden md:inline text-[10px] text-[#9CA3AF]">
+        Messages are encrypted and confidential
       </span>
     </div>
   </div>

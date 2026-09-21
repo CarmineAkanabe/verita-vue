@@ -119,7 +119,7 @@ async function handleClaim(caseItem: StaffCase) {
     caseItem.status = updated.status
     caseItem.assignedTo = updated.assignedTo
     toast.success('Case claimed successfully. Status transitioned to Investigation.')
-    // Redirect straight into the dossier
+    // Redirect straight into the case
     await router.push(`/app/cases/${caseItem.id}`)
   } catch (err: any) {
     toast.error(err?.message || 'Failed to claim case. It may have already been claimed by another officer.')
@@ -487,7 +487,7 @@ onMounted(() => {
                     :to="`/app/cases/${item.id}`"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold border border-border bg-background hover:bg-muted text-foreground transition-colors"
                   >
-                    <span>Open Dossier</span>
+                    <span>View Case</span>
                     <ArrowRightIcon class="size-3" />
                   </router-link>
                 </div>

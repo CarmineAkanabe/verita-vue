@@ -69,31 +69,30 @@ import {
           </p>
         </div>
 
-        <!-- Academic & Industry Research Card with Hover Lift -->
-        <AppCard cardClass="border-border bg-card card-hover-lift">
+        <!-- Why Anonymous Reporting Matters Card -->
+        <AppCard cardClass="border-border bg-card card-creamy shadow-xs">
           <template #header>
             <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
               <CheckCircle2Icon class="size-4" />
-              Verified Anonymity Research
+              Core Principle
             </div>
             <h3 class="text-base font-bold text-foreground">
-              Narrowing the Substantiation Gap
+              Why Confidential Whistleblowing Matters
             </h3>
           </template>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-muted-foreground">
             <div class="space-y-2 border-l-2 border-primary pl-4">
-              <p class="font-semibold text-foreground">Stubben &amp; Welch (2020) — Journal of Accounting Research</p>
+              <p class="font-semibold text-foreground">Eliminating Fear of Retaliation</p>
               <p>
-                In an empirical study of over 2 million internal enterprise reports, <strong>28.5%</strong> of employees chose to remain anonymous,
-                rising to <strong>35.4%</strong> specifically for accounting and financial fraud matters.
+                Staff and consultants often hesitate to speak up when reporting requires their personal name or email.
+                Verita provides a safe, anonymous channel where concerns can be raised without fear of career harm.
               </p>
             </div>
             <div class="space-y-2 border-l-2 border-border pl-4">
-              <p class="font-semibold text-foreground">NAVEX Whistleblowing Benchmark (2023)</p>
+              <p class="font-semibold text-foreground">Clear Proof and Direct Follow-Up</p>
               <p>
-                While anonymous reports constitute over 56% of enterprise intakes, historically only 33% reached substantiation
-                compared to 50% for named reports—due to missing evidence and lack of follow-up. Verita closes this 17-point gap
-                with AI timeline structuring and persistent anonymous two-way chat.
+                Anonymous reports often fail when investigators cannot ask follow-up questions.
+                Verita solves this with private, anonymous two-way chat and clear AI chronological timelines.
               </p>
             </div>
           </div>
@@ -146,28 +145,26 @@ import {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Metadata level -->
-          <div class="rounded-lg border border-border bg-card p-6 space-y-3 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-6 space-y-3 shadow-xs">
             <div class="flex items-center gap-2">
               <ShieldCheckIcon class="size-5 text-emerald-600" />
-              <h3 class="text-sm font-bold text-foreground">1. Metadata-Level Protection (Guaranteed)</h3>
+              <h3 class="text-sm font-bold text-foreground">1. What Verita Protects Automatically</h3>
             </div>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Verita does not log IP addresses, browser user-agents, hardware fingerprints, or timestamps associated with network packets.
-              No user account is ever created for the reporter. Case verification is governed entirely by a 16-character UUID
-              and a cryptographic one-way hashed PIN.
+              We never record your IP address, browser type, or device details. You do not need to create an account
+              or log in with work credentials. Access to your report is protected only by your unique Case ID and private PIN.
             </p>
           </div>
 
           <!-- Content level caveat -->
-          <div class="rounded-lg border border-warning/40 bg-warning/5 p-6 space-y-3 card-hover-lift">
+          <div class="rounded-xl border border-warning/40 bg-warning/5 p-6 space-y-3 shadow-xs">
             <div class="flex items-center gap-2">
               <OctagonAlertIcon class="size-5 text-warning" />
-              <h3 class="text-sm font-bold text-foreground">2. Content-Level Disclosure (Reporter Responsibility)</h3>
+              <h3 class="text-sm font-bold text-foreground">2. Important Tip When Uploading Files</h3>
             </div>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Verita protects metadata, but <strong>cannot automatically redact personal identifiers embedded within evidence</strong>
-              (such as bank transfer receipts bearing your personal name or account number). Case reporters are strongly advised
-              to crop or black out personal identifying details prior to uploading documents.
+              We protect system metadata, but <strong>cannot remove personal details inside your files</strong>.
+              If uploading screenshots or payment receipts, please cover or crop your personal name or account numbers first.
             </p>
           </div>
         </div>
@@ -191,25 +188,25 @@ import {
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="rounded-lg border border-border bg-card p-5 space-y-3 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-5 space-y-3 shadow-xs">
             <h3 class="text-xs font-semibold uppercase tracking-wider text-primary">What the AI Does</h3>
             <ul class="space-y-2 text-xs text-foreground">
               <li class="flex items-start gap-2">
                 <CheckCircle2Icon class="size-4 text-primary shrink-0 mt-0.5" />
-                <span>Generates an inferred chronological timeline from narrative statements and screenshots.</span>
+                <span>Builds a chronological timeline from statements, chat logs, and receipts.</span>
               </li>
               <li class="flex items-start gap-2">
                 <CheckCircle2Icon class="size-4 text-primary shrink-0 mt-0.5" />
-                <span>Checks completeness of fraud fields (date, amount, purpose, person involved).</span>
+                <span>Checks for completeness: date, amount, purpose, and parties involved.</span>
               </li>
               <li class="flex items-start gap-2">
                 <CheckCircle2Icon class="size-4 text-primary shrink-0 mt-0.5" />
-                <span>Identifies factual discrepancies between reported statements and uploaded evidence.</span>
+                <span>Highlights factual differences between reported descriptions and attached proof.</span>
               </li>
             </ul>
           </div>
 
-          <div class="rounded-lg border border-border bg-card p-5 space-y-3 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-5 space-y-3 shadow-xs">
             <h3 class="text-xs font-semibold uppercase tracking-wider text-destructive">What the AI Never Does</h3>
             <ul class="space-y-2 text-xs text-muted-foreground">
               <li class="flex items-start gap-2">
@@ -218,11 +215,11 @@ import {
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-destructive font-bold">✕</span>
-                <span>Never decides whether fraud or misconduct actually occurred.</span>
+                <span>Never decides whether misconduct occurred.</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-destructive font-bold">✕</span>
-                <span>Never recommends disciplinary actions, sanctions, or case dismissal.</span>
+                <span>Never recommends disciplinary actions, sanctions, or case outcomes.</span>
               </li>
             </ul>
           </div>
@@ -242,27 +239,26 @@ import {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="rounded-lg border border-border bg-card p-5 space-y-2 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-5 space-y-2 shadow-xs">
             <h3 class="text-sm font-bold text-foreground">Department Heads</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Assigned based on the department involved in the incident. Department Heads claim cases, review the evidence,
-              communicate directly with reporters in text-only chat, and write final resolution summaries.
+              Assigned based on the department involved. Department Heads review the evidence,
+              communicate directly with reporters in private chat, and record resolutions.
             </p>
           </div>
 
-          <div class="rounded-lg border border-border bg-card p-5 space-y-2 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-5 space-y-2 shadow-xs">
             <h3 class="text-sm font-bold text-foreground">Executive Management</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Managers administer platform accounts, monitor aggregate analytics, and reassign conflict cases.
-              <strong>Managers cannot inspect case evidence or chat logs by default</strong> unless a reporter explicitly triggers an escalation.
+              Provides administrative oversight and handles cases where the department head is bypassed or conflicted.
             </p>
           </div>
 
-          <div class="rounded-lg border border-border bg-card p-5 space-y-2 card-hover-lift">
+          <div class="rounded-xl border border-border bg-card card-creamy p-5 space-y-2 shadow-xs">
             <h3 class="text-sm font-bold text-foreground">Escalation Protection</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              If an assigned Department Head is unresponsive, conflicted, or improperly dismissive, the reporter
-              can trigger an audit-logged escalation that brings the file directly to Executive Management.
+              If an assigned reviewer is unresponsive or dismissive, the reporter can escalate the case
+              directly to Executive Management.
             </p>
           </div>
         </div>

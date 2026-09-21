@@ -119,9 +119,9 @@ function triggerBrowse() {
   }
 }
 
-const totalDossierSize = computed(() => {
-  const totalBytes = props.modelValue.reduce((acc, f) => acc + f.size, 0)
-  return formatFileSize(totalBytes)
+const totalFilesSize = computed(() => {
+  const bytes = props.modelValue.reduce((acc, f) => acc + f.size, 0)
+  return formatFileSize(bytes)
 })
 </script>
 
@@ -200,8 +200,8 @@ const totalDossierSize = computed(() => {
     <!-- Attached Files Ledger -->
     <div v-if="modelValue.length > 0" class="space-y-2.5 pt-2">
       <div class="flex items-center justify-between text-xs text-muted-foreground font-semibold uppercase tracking-wider">
-        <span>Attached Evidence Dossier ({{ modelValue.length }} {{ modelValue.length === 1 ? 'file' : 'files' }})</span>
-        <span class="font-mono text-[11px] text-foreground font-medium">Total: {{ totalDossierSize }}</span>
+        <span>Attached Files ({{ modelValue.length }} {{ modelValue.length === 1 ? 'file' : 'files' }})</span>
+        <span class="font-mono text-[11px] text-foreground font-medium">Total: {{ totalFilesSize }}</span>
       </div>
 
       <div class="space-y-2">

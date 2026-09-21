@@ -31,7 +31,7 @@ const router = createRouter({
           name: 'case-dashboard',
           beforeEnter: requireCaseAuth,
           component: () => import('@/pages/cases/CaseDashboard.vue'),
-          meta: { title: 'Incident Dossier Dashboard — Verita' },
+          meta: { title: 'Case Dashboard — Verita' },
         },
         {
           path: 'cases/me/chat',
@@ -112,7 +112,7 @@ const router = createRouter({
           path: 'cases/:id',
           name: 'staff-case-detail',
           component: () => import('@/pages/staff/cases/CaseDetail.vue'),
-          meta: { title: 'Investigation Dossier — Verita' },
+          meta: { title: 'Case Details — Verita' },
         },
         {
           path: 'cases/:id/chat',
