@@ -102,6 +102,18 @@ const router = createRouter({
           component: () => import('@/pages/staff/NotificationsList.vue'),
           meta: { title: 'Notifications — Verita' },
         },
+        {
+          path: 'cases',
+          name: 'staff-cases-index',
+          component: () => import('@/pages/staff/cases/CasesIndex.vue'),
+          meta: { title: 'Investigation Queue — Verita' },
+        },
+        {
+          path: 'cases/:id',
+          name: 'staff-case-detail',
+          component: () => import('@/pages/staff/cases/CaseDetail.vue'),
+          meta: { title: 'Investigation Dossier — Verita' },
+        },
       ],
     },
     {

@@ -81,3 +81,49 @@ export interface EscalateCaseResponse {
   escalatedAt: string
 }
 
+// Phase 8: Staff Case & Investigation Types
+
+export interface StaffEvidenceItem {
+  id: string
+  fileType: EvidenceFileType
+  uploadedAt: string
+  downloadUrl?: string
+}
+
+export interface StaffCase {
+  id: string
+  category: CaseCategory
+  status: CaseStatus
+  description: string
+  purposeOfTransaction: string
+  amountInvolved: number | string
+  personInvolved: string
+  transactionDate: string
+  concernsDepartmentHead: boolean
+  assignedTo?: string | null
+  resolutionSummary?: string | null
+  createdAt?: string
+  resolvedAt?: string | null
+  escalatedAt?: string | null
+  evidence: StaffEvidenceItem[]
+  aiSummary?: string | null
+  aiTimeline?: TimelineEvent[] | string | null
+  aiFindings?: string[] | string | null
+  aiProcessingFailed?: boolean
+}
+
+export interface UpdateCaseStatusPayload {
+  status: CaseStatus
+  note: string
+  resolutionSummary?: string
+}
+
+export interface AuditLogEntry {
+  id: string
+  caseId?: string
+  actorName: string
+  action: string
+  details: string
+  timestamp: string
+  hash?: string
+}

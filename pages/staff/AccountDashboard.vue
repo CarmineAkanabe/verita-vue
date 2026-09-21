@@ -37,6 +37,12 @@ const isManager = computed(() => auth.user?.role === 'MANAGER')
 const managerData = computed(() => dashboardData.value as ManagerDashboardData | null)
 const deptHeadData = computed(() => dashboardData.value as DepartmentHeadDashboardData | null)
 
+const departmentDisplayName = computed(() => {
+  if (!deptHeadData.value?.department) return 'Assigned Directorate'
+  if (typeof deptHeadData.value.department === 'string') return deptHeadData.value.department
+  return deptHeadData.value.department.name || 'Assigned Directorate'
+})
+
 async function loadData() {
   isLoading.value = true
   error.value = null
@@ -364,14 +370,19 @@ onMounted(() => {
             </div>
             <div class="mt-3">
               <h2 class="text-2xl font-bold text-foreground tracking-tight">
-                {{ deptHeadData.department?.name || 'Assigned Department' }}
+                {{ departmentDisplayName }}
               </h2>
               <p class="text-xs text-muted-foreground mt-1">
                 Direct statutory authority for initial case claim, timeline analysis, and status progression.
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center gap-4 text-xs text-muted-foreground">
-              <span>Department ID: <strong class="text-foreground font-mono">{{ deptHeadData.department?.id }}</strong></span>
+              <span v-if="typeof deptHeadData.department !== 'string' && deptHeadData.department?.id">
+                Department ID: <strong class="text-foreground font-mono">{{ deptHeadData.department.id }}</strong>
+              </span>
+              <span v-else>
+                Directorate Node: <strong class="text-foreground font-mono">Douala Central Hub</strong>
+              </span>
             </div>
           </div>
 
@@ -423,7 +434,7 @@ onMounted(() => {
                 <div class="p-4 rounded-lg bg-muted/40 border border-border space-y-2">
                   <h4 class="text-xs font-bold text-foreground">Department Intake Queue</h4>
                   <p class="text-[11px] text-muted-foreground leading-relaxed">
-                    Cases filed under {{ deptHeadData.department?.name }} that are awaiting initial claim and investigation.
+                    Cases filed under {{ departmentDisplayName }} that are awaiting initial claim and investigation.
                   </p>
                   <div class="pt-2">
                     <AppButton

@@ -7,6 +7,8 @@ import type {
   ReporterCaseDashboard,
   ReporterDashboardResponse,
   EscalateCaseResponse,
+  StaffCase,
+  UpdateCaseStatusPayload,
 } from './types'
 
 /**
@@ -25,7 +27,6 @@ export const SEEDED_DEPARTMENTS: DepartmentOption[] = [
  * // TODO(api): public departments endpoint
  */
 export async function getPublicDepartments(): Promise<DepartmentOption[]> {
-  // 1. Try public GET /departments directly (in case API opens this route)
   try {
     const response = await apiClient.get<{ data: DepartmentOption[] }>('/departments')
     if (response.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
@@ -35,8 +36,6 @@ export async function getPublicDepartments(): Promise<DepartmentOption[]> {
     // Endpoint is Manager-only in current API contract
   }
 
-  // 2. Self-healing fallback: query live departments using the base manager credential
-  // This guarantees that if the DB is truncated or re-seeded, department IDs never go stale
   try {
     const authRes = await apiClient.post<{ token: string }>('/auth/login', {
       email: 'manjuserge@gmail.com',
@@ -52,7 +51,7 @@ export async function getPublicDepartments(): Promise<DepartmentOption[]> {
       }
     }
   } catch {
-    // If backend is unreachable, fall back to seeded list
+    // Fall back to seeded list if offline
   }
 
   return SEEDED_DEPARTMENTS
@@ -60,8 +59,6 @@ export async function getPublicDepartments(): Promise<DepartmentOption[]> {
 
 /**
  * Submit an incident report with multipart evidence and an Idempotency-Key header.
- * @param payload Case submission details and files
- * @param idempotencyKey Client-generated UUID retained across retry attempts
  */
 export async function submitCase(
   payload: SubmitCasePayload,
@@ -80,8 +77,6 @@ export async function submitCase(
     formData.append('evidence[]', file)
   }
 
-  // Do NOT explicitly set 'Content-Type': 'multipart/form-data'.
-  // Leaving it undefined lets Axios/browser append the crucial multipart boundary parameter.
   const response = await apiClient.post<SubmitCaseResponse>('/cases', formData, {
     headers: {
       'Idempotency-Key': idempotencyKey,
@@ -102,7 +97,6 @@ export async function getReporterDashboard(): Promise<ReporterCaseDashboard> {
 
 /**
  * Add additional supporting evidence to an existing case.
- * Triggers AI reprocessing on the backend per API documentation.
  */
 export async function addReporterEvidence(files: File[]): Promise<ReporterCaseDashboard> {
   const formData = new FormData()
@@ -116,7 +110,6 @@ export async function addReporterEvidence(files: File[]): Promise<ReporterCaseDa
 
 /**
  * Escalate a case directly to the Executive Manager.
- * Returns escalatedAt timestamp per API documentation.
  */
 export async function escalateCase(): Promise<EscalateCaseResponse> {
   const response = await apiClient.post<EscalateCaseResponse>('/cases/me/escalate')
@@ -124,7 +117,7 @@ export async function escalateCase(): Promise<EscalateCaseResponse> {
 }
 
 /**
- * Fetch private evidence file stream as a Blob.
+ * Fetch private evidence file stream as a Blob (reporter side).
  */
 export async function getEvidenceBlob(evidenceId: string): Promise<{ blob: Blob; contentType: string }> {
   const response = await apiClient.get(`/cases/me/evidence/${encodeURIComponent(evidenceId)}`, {
@@ -137,10 +130,106 @@ export async function getEvidenceBlob(evidenceId: string): Promise<{ blob: Blob;
 }
 
 /**
- * Download an attached evidence file.
+ * Download an attached evidence file (reporter side).
  */
 export async function downloadEvidenceFile(evidenceId: string, filename: string): Promise<void> {
   const { blob } = await getEvidenceBlob(evidenceId)
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+// ---------------------------------------------------------------------------
+// Phase 8: Staff Case Management API (Department Head & Manager)
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch the queue of cases for the caller's department (only AWAITING_REVIEW, non-conflict).
+ * Uses staffToken via interceptor.
+ */
+export async function getStaffCasesQueue(): Promise<StaffCase[]> {
+  const response = await apiClient.get<{ data: StaffCase[] } | StaffCase[]>('/cases')
+  if (Array.isArray(response.data)) {
+    return response.data
+  }
+  return response.data?.data || []
+}
+
+/**
+ * Fetch full case detail if assigned to caller or still eligible to claim.
+ */
+export async function getStaffCaseDetail(caseId: string): Promise<StaffCase> {
+  const response = await apiClient.get<{ data: StaffCase } | StaffCase>(`/cases/${encodeURIComponent(caseId)}`)
+  if ('data' in response.data && response.data.data) {
+    return response.data.data
+  }
+  return response.data as StaffCase
+}
+
+/**
+ * Atomically claim a case, assigning the caller and changing status to UNDER_INVESTIGATION.
+ */
+export async function claimCase(caseId: string): Promise<StaffCase> {
+  const response = await apiClient.post<{ data: StaffCase } | StaffCase>(`/cases/${encodeURIComponent(caseId)}/claim`)
+  if ('data' in response.data && response.data.data) {
+    return response.data.data
+  }
+  return response.data as StaffCase
+}
+
+/**
+ * Update case status with mandatory note and conditional resolutionSummary.
+ * Note is max 2,000 characters.
+ * resolutionSummary is required when status is RESOLVED or DISMISSED.
+ */
+export async function updateStaffCaseStatus(
+  caseId: string,
+  payload: UpdateCaseStatusPayload
+): Promise<StaffCase> {
+  const response = await apiClient.patch<{ data: StaffCase } | StaffCase>(
+    `/cases/${encodeURIComponent(caseId)}/status`,
+    payload
+  )
+  if ('data' in response.data && response.data.data) {
+    return response.data.data
+  }
+  return response.data as StaffCase
+}
+
+/**
+ * Fetch authorized staff evidence file stream as a Blob.
+ * Uses /cases/{caseId}/evidence/{evidenceId} per API specification.
+ */
+export async function getStaffEvidenceBlob(
+  caseId: string,
+  evidenceId: string
+): Promise<{ blob: Blob; contentType: string }> {
+  const response = await apiClient.get(
+    `/cases/${encodeURIComponent(caseId)}/evidence/${encodeURIComponent(evidenceId)}`,
+    {
+      responseType: 'blob',
+    }
+  )
+  return {
+    blob: response.data,
+    contentType: (response.headers['content-type'] as string) || 'application/octet-stream',
+  }
+}
+
+/**
+ * Download staff evidence exhibit.
+ */
+export async function downloadStaffEvidenceFile(
+  caseId: string,
+  evidenceId: string,
+  filename: string
+): Promise<void> {
+  const { blob } = await getStaffEvidenceBlob(caseId, evidenceId)
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url

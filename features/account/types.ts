@@ -27,10 +27,12 @@ export interface ManagerDashboardData {
 
 export interface DepartmentHeadDashboardData {
   role: 'DEPARTMENT_HEAD'
-  department: {
-    id: string
-    name: string
-  }
+  department:
+    | string
+    | {
+        id?: string
+        name?: string
+      }
   assignedCaseCount: number
 }
 

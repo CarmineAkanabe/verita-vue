@@ -4,6 +4,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/shared/stores/auth'
 import { updateProfile } from '@/features/account/api'
 import { toast } from '@/plugins/toast'
+import { getAvatarUrl } from '@/utils/avatar'
 import AppInput from '@/components/common/AppInput.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
@@ -26,6 +27,7 @@ const password = ref('')
 const passwordConfirmation = ref('')
 const selectedFile = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
+const imageLoadError = ref(false)
 
 const isSubmitting = ref(false)
 const generalError = ref<string | null>(null)
@@ -42,7 +44,8 @@ function populateForm() {
     firstName.value = auth.user.firstName || ''
     lastName.value = auth.user.lastName || ''
     email.value = auth.user.email || ''
-    previewUrl.value = auth.user.profilePicture || null
+    previewUrl.value = getAvatarUrl(auth.user.profilePicture)
+    imageLoadError.value = false
   }
 }
 
@@ -74,6 +77,7 @@ function handleFileChange(event: Event) {
     URL.revokeObjectURL(previewUrl.value)
   }
   previewUrl.value = URL.createObjectURL(file)
+  imageLoadError.value = false
 }
 
 function removeSelectedFile() {
@@ -82,7 +86,8 @@ function removeSelectedFile() {
   if (previewUrl.value && previewUrl.value.startsWith('blob:')) {
     URL.revokeObjectURL(previewUrl.value)
   }
-  previewUrl.value = auth.user?.profilePicture || null
+  previewUrl.value = getAvatarUrl(auth.user?.profilePicture)
+  imageLoadError.value = false
 }
 
 async function handleSubmit() {
@@ -213,10 +218,11 @@ async function handleSubmit() {
         <div class="flex flex-col sm:flex-row sm:items-center gap-5 p-4 rounded-lg bg-muted/30 border border-border">
           <div class="relative size-16 rounded-full overflow-hidden bg-ink-900 text-white flex items-center justify-center font-bold text-lg shrink-0 border border-border">
             <img
-              v-if="previewUrl"
+              v-if="previewUrl && !imageLoadError"
               :src="previewUrl"
               alt="Avatar preview"
               class="w-full h-full object-cover"
+              @error="imageLoadError = true"
             />
             <span v-else>{{ userInitials }}</span>
           </div>

@@ -5,6 +5,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
 import { logoutStaffApi } from '@/features/auth/api'
 import { toast } from '@/plugins/toast'
+import { getAvatarUrl } from '@/utils/avatar'
 import {
   LogOutIcon,
   HomeIcon,
@@ -23,8 +24,10 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 const isLoggingOut = ref(false)
+const imageLoadError = ref(false)
 
 const isManager = computed(() => auth.user?.role === 'MANAGER')
+const avatarUrl = computed(() => getAvatarUrl(auth.user?.profilePicture))
 
 const userInitials = computed(() => {
   const f = auth.user?.firstName?.[0] || 'S'
@@ -76,10 +79,11 @@ async function handleLogout() {
       <div class="flex items-center gap-3">
         <div class="h-10 w-10 rounded-full overflow-hidden bg-sidebar-primary/20 border border-sidebar-primary/40 flex items-center justify-center text-sidebar-primary font-bold text-sm shrink-0">
           <img
-            v-if="auth.user.profilePicture"
-            :src="auth.user.profilePicture"
+            v-if="avatarUrl && !imageLoadError"
+            :src="avatarUrl"
             alt="Profile Avatar"
             class="w-full h-full object-cover"
+            @error="imageLoadError = true"
           />
           <span v-else>{{ userInitials }}</span>
         </div>
