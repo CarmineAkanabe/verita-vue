@@ -4,6 +4,7 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
 import { useChatStore } from '@/features/chat/store'
+import { caseToken } from '@/shared/api/auth'
 
 import ChatHeader from '@/components/complex/chat/ChatHeader.vue'
 import MessageBubble from '@/components/complex/chat/MessageBubble.vue'
@@ -68,12 +69,19 @@ onMounted(() => {
     return
   }
 
-  // Start polling every 3 seconds
-  chatStore.startPolling(3000)
+  // Connect to real-time Reverb WebSocket
+  const token = caseToken.get()
+  if (token && authStore.caseId) {
+    chatStore.connectWebSocket(authStore.caseId, token)
+  }
+
+  // Heartbeat polling every 5 seconds for background metadata & presence sync
+  chatStore.startPolling(5000)
   scrollToBottom(false)
 })
 
 onUnmounted(() => {
+  chatStore.disconnectWebSocket()
   chatStore.stopPolling()
 })
 </script>

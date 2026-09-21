@@ -12,15 +12,34 @@ import {
   RefreshCwIcon,
 } from '@lucide/vue'
 
-const props = defineProps<{
-  caseId: string
-  departmentHead: DepartmentHeadInfo | null
-  isReconnecting?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    caseId: string
+    departmentHead?: DepartmentHeadInfo | null
+    isReconnecting?: boolean
+    viewer?: 'REPORTER' | 'STAFF'
+    backTo?: string
+  }>(),
+  {
+    departmentHead: null,
+    isReconnecting: false,
+    viewer: 'REPORTER',
+  }
+)
 
 const router = useRouter()
 
-const isOnline = computed(() => props.departmentHead?.presenceStatus === 'ONLINE')
+const isOnline = computed(() => String(props.departmentHead?.presenceStatus || '').toUpperCase() === 'ONLINE')
+
+function handleBack() {
+  if (props.backTo) {
+    router.push(props.backTo)
+  } else if (props.viewer === 'STAFF') {
+    router.push(`/app/cases/${props.caseId}`)
+  } else {
+    router.push({ name: 'case-dashboard' })
+  }
+}
 
 async function copyCaseId() {
   try {
@@ -50,10 +69,10 @@ async function copyCaseId() {
         <button
           type="button"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E2E5EE] bg-[#F8F9FA] hover:bg-[#F2F4F7] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer"
-          @click="router.push({ name: 'case-dashboard' })"
+          @click="handleBack"
         >
           <ArrowLeftIcon class="size-3.5" />
-          <span>Back to Dossier</span>
+          <span>{{ viewer === 'STAFF' ? 'Back to Dossier' : 'Back to Dashboard' }}</span>
         </button>
 
         <div class="h-6 w-px bg-[#E2E5EE] hidden sm:block"></div>
@@ -76,13 +95,40 @@ async function copyCaseId() {
             </button>
           </div>
           <p class="text-[11px] text-[#6B7280]">
-            Encrypted Two-Way Consultation Channel · Digimark Compliance
+            {{ viewer === 'STAFF' ? 'Authorized Department Head Inquiry · ISO 37002 Protocol' : 'Encrypted Two-Way Consultation Channel · Digimark Compliance' }}
           </p>
         </div>
       </div>
 
-      <!-- Right: Department Head Officer Identity Card -->
-      <div class="flex items-center gap-3 bg-[#F8F9FA] border border-[#E2E5EE] rounded-xl px-3.5 py-2">
+      <!-- Right: Counterpart Identity Card -->
+      <!-- If Viewer is STAFF: Counterpart is Anonymous Whistleblower -->
+      <div
+        v-if="viewer === 'STAFF'"
+        class="flex items-center gap-3 bg-[#F8F9FA] border border-[#E2E5EE] rounded-xl px-3.5 py-2"
+      >
+        <div class="h-9 w-9 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
+          <ShieldCheckIcon class="size-5" />
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-[#22293A]">
+              Whistleblower (Reporter #{{ caseId.slice(0, 6) }})
+            </span>
+            <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-[#FCF4EE] text-[#A2561B] border border-[#A2561B]/20">
+              Air-Gapped
+            </span>
+          </div>
+          <p class="text-[10px] text-[#6B7280]">
+            Identity Protected · Zero IP Logging Verified
+          </p>
+        </div>
+      </div>
+
+      <!-- If Viewer is REPORTER: Counterpart is Department Head Officer -->
+      <div
+        v-else
+        class="flex items-center gap-3 bg-[#F8F9FA] border border-[#E2E5EE] rounded-xl px-3.5 py-2"
+      >
         <div class="relative">
           <div class="h-9 w-9 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
             <UserIcon class="size-4" />
@@ -132,7 +178,7 @@ async function copyCaseId() {
     <div class="px-4 sm:px-6 py-1.5 bg-[#F2F4F7] border-t border-[#E2E5EE] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#6B7280]">
       <div class="flex items-center gap-1.5">
         <ShieldCheckIcon class="size-3.5 text-[#A2561B]" />
-        <span>Cryptographic Anonymity Enforced · Zero IP Tracking · TLS 1.3</span>
+        <span>{{ viewer === 'STAFF' ? 'ISO 37002 Section 8.4 Anti-Retaliation Screening Active · Direct supervisor screened out' : 'Cryptographic Anonymity Enforced · Zero IP Tracking · TLS 1.3' }}</span>
       </div>
       <span class="hidden md:inline">
         Notice: All communications form part of the official corporate compliance record.

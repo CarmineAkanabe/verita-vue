@@ -114,6 +114,12 @@ const router = createRouter({
           component: () => import('@/pages/staff/cases/CaseDetail.vue'),
           meta: { title: 'Investigation Dossier — Verita' },
         },
+        {
+          path: 'cases/:id/chat',
+          name: 'staff-case-chat',
+          component: () => import('@/pages/staff/cases/StaffCaseChat.vue'),
+          meta: { title: 'Case Consultation — Verita' },
+        },
       ],
     },
     {

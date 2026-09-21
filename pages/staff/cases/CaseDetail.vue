@@ -362,7 +362,6 @@ onMounted(() => {
 
           <!-- Consultation Channel Link -->
           <router-link
-            v-if="isAssignedToMe"
             :to="`/app/cases/${caseData?.id}/chat`"
             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border transition-colors"
           >

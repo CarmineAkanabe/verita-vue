@@ -11,16 +11,27 @@ import {
   UserIcon,
 } from '@lucide/vue'
 
-const props = defineProps<{
-  message: ChatMessage
-  departmentHeadName?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    message: ChatMessage
+    departmentHeadName?: string
+    viewer?: 'REPORTER' | 'STAFF'
+  }>(),
+  {
+    viewer: 'REPORTER',
+  }
+)
 
 const emit = defineEmits<{
   (e: 'retry', tempId: string): void
 }>()
 
-const isReporter = computed(() => props.message.senderType === 'CASE_REPORTER')
+const isOutgoing = computed(() => {
+  if (props.viewer === 'STAFF') {
+    return props.message.senderType === 'DEPARTMENT_HEAD'
+  }
+  return props.message.senderType === 'CASE_REPORTER'
+})
 
 function formatTime(isoString: string): string {
   try {
@@ -36,28 +47,46 @@ function formatTime(isoString: string): string {
   <div
     :class="[
       'flex w-full my-2',
-      isReporter ? 'justify-end' : 'justify-start'
+      isOutgoing ? 'justify-end' : 'justify-start'
     ]"
   >
     <!-- Message Container with Max Width -->
     <div
       :class="[
         'max-w-[85%] sm:max-w-[70%] flex flex-col',
-        isReporter ? 'items-end' : 'items-start'
+        isOutgoing ? 'items-end' : 'items-start'
       ]"
     >
       <!-- Sender Meta Label -->
       <div class="flex items-center gap-1.5 mb-1 px-1 text-[11px] font-semibold text-[#6B7280]">
-        <template v-if="isReporter">
-          <ShieldIcon class="size-3 text-[#A2561B]" />
-          <span>You (Anonymous Reporter)</span>
+        <!-- If Outgoing from Viewer -->
+        <template v-if="isOutgoing">
+          <template v-if="viewer === 'STAFF'">
+            <UserIcon class="size-3 text-[#A2561B]" />
+            <span>You (Investigator)</span>
+          </template>
+          <template v-else>
+            <ShieldIcon class="size-3 text-[#A2561B]" />
+            <span>You (Anonymous Reporter)</span>
+          </template>
         </template>
+
+        <!-- If Incoming to Viewer -->
         <template v-else>
-          <UserIcon class="size-3 text-[#575E71]" />
-          <span class="text-[#22293A]">{{ departmentHeadName || 'Department Head' }}</span>
-          <span class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#F2F4F7] border border-[#E2E5EE] text-[#575E71]">
-            Investigator
-          </span>
+          <template v-if="viewer === 'STAFF'">
+            <ShieldIcon class="size-3 text-[#575E71]" />
+            <span class="text-[#22293A]">Whistleblower</span>
+            <span class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B]">
+              Anonymous Relay
+            </span>
+          </template>
+          <template v-else>
+            <UserIcon class="size-3 text-[#575E71]" />
+            <span class="text-[#22293A]">{{ departmentHeadName || 'Department Head' }}</span>
+            <span class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#F2F4F7] border border-[#E25EE] text-[#575E71]">
+              Investigator
+            </span>
+          </template>
         </template>
       </div>
 
@@ -65,7 +94,7 @@ function formatTime(isoString: string): string {
       <div
         :class="[
           'px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs break-words whitespace-pre-wrap',
-          isReporter
+          isOutgoing
             ? 'bg-[#A2561B] text-white rounded-tr-xs border border-[#843F01]/30'
             : 'bg-white text-[#22293A] rounded-tl-xs border border-[#E2E5EE]'
         ]"
@@ -74,16 +103,11 @@ function formatTime(isoString: string): string {
       </div>
 
       <!-- Timestamp and Delivery Status Footer -->
-      <div
-        :class="[
-          'flex items-center gap-1.5 mt-1 px-1 text-[10px]',
-          isReporter ? 'text-[#6B7280]' : 'text-[#6B7280]'
-        ]"
-      >
+      <div class="flex items-center gap-1.5 mt-1 px-1 text-[10px] text-[#6B7280]">
         <span>{{ formatTime(message.sentAt) }}</span>
 
-        <!-- Reporter status tags -->
-        <template v-if="isReporter">
+        <!-- Outgoing status tags -->
+        <template v-if="isOutgoing">
           <span v-if="message.status === 'pending'" class="inline-flex items-center gap-1 text-[#A2561B]">
             <Loader2Icon class="size-2.5 animate-spin" />
             <span>Transmitting...</span>

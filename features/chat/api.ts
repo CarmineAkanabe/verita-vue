@@ -21,3 +21,37 @@ export async function sendReporterMessage(content: string): Promise<ChatMessage>
   })
   return response.data.data
 }
+
+// ---------------------------------------------------------------------------
+// Phase 9: Staff Case Consultation Channel (Department Head & Manager)
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch consultation messages for a specific case (staff view).
+ * Authorized for assigned Department Head or Manager oversight.
+ */
+export async function getStaffCaseMessages(caseId: string): Promise<ChatMessage[]> {
+  const response = await apiClient.get<{ messages: ChatMessage[] } | ChatMessage[]>(
+    `/cases/${encodeURIComponent(caseId)}/messages`
+  )
+  if (Array.isArray(response.data)) {
+    return response.data
+  }
+  return response.data?.messages || []
+}
+
+/**
+ * Send an official investigation message to the whistleblower.
+ * Authorized for assigned Department Head only.
+ */
+export async function sendStaffCaseMessage(caseId: string, content: string): Promise<ChatMessage> {
+  const response = await apiClient.post<SendMessageResponse | { data: ChatMessage } | ChatMessage>(
+    `/cases/${encodeURIComponent(caseId)}/messages`,
+    { content: content.trim() }
+  )
+  if ('data' in response.data && response.data.data) {
+    return response.data.data
+  }
+  return response.data as ChatMessage
+}
+

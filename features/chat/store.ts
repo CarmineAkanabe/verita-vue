@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { getReporterMessages, sendReporterMessage } from './api'
 import type { ChatMessage, DepartmentHeadInfo } from './types'
+import { getEcho, disconnectEcho } from '@/shared/realtime/socket-client'
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
@@ -13,6 +14,7 @@ export const useChatStore = defineStore('chat', {
     pollTimer: null as any | null,
     pollErrorCount: 0,
     isPollingActive: false,
+    currentChannelName: null as string | null,
   }),
 
   getters: {
@@ -167,6 +169,97 @@ export const useChatStore = defineStore('chat', {
       } catch {
         target.status = 'failed'
       }
+    },
+
+    connectWebSocket(caseId: string, token: string) {
+      try {
+        const echo = getEcho(token)
+        const channelName = `case.${caseId}`
+
+        if (this.currentChannelName === channelName) {
+          return
+        }
+
+        if (this.currentChannelName) {
+          try {
+            echo.leave(this.currentChannelName)
+          } catch {
+            // ignore
+          }
+        }
+
+        this.currentChannelName = channelName
+        const channel = echo.private(channelName)
+
+        const onMessage = (data: any) => {
+          if (!data || !data.id) return
+          this.receiveSocketMessage({
+            id: data.id,
+            senderType: data.senderType,
+            content: data.content,
+            sentAt: data.sentAt,
+            status: 'sent',
+          })
+
+          if (data.senderType === 'DEPARTMENT_HEAD' || data.presenceStatus === 'ONLINE') {
+            if (this.departmentHead) {
+              this.departmentHead.presenceStatus = 'ONLINE'
+            }
+          }
+        }
+
+        channel.listen('.message.sent', onMessage)
+        channel.listen('MessageSent', onMessage)
+        channel.listen('.department-head.presence', (data: any) => {
+          if (this.departmentHead && data?.presenceStatus) {
+            this.departmentHead.presenceStatus = data.presenceStatus
+          }
+        })
+
+        if ((echo as any).connector?.pusher?.connection) {
+          const conn = (echo as any).connector.pusher.connection
+          conn.bind('connected', () => {
+            this.isReconnecting = false
+          })
+          conn.bind('unavailable', () => {
+            this.isReconnecting = true
+          })
+          conn.bind('failed', () => {
+            this.isReconnecting = true
+          })
+        }
+      } catch (err) {
+        console.warn('Reverb socket connection warning:', err)
+      }
+    },
+
+    disconnectWebSocket() {
+      if (this.currentChannelName) {
+        try {
+          const echo = getEcho()
+          echo.leave(this.currentChannelName)
+        } catch {
+          // ignore
+        }
+        this.currentChannelName = null
+      }
+      disconnectEcho()
+    },
+
+    receiveSocketMessage(msg: ChatMessage) {
+      const exists = this.messages.some((m) => m.id === msg.id)
+      if (exists) return
+
+      const pendingIdx = this.messages.findIndex(
+        (m) => m.status === 'pending' && m.content === msg.content && m.senderType === msg.senderType
+      )
+      if (pendingIdx !== -1) {
+        this.messages[pendingIdx] = msg
+        return
+      }
+
+      this.messages.push(msg)
+      this.messages.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
     },
   },
 })
