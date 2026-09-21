@@ -144,6 +144,57 @@ const router = createRouter({
       ],
     },
     {
+      path: '/unauthorized',
+      component: () => import('@/layouts/ErrorLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'unauthorized',
+          component: () => import('@/pages/error/Unauthorized.vue'),
+          props: { code: 401 },
+          meta: { title: '401 Unauthorized — Verita' },
+        },
+      ],
+    },
+    {
+      path: '/forbidden',
+      component: () => import('@/layouts/ErrorLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'forbidden',
+          component: () => import('@/pages/error/Forbidden.vue'),
+          props: { code: 403 },
+          meta: { title: '403 Access Restricted — Verita' },
+        },
+      ],
+    },
+    {
+      path: '/server-error',
+      component: () => import('@/layouts/ErrorLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'server-error',
+          component: () => import('@/pages/error/ServerError.vue'),
+          props: { code: 500 },
+          meta: { title: '500 Service Interrupted — Verita' },
+        },
+      ],
+    },
+    {
+      path: '/401',
+      redirect: { name: 'unauthorized' },
+    },
+    {
+      path: '/403',
+      redirect: { name: 'forbidden' },
+    },
+    {
+      path: '/500',
+      redirect: { name: 'server-error' },
+    },
+    {
       path: '/:pathMatch(.*)*',
       component: () => import('@/layouts/ErrorLayout.vue'),
       children: [
@@ -152,6 +203,7 @@ const router = createRouter({
           name: 'not-found',
           component: () => import('@/pages/error/NotFound.vue'),
           props: { code: 404 },
+          meta: { title: '404 Page Not Found — Verita' },
         },
       ],
     },

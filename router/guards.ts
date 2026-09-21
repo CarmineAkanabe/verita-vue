@@ -19,7 +19,7 @@ export const requireStaffAuth: NavigationGuardWithThis<undefined> = (to) => {
 
 export const requireRole = (roles: Array<'MANAGER' | 'DEPARTMENT_HEAD'>): NavigationGuardWithThis<undefined> => () => {
   const auth = useAuthStore()
-  if (!auth.user || !roles.includes(auth.user.role)) return { name: 'not-found' }
+  if (!auth.user || !roles.includes(auth.user.role)) return { name: 'forbidden' }
 }
 
 export const requireCaseAuth: NavigationGuardWithThis<undefined> = () => {

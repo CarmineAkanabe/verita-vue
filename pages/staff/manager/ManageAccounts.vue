@@ -35,6 +35,9 @@ const searchQuery = ref('')
 const isModalOpen = ref(false)
 const selectedOfficer = ref<DepartmentHeadUser | null>(null)
 
+// Avatar Resilience
+const failedAvatarIds = ref<Record<string, boolean>>({})
+
 // Delete State
 const isDeleteModalOpen = ref(false)
 const officerToDelete = ref<DepartmentHeadUser | null>(null)
@@ -322,10 +325,11 @@ onMounted(() => {
               <div class="flex items-center gap-3">
                 <div class="size-9 rounded-full overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                   <img
-                    v-if="officer.profilePicture"
+                    v-if="officer.profilePicture && !failedAvatarIds[officer.id]"
                     :src="getAvatarUrl(officer.profilePicture) ?? undefined"
                     alt="Avatar"
                     class="w-full h-full object-cover"
+                    @error="failedAvatarIds[officer.id] = true"
                   />
                   <span v-else>{{ getInitials(officer) }}</span>
                 </div>

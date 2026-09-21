@@ -9,64 +9,67 @@ import {
   CompassIcon,
 } from '@lucide/vue'
 
-defineProps<{ code?: number }>()
+defineProps<{
+  code?: number
+  message?: string
+}>()
 </script>
 
 <template>
   <div class="max-w-md w-full mx-auto text-center space-y-6 animate-fade-in-up">
-    <!-- Floating Verita Emblem with Light Glow & Pulse -->
+    <!-- Floating Verita Emblem with Warm Amber Light Glow & Pulse -->
     <div class="relative inline-block animate-float">
       <!-- Outer Soft Radar / Pulse Rings -->
       <div class="absolute -inset-2 rounded-2xl bg-primary/20 blur-md animate-pulse-glow"></div>
       
       <!-- Logo Container -->
-      <div class="relative h-24 w-24 sm:h-28 sm:w-28 mx-auto rounded-2xl bg-white p-2.5 shadow-xl border-2 border-primary/40 overflow-hidden group">
+      <div class="relative h-24 w-24 sm:h-28 sm:w-28 mx-auto rounded-2xl bg-[#F8F3EA] p-2.5 shadow-xl border-2 border-primary/40 overflow-hidden group">
         <img
           src="/verita.png"
           alt="Verita Owl Emblem"
           class="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
         />
         <!-- Subtle glass sheen -->
-        <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none"></div>
       </div>
 
       <!-- Floating Badge -->
       <div class="absolute -bottom-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap">
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-background/95 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider text-primary border border-border shadow-xs">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-md px-3 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider text-primary border border-[#E2D5C3] shadow-xs">
           <span class="relative flex h-1.5 w-1.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
             <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
           </span>
-          ERR_{{ code ?? 404 }}
+          ERR_{{ code ?? 404 }} · NOT FOUND
         </span>
       </div>
     </div>
 
     <!-- Error Messaging -->
     <div class="space-y-2 pt-2">
-      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-        Resource not found in vault
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-serif">
+        Page Not Found
       </h1>
       <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
-        The destination you attempted to access does not exist, has expired, or is stored in a separate air-gapped partition.
+        {{ message ?? 'The destination you attempted to access does not exist, has expired, or is stored in a separate air-gapped partition.' }}
       </p>
     </div>
 
     <!-- Security Guarantee Badge -->
-    <div class="rounded-lg border border-border bg-card p-3 shadow-xs text-left card-hover-lift">
+    <div class="rounded-xl border border-[#E2D5C3] bg-[#F8F3EA] p-3.5 shadow-xs text-left card-hover-lift">
       <div class="flex items-start gap-2.5">
         <ShieldCheckIcon class="size-4 text-emerald-600 shrink-0 mt-0.5" />
         <div class="space-y-0.5">
-          <p class="text-xs font-semibold text-foreground">Privacy Protection Confirmed</p>
+          <p class="text-xs font-bold text-foreground">Privacy Protection Confirmed</p>
           <p class="text-[11px] text-muted-foreground leading-normal">
-            No route trajectory or identity metadata was logged during this invalid request.
+            No route trajectory, user agent, or identity metadata was logged during this invalid request.
           </p>
         </div>
       </div>
     </div>
 
     <!-- Navigation Action Buttons with Micro-interactions -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
       <AppButton
         to="/"
         variant="default"
@@ -80,7 +83,7 @@ defineProps<{ code?: number }>()
         to="/cases/verify-pin"
         variant="outline"
         size="default"
-        class="w-full sm:w-auto transition-all duration-300 hover:-translate-y-0.5"
+        class="w-full sm:w-auto transition-all duration-300 hover:-translate-y-0.5 bg-white"
       >
         <LockIcon class="size-4 mr-1.5" />
         Track case with PIN

@@ -5,7 +5,8 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
 import { getStaffCasesQueue, claimCase } from '@/features/cases/api'
 import { getDepartmentHeads } from '@/features/manager/api'
-import type { StaffCase, AuditLogEntry } from '@/features/cases/types'
+import { getAllAuditLogs, type CaseAuditLog } from '@/features/cases/audit'
+import type { StaffCase } from '@/features/cases/types'
 import type { DepartmentHeadUser } from '@/features/manager/types'
 import { toast } from '@/plugins/toast'
 import AppButton from '@/components/common/AppButton.vue'
@@ -49,34 +50,22 @@ const selectedCategory = ref<string>('ALL')
 const isAssignModalOpen = ref(false)
 const caseToAssign = ref<StaffCase | null>(null)
 
-// Mock audit log seam until backend endpoint exists per Plan §2 Gap
-// TODO(api): audit log endpoint
-const auditLogs = ref<AuditLogEntry[]>([
-  {
-    id: 'LOG-88219-01',
-    actorName: 'Dr. Henriette Moukoko',
-    action: 'QUEUE_INGESTION_SYNC',
-    details: 'Queried active Douala Directorate departmental triage queue.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
-    hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-  },
-  {
-    id: 'LOG-88219-02',
-    actorName: 'Automated Tor Gateway',
-    action: 'METADATA_EXIF_PURGE',
-    details: 'Stripped GPS coordinates and camera serial from evidence attachment.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 55).toISOString(),
-    hash: 'a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e',
-  },
-  {
-    id: 'LOG-88219-03',
-    actorName: 'Audit Ledger Daemon',
-    action: 'ISO37002_RECORD_LOCK',
-    details: 'Cryptographic block sealed for maritime demurrage incident report.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-    hash: '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
-  },
-])
+// Live Audit Ledger State
+const auditLogs = ref<CaseAuditLog[]>([])
+const isLoadingAudit = ref(false)
+const auditError = ref<string | null>(null)
+
+async function fetchAuditLogs() {
+  isLoadingAudit.value = true
+  auditError.value = null
+  try {
+    auditLogs.value = await getAllAuditLogs()
+  } catch (err: any) {
+    auditError.value = err?.message || 'Failed to load organization audit ledger.'
+  } finally {
+    isLoadingAudit.value = false
+  }
+}
 
 async function fetchCases() {
   isLoading.value = true
@@ -217,6 +206,7 @@ onMounted(() => {
     activeTab.value = 'QUEUE'
   }
   fetchCases()
+  fetchAuditLogs()
 })
 </script>
 
@@ -371,10 +361,13 @@ onMounted(() => {
           type="button"
           class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
           :class="activeTab === 'AUDIT_LOG' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
-          @click="activeTab = 'AUDIT_LOG'"
+          @click="activeTab = 'AUDIT_LOG'; fetchAuditLogs()"
         >
           <HistoryIcon class="size-3.5" />
           <span>Audit Ledger</span>
+          <span v-if="auditLogs.length > 0" class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-primary/15 text-primary font-mono">
+            {{ auditLogs.length }}
+          </span>
         </button>
       </div>
 
@@ -409,40 +402,105 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <HistoryIcon class="size-4 text-primary" />
           <span class="font-semibold text-foreground">Immutable Cryptographic Audit Trail</span>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-800 border border-amber-500/20 font-mono">
-            // TODO(api): audit log endpoint
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 font-mono">
+            Active Ledger
           </span>
         </div>
-        <span class="text-[11px] text-muted-foreground font-mono">
-          SHA-256 Ledger Node DLA-01
-        </span>
+        <div class="flex items-center gap-3">
+          <span class="text-[11px] text-muted-foreground font-mono hidden sm:inline">
+            SHA-256 Ledger · ISO 37002 Certified
+          </span>
+          <button
+            type="button"
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border border-border bg-white hover:bg-muted/40 text-foreground transition-colors cursor-pointer shadow-2xs"
+            :disabled="isLoadingAudit"
+            @click="fetchAuditLogs"
+          >
+            <RefreshCwIcon class="size-3" :class="{ 'animate-spin': isLoadingAudit }" />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
-      <div class="bg-card border border-border rounded-lg overflow-hidden card-creamy">
+      <!-- Loading Skeleton -->
+      <div v-if="isLoadingAudit" class="space-y-3 animate-pulse">
+        <div v-for="i in 4" :key="i" class="h-14 bg-muted/40 rounded-lg border border-border"></div>
+      </div>
+
+      <!-- Error State -->
+      <ErrorBanner
+        v-else-if="auditError"
+        :message="auditError"
+        :retryable="true"
+        @retry="fetchAuditLogs"
+      />
+
+      <!-- Empty State -->
+      <EmptyState
+        v-else-if="auditLogs.length === 0"
+        title="No audit events recorded"
+        description="The cryptographic audit ledger will record case creations, triage decisions, and status transitions as investigations proceed."
+      >
+        <template #action>
+          <AppButton variant="outline" size="sm" @click="fetchAuditLogs">
+            Refresh Ledger
+          </AppButton>
+        </template>
+      </EmptyState>
+
+      <!-- Audit Table -->
+      <div v-else class="bg-card border border-border rounded-lg overflow-x-auto shadow-xs card-creamy">
         <table class="w-full text-left text-xs">
           <thead class="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
             <tr>
               <th class="p-3">Log Event ID</th>
+              <th class="p-3">Case Reference</th>
               <th class="p-3">Timestamp</th>
-              <th class="p-3">Investigator / Actor</th>
+              <th class="p-3">Actor Role</th>
               <th class="p-3">Action Performed</th>
-              <th class="p-3">Audit Details</th>
-              <th class="p-3 font-mono">Cryptographic Hash</th>
+              <th class="p-3">Audit Details &amp; Notes</th>
+              <th class="p-3 text-right">Action</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
             <tr v-for="log in auditLogs" :key="log.id" class="hover:bg-muted/20 transition-colors">
-              <td class="p-3 font-mono font-bold text-foreground">{{ log.id }}</td>
-              <td class="p-3 text-muted-foreground font-mono">{{ formatDate(log.timestamp) }}</td>
-              <td class="p-3 font-medium text-foreground">{{ log.actorName }}</td>
+              <td class="p-3 font-mono font-bold text-foreground">
+                <span :title="log.id">{{ log.id.slice(0, 8) }}...</span>
+              </td>
+              <td class="p-3 font-mono text-primary font-semibold">
+                <router-link :to="`/app/cases/${log.caseRecordId}`" class="hover:underline flex items-center gap-1">
+                  <span>#{{ log.caseRecordId.slice(0, 8) }}</span>
+                  <ArrowRightIcon class="size-3" />
+                </router-link>
+              </td>
+              <td class="p-3 text-muted-foreground font-mono whitespace-nowrap">
+                {{ formatDate(log.loggedAt) }}
+              </td>
               <td class="p-3">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-ink-900/10 text-ink-900 border border-ink-900/20">
-                  {{ log.action }}
+                <span
+                  class="px-2 py-0.5 rounded text-[10px] font-semibold border"
+                  :class="log.actorType === 'DEPARTMENT_HEAD' ? 'bg-[#22293A] text-white border-[#22293A]' : log.actorType === 'AI' ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-slate-100 text-slate-700 border-slate-300'"
+                >
+                  {{ log.actorType }}
                 </span>
               </td>
-              <td class="p-3 text-muted-foreground">{{ log.details }}</td>
-              <td class="p-3 font-mono text-[10px] text-muted-foreground/80 truncate max-w-xs">
-                {{ log.hash }}
+              <td class="p-3 font-semibold text-foreground">
+                {{ log.action.replaceAll('_', ' ') }}
+              </td>
+              <td class="p-3 text-muted-foreground max-w-sm truncate">
+                <span v-if="log.note" class="italic text-foreground">"{{ log.note }}"</span>
+                <span v-else-if="log.previousValue || log.newValue">
+                  {{ log.previousValue ? `${log.previousValue} → ` : '' }}{{ log.newValue }}
+                </span>
+                <span v-else>—</span>
+              </td>
+              <td class="p-3 text-right">
+                <router-link
+                  :to="`/app/cases/${log.caseRecordId}`"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-semibold bg-white border border-border hover:border-primary text-foreground hover:text-primary transition-colors"
+                >
+                  View Case
+                </router-link>
               </td>
             </tr>
           </tbody>

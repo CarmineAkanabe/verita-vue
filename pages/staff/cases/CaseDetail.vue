@@ -19,6 +19,7 @@ import { toast } from '@/plugins/toast'
 import AppButton from '@/components/common/AppButton.vue'
 import StatusPill from '@/components/common/StatusPill.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
+import { getCaseAuditLogs, type CaseAuditLog } from '@/features/cases/audit'
 import {
   ArrowLeftIcon,
   CopyIcon,
@@ -34,6 +35,12 @@ import {
   ClockIcon,
   CalendarIcon,
   XIcon,
+  HistoryIcon,
+  GitCommitIcon,
+  RefreshCwIcon,
+  ShieldIcon,
+  BotIcon,
+  UserCheckIcon,
 } from '@lucide/vue'
 
 const route = useRoute()
@@ -75,6 +82,54 @@ const isAssignedToMe = computed(() => {
   return caseData.value?.assignedTo === auth.user?.id
 })
 
+// Audit logs
+const auditLogs = ref<CaseAuditLog[]>([])
+const isLoadingAudit = ref(false)
+const auditError = ref<string | null>(null)
+
+async function fetchAuditLogs() {
+  if (!caseId.value) return
+  isLoadingAudit.value = true
+  auditError.value = null
+  try {
+    auditLogs.value = await getCaseAuditLogs(caseId.value)
+  } catch (err: any) {
+    auditError.value = err?.message || 'Failed to load case audit history.'
+  } finally {
+    isLoadingAudit.value = false
+  }
+}
+
+function formatAuditAction(action: string): string {
+  switch (action) {
+    case 'STATUS_CHANGED':
+      return 'Status Updated'
+    case 'AI_PROCESSED':
+      return 'AI Assessment Completed'
+    case 'EVIDENCE_REVIEWED':
+      return 'Evidence File Inspected'
+    case 'EVIDENCE_ADDED':
+      return 'Evidence File Uploaded'
+    case 'MESSAGE_SENT':
+      return 'Consultation Message Sent'
+    case 'ESCALATED':
+      return 'Case Escalated to Executive Management'
+    default:
+      return action.replaceAll('_', ' ')
+  }
+}
+
+function getActorBadge(actorType: string) {
+  switch (actorType) {
+    case 'DEPARTMENT_HEAD':
+      return { label: 'Department Head', class: 'bg-[#22293A] text-white border-[#22293A]', icon: UserCheckIcon }
+    case 'AI':
+      return { label: 'AI Intelligence Engine', class: 'bg-purple-100 text-purple-800 border-purple-300', icon: BotIcon }
+    default:
+      return { label: 'System Automation', class: 'bg-slate-100 text-slate-700 border-slate-300', icon: ShieldIcon }
+  }
+}
+
 async function fetchCase() {
   isLoading.value = true
   error.value = null
@@ -83,6 +138,7 @@ async function fetchCase() {
     const data = await getStaffCaseDetail(caseId.value)
     caseData.value = data
     targetStatus.value = data.status
+    fetchAuditLogs()
   } catch (err: any) {
     error.value = err?.message || 'Failed to retrieve case details.'
   } finally {
@@ -99,6 +155,7 @@ async function handleClaim() {
     caseData.value.status = updated.status
     caseData.value.assignedTo = updated.assignedTo
     toast.success('Case successfully claimed. Status transitioned to Investigation.')
+    fetchAuditLogs()
   } catch (err: any) {
     toast.error(err?.message || 'Failed to claim case. It may have already been claimed by another officer.')
   } finally {
@@ -154,6 +211,7 @@ async function submitStatusUpdate() {
 
     toast.success(`Case status successfully updated to ${targetStatus.value}.`)
     closeStatusModal()
+    fetchAuditLogs()
   } catch (err: any) {
     toast.error(err?.message || 'Failed to update case status.')
   } finally {
@@ -783,6 +841,118 @@ onMounted(() => {
                     <span>Download</span>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CASE HISTORY & IMMUTABLE AUDIT TRAIL -->
+      <div class="p-6 rounded-2xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2D5C3] pb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 rounded-lg bg-[#A2561B]/15 text-[#A2561B]">
+              <HistoryIcon class="size-5" />
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-[#22293A]">
+                Case History &amp; Immutable Audit Trail
+              </h2>
+              <p class="text-xs text-[#6B7280]">
+                Chronological record of status updates, forensic notes, AI evaluations, and evidence interactions
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-white border border-[#E2D5C3] text-[#6B7280]">
+              ISO 37002 Compliant Ledger
+            </span>
+            <button
+              type="button"
+              class="p-1.5 rounded-lg border border-[#E2D5C3] bg-white text-[#22293A] hover:bg-[#F2EAE0] transition-colors cursor-pointer text-xs flex items-center gap-1"
+              :disabled="isLoadingAudit"
+              @click="fetchAuditLogs"
+            >
+              <RefreshCwIcon class="size-3.5" :class="{ 'animate-spin': isLoadingAudit }" />
+              <span class="hidden sm:inline font-semibold">Refresh Trail</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Audit Loading State -->
+        <div v-if="isLoadingAudit" class="space-y-4 py-4">
+          <div v-for="i in 3" :key="i" class="flex gap-4 animate-pulse">
+            <div class="size-8 rounded-full bg-[#E2D5C3]"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3 w-48 bg-[#E2D5C3] rounded"></div>
+              <div class="h-2 w-full max-w-sm bg-[#E2D5C3]/60 rounded"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Error State -->
+        <div v-else-if="auditError" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center justify-between">
+          <span>{{ auditError }}</span>
+          <button type="button" class="font-bold underline" @click="fetchAuditLogs">Retry</button>
+        </div>
+
+        <!-- Audit Empty State -->
+        <div v-else-if="auditLogs.length === 0" class="text-xs text-[#6B7280] py-8 text-center bg-white/50 rounded-xl border border-dashed border-[#E2D5C3]">
+          No audit entries recorded yet for this case.
+        </div>
+
+        <!-- Audit Timeline List -->
+        <div v-else class="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E2D5C3]">
+          <div
+            v-for="(log, idx) in auditLogs"
+            :key="log.id || idx"
+            class="relative group"
+          >
+            <!-- Timeline dot -->
+            <div class="absolute -left-6 sm:-left-8 top-1.5 size-6 rounded-full bg-white border-2 border-[#A2561B] flex items-center justify-center text-[#A2561B] shadow-2xs group-hover:scale-110 transition-transform">
+              <GitCommitIcon class="size-3" />
+            </div>
+
+            <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-2xs space-y-2 card-hover-lift">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#F2EAE0] pb-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs font-bold text-[#22293A]">
+                    {{ formatAuditAction(log.action) }}
+                  </span>
+                  <!-- Actor Pill -->
+                  <span
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
+                    :class="getActorBadge(log.actorType).class"
+                  >
+                    <component :is="getActorBadge(log.actorType).icon" class="size-2.5" />
+                    {{ getActorBadge(log.actorType).label }}
+                  </span>
+                </div>
+                <span class="text-[10px] font-mono text-[#6B7280] flex items-center gap-1">
+                  <ClockIcon class="size-3" />
+                  {{ formatDate(log.loggedAt) }}
+                </span>
+              </div>
+
+              <!-- Status transition detail -->
+              <div v-if="log.action === 'STATUS_CHANGED' && (log.previousValue || log.newValue)" class="flex items-center gap-2 text-xs pt-1">
+                <span v-if="log.previousValue" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-200">
+                  {{ log.previousValue }}
+                </span>
+                <span v-if="log.previousValue" class="text-slate-400">&rarr;</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  {{ log.newValue || 'CURRENT' }}
+                </span>
+              </div>
+
+              <!-- Forensic note -->
+              <div v-if="log.note" class="p-3 rounded-lg bg-[#F8F3EA] border border-[#E2D5C3] text-xs text-[#22293A] italic leading-relaxed">
+                &ldquo;{{ log.note }}&rdquo;
+              </div>
+
+              <!-- File ref or other metadata -->
+              <div v-else-if="log.newValue && log.action !== 'STATUS_CHANGED'" class="text-[11px] font-mono text-[#6B7280]">
+                Reference Identifier: {{ log.newValue }}
               </div>
             </div>
           </div>
