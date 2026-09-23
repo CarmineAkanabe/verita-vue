@@ -28,9 +28,11 @@ import {
           <!-- Hero Left Column -->
           <div class="lg:col-span-7 space-y-6 animate-fade-in-up">
             <!-- Live Security Status Tag with Pulse Indicator -->
-            <div class="inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold text-muted-foreground shadow-xs">
+            <div
+              class="inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold text-muted-foreground shadow-xs">
               <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span
+                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span class="text-foreground tracking-wide font-medium">Private &amp; Confidential Intake Active</span>
@@ -52,34 +54,25 @@ import {
 
             <!-- Actions Row with micro-interactions -->
             <div class="flex flex-wrap items-center gap-4 pt-2">
-              <AppButton
-                to="/cases/submit"
-                size="lg"
-                variant="default"
-                class="shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
-              >
+              <AppButton to="/cases/submit" size="lg" variant="default"
+                class="shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
                 <ShieldAlertIcon class="size-5 mr-2" />
                 Report an incident
               </AppButton>
-              <AppButton
-                to="/cases/verify-pin"
-                size="lg"
-                variant="outline"
-                class="transition-all duration-300 hover:-translate-y-0.5"
-              >
+              <AppButton to="/cases/verify-pin" size="lg" variant="outline"
+                class="transition-all duration-300 hover:-translate-y-0.5">
                 Track a case
               </AppButton>
-              <router-link
-                to="/auth/login"
-                class="group inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground pl-2 transition-colors"
-              >
+              <router-link to="/auth/login"
+                class="group inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground pl-2 transition-colors">
                 Staff sign in
                 <ArrowRightIcon class="size-4 group-hover:translate-x-1 transition-transform" />
               </router-link>
             </div>
 
             <!-- Trust Micro-indicators -->
-            <div class="pt-6 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-muted-foreground">
+            <div
+              class="pt-6 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-muted-foreground">
               <div class="flex items-center gap-2">
                 <ShieldCheckIcon class="size-4 text-primary shrink-0" />
                 <span>Zero IP or device logging</span>
@@ -97,27 +90,28 @@ import {
 
           <!-- Hero Right Column: High-Resolution Corporate Photography with Floating Badges -->
           <div class="lg:col-span-5 animate-fade-in">
-            <div class="group relative rounded-xl border border-border bg-card p-2 shadow-lg transition-all duration-500 hover:shadow-xl hover:border-primary/40">
+            <div
+              class="group relative rounded-xl border border-border bg-card p-2 shadow-lg transition-all duration-500 hover:shadow-xl hover:border-primary/40">
               <!-- Photo Container with Hover Zoom -->
               <div class="relative aspect-[4/3] w-full rounded-lg overflow-hidden border border-border/80 bg-muted/40">
-                <img
-                  src="/hero-enterprise.jpg"
-                  alt="Enterprise Ethics and Governance Consultation"
+                <img src="/hero-enterprise.jpg" alt="Enterprise Ethics and Governance Consultation"
                   class="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                  loading="eager"
-                />
+                  loading="eager" />
 
                 <!-- Top Floating Live Badge -->
-                <div class="absolute top-3 left-3 bg-background/90 backdrop-blur-md border border-border/80 rounded-md px-3 py-1.5 shadow-sm flex items-center gap-2">
+                <div
+                  class="absolute top-3 left-3 bg-background/90 backdrop-blur-md border border-border/80 rounded-md px-3 py-1.5 shadow-sm flex items-center gap-2">
                   <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span
+                      class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                   <span class="text-xs font-semibold text-foreground">Encrypted Intake Vault</span>
                 </div>
 
                 <!-- Bottom Floating Verification Tag -->
-                <div class="absolute bottom-3 right-3 left-3 bg-card/95 backdrop-blur-md border border-border/80 rounded-lg p-3 shadow-md">
+                <div
+                  class="absolute bottom-3 right-3 left-3 bg-card/95 backdrop-blur-md border border-border/80 rounded-lg p-3 shadow-md">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                       <div class="h-7 w-7 rounded bg-primary/10 flex items-center justify-center text-primary">
@@ -128,7 +122,8 @@ import {
                         <p class="text-[10px] text-muted-foreground">No tracking · Private PIN</p>
                       </div>
                     </div>
-                    <span class="font-mono text-[10px] font-bold bg-muted px-2 py-0.5 rounded border border-border text-foreground">
+                    <span
+                      class="font-mono text-[10px] font-bold bg-muted px-2 py-0.5 rounded border border-border text-foreground">
                       PROTECTED
                     </span>
                   </div>
@@ -155,23 +150,28 @@ import {
           Trusted by governance &amp; compliance leaders across industries
         </p>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center justify-items-center opacity-80">
-          <div class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
+          <div
+            class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
             <Building2Icon class="size-4 text-primary" />
             <span>Digimark Consulting</span>
           </div>
-          <div class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
+          <div
+            class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
             <ScaleIcon class="size-4 text-muted-foreground" />
             <span>Apex Global Partners</span>
           </div>
-          <div class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
+          <div
+            class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
             <AwardIcon class="size-4 text-muted-foreground" />
             <span>Meridian Capital</span>
           </div>
-          <div class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
+          <div
+            class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
             <ShieldCheckIcon class="size-4 text-muted-foreground" />
             <span>Stratum Health</span>
           </div>
-          <div class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
+          <div
+            class="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-primary transition-colors">
             <SparklesIcon class="size-4 text-muted-foreground" />
             <span>Vanguard Systems</span>
           </div>
@@ -197,12 +197,10 @@ import {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Card 1: Anonymous Reporting -->
-          <AppCard
-            cardClass="border-border bg-card card-creamy shadow-xs"
-            contentClass="space-y-4"
-          >
+          <AppCard cardClass="border-border bg-card card-creamy shadow-xs" contentClass="space-y-4">
             <template #header>
-              <div class="h-10 w-10 rounded-lg border border-border bg-primary/10 flex items-center justify-center mb-3 text-primary">
+              <div
+                class="h-10 w-10 rounded-lg border border-border bg-primary/10 flex items-center justify-center mb-3 text-primary">
                 <LockIcon class="size-5" />
               </div>
               <h3 class="text-lg font-bold tracking-tight text-foreground">
@@ -230,12 +228,10 @@ import {
           </AppCard>
 
           <!-- Card 2: AI-Assisted Structuring -->
-          <AppCard
-            cardClass="border-border bg-card card-creamy shadow-xs"
-            contentClass="space-y-4"
-          >
+          <AppCard cardClass="border-border bg-card card-creamy shadow-xs" contentClass="space-y-4">
             <template #header>
-              <div class="h-10 w-10 rounded-lg border border-border bg-primary/10 flex items-center justify-center mb-3 text-primary">
+              <div
+                class="h-10 w-10 rounded-lg border border-border bg-primary/10 flex items-center justify-center mb-3 text-primary">
                 <FileCheck2Icon class="size-5" />
               </div>
               <h3 class="text-lg font-bold tracking-tight text-foreground">
@@ -264,12 +260,10 @@ import {
           </AppCard>
 
           <!-- Card 3: Department Head Review -->
-          <AppCard
-            cardClass="border-border bg-card card-creamy shadow-xs"
-            contentClass="space-y-4"
-          >
+          <AppCard cardClass="border-border bg-card card-creamy shadow-xs" contentClass="space-y-4">
             <template #header>
-              <div class="h-10 w-10 rounded-lg border border-border bg-primary/10 flex items-center justify-center mb-3 text-primary">
+              <div
+                class="h-10 w-10 rounded-lg border border-border bg-primary/10 flex items-center justify-center mb-3 text-primary">
                 <UsersIcon class="size-5" />
               </div>
               <h3 class="text-lg font-bold tracking-tight text-foreground">
@@ -305,15 +299,14 @@ import {
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <!-- Case Study Image with Hover Zoom -->
           <div class="lg:col-span-6">
-            <div class="group relative rounded-xl border border-border bg-card p-2 shadow-md overflow-hidden card-hover-lift">
+            <div
+              class="group relative rounded-xl border border-border bg-card p-2 shadow-md overflow-hidden card-hover-lift">
               <div class="aspect-[16/10] w-full rounded-lg overflow-hidden bg-muted/50 relative">
-                <img
-                  src="/case-study-digimark.jpg"
-                  alt="Digimark Consulting Advisory Team"
+                <img src="/case-study-digimark.jpg" alt="Digimark Consulting Advisory Team"
                   class="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div class="absolute top-3 left-3 bg-background/90 backdrop-blur-md border border-border/80 rounded-md px-3 py-1 text-xs font-semibold text-foreground shadow-xs">
+                  loading="lazy" />
+                <div
+                  class="absolute top-3 left-3 bg-background/90 backdrop-blur-md border border-border/80 rounded-md px-3 py-1 text-xs font-semibold text-foreground shadow-xs">
                   Case Study · Management Consulting
                 </div>
               </div>
@@ -326,7 +319,8 @@ import {
 
           <!-- Case Study Narrative -->
           <div class="lg:col-span-6 space-y-6">
-            <div class="inline-flex items-center gap-2 rounded border border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+            <div
+              class="inline-flex items-center gap-2 rounded border border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
               <Building2Icon class="size-3.5" />
               Customer Spotlight
             </div>
@@ -338,12 +332,14 @@ import {
             <p class="text-sm sm:text-base text-muted-foreground leading-relaxed">
               Operating across multiple regional offices without a centralized HR department,
               <strong>Digimark Consulting</strong> previously relied on informal handling by team leads.
-              This created hesitation among its 250+ consultants, leaving critical financial and conduct concerns unreported.
+              This created hesitation among its 250+ consultants, leaving critical financial and conduct concerns
+              unreported.
             </p>
 
             <p class="text-sm text-muted-foreground leading-relaxed">
               By implementing Verita, Digimark deployed an air-gapped intake portal where employees submit
-              disclosures without corporate logins. Structured AI assistance ensures allegations are organized chronologically,
+              disclosures without corporate logins. Structured AI assistance ensures allegations are organized
+              chronologically,
               while leadership conducts objective, conflict-screened investigations under ISO 37002:2021.
             </p>
 
@@ -370,7 +366,8 @@ import {
             <!-- Customer Testimonial Quote -->
             <div class="rounded-lg border border-border/80 bg-background p-4 space-y-2">
               <p class="text-xs sm:text-sm text-muted-foreground italic leading-relaxed">
-                "Verita solved the core dilemma in our growing firm: providing consultants with genuine psychological safety
+                "Verita solved the core dilemma in our growing firm: providing consultants with genuine psychological
+                safety
                 while giving executive partners clear, auditable evidence to act decisively."
               </p>
               <p class="text-xs font-semibold text-foreground">
@@ -401,7 +398,8 @@ import {
           <!-- Step 1 -->
           <div class="rounded-xl border border-border bg-card card-creamy p-6 space-y-3 shadow-xs">
             <div class="flex items-center justify-between">
-              <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-sm shadow-xs">
+              <span
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-sm shadow-xs">
                 1
               </span>
               <span class="text-xs font-mono text-muted-foreground">SUBMIT</span>
@@ -416,7 +414,8 @@ import {
           <!-- Step 2 -->
           <div class="rounded-xl border border-border bg-card card-creamy p-6 space-y-3 shadow-xs">
             <div class="flex items-center justify-between">
-              <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-background font-bold text-sm shadow-xs">
+              <span
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-background font-bold text-sm shadow-xs">
                 2
               </span>
               <span class="text-xs font-mono text-muted-foreground">CREDENTIALS</span>
@@ -431,7 +430,8 @@ import {
           <!-- Step 3 -->
           <div class="rounded-xl border border-border bg-card card-creamy p-6 space-y-3 shadow-xs">
             <div class="flex items-center justify-between">
-              <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-background font-bold text-sm shadow-xs">
+              <span
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-background font-bold text-sm shadow-xs">
                 3
               </span>
               <span class="text-xs font-mono text-muted-foreground">CHAT &amp; UPDATES</span>
@@ -445,12 +445,8 @@ import {
         </div>
 
         <div class="mt-10 text-center">
-          <AppButton
-            to="/cases/submit"
-            variant="default"
-            size="lg"
-            class="shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
-          >
+          <AppButton to="/cases/submit" variant="default" size="lg"
+            class="shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
             Start a confidential report now
             <ArrowRightIcon class="size-4 ml-2" />
           </AppButton>
@@ -461,7 +457,8 @@ import {
     <!-- Non-Retaliation Policy Reassurance Banner -->
     <section class="py-12 bg-muted/20">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="rounded-lg border-l-4 border-l-primary border-y border-r border-border bg-card p-6 sm:p-8 card-hover-lift shadow-xs">
+        <div
+          class="rounded-lg border-l-4 border-l-primary border-y border-r border-border bg-card p-6 sm:p-8 card-hover-lift shadow-xs">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="space-y-2 max-w-3xl">
               <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground">
@@ -469,9 +466,11 @@ import {
                 Enterprise Non-Retaliation Guarantee
               </div>
               <p class="text-sm text-muted-foreground leading-relaxed">
-                Verita partner enterprises maintain a strict, auditable zero-tolerance policy against any form of retaliation,
-                demotion, or adverse employment action targeting employees, interns, or contractors reporting in good faith.
-                All reports are handled with utmost discretion under ISO 37002:2021 whistleblower management standards.
+                Verita partner enterprises maintain a strict, auditable zero-tolerance policy against any form of
+                retaliation,
+                demotion, or adverse employment action targeting employees, interns, or contractors reporting in good
+                faith.
+                All reports are handled with utmost discretion under ISO 37002:2021 Case reporter management standards.
               </p>
             </div>
             <div class="shrink-0">
@@ -491,24 +490,17 @@ import {
           Ready to submit or check an existing case?
         </h2>
         <p class="text-sm text-muted-foreground max-w-xl mx-auto">
-          Choose an option below to proceed. You do not need to register or provide identifying details to make a report.
+          Choose an option below to proceed. You do not need to register or provide identifying details to make a
+          report.
         </p>
         <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
-          <AppButton
-            to="/cases/submit"
-            size="lg"
-            variant="default"
-            class="shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
-          >
+          <AppButton to="/cases/submit" size="lg" variant="default"
+            class="shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
             <ShieldAlertIcon class="size-5 mr-2" />
             Report an incident
           </AppButton>
-          <AppButton
-            to="/cases/verify-pin"
-            size="lg"
-            variant="outline"
-            class="transition-all duration-300 hover:-translate-y-0.5"
-          >
+          <AppButton to="/cases/verify-pin" size="lg" variant="outline"
+            class="transition-all duration-300 hover:-translate-y-0.5">
             Track a case with PIN
           </AppButton>
         </div>

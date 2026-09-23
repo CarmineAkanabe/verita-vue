@@ -44,19 +44,15 @@ function formatTime(isoString: string): string {
 </script>
 
 <template>
-  <div
-    :class="[
-      'flex w-full my-2',
-      isOutgoing ? 'justify-end' : 'justify-start'
-    ]"
-  >
+  <div :class="[
+    'flex w-full my-2',
+    isOutgoing ? 'justify-end' : 'justify-start'
+  ]">
     <!-- Message Container with Max Width -->
-    <div
-      :class="[
-        'max-w-[85%] sm:max-w-[70%] flex flex-col',
-        isOutgoing ? 'items-end' : 'items-start'
-      ]"
-    >
+    <div :class="[
+      'max-w-[85%] sm:max-w-[70%] flex flex-col',
+      isOutgoing ? 'items-end' : 'items-start'
+    ]">
       <!-- Sender Meta Label -->
       <div class="flex items-center gap-1.5 mb-1 px-1 text-[11px] font-semibold text-[#6B7280]">
         <!-- If Outgoing from Viewer -->
@@ -75,8 +71,9 @@ function formatTime(isoString: string): string {
         <template v-else>
           <template v-if="viewer === 'STAFF'">
             <ShieldIcon class="size-3 text-[#575E71]" />
-            <span class="text-[#22293A]">Whistleblower</span>
-            <span class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B]">
+            <span class="text-[#22293A]">Case reporter</span>
+            <span
+              class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B]">
               Anonymous Relay
             </span>
           </template>
@@ -91,14 +88,12 @@ function formatTime(isoString: string): string {
       </div>
 
       <!-- Bubble -->
-      <div
-        :class="[
-          'px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs break-words whitespace-pre-wrap',
-          isOutgoing
-            ? 'bg-[#A2561B] text-white rounded-tr-xs border border-[#843F01]/30'
-            : 'bg-white text-[#22293A] rounded-tl-xs border border-[#E2E5EE]'
-        ]"
-      >
+      <div :class="[
+        'px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs break-words whitespace-pre-wrap',
+        isOutgoing
+          ? 'bg-[#A2561B] text-white rounded-tr-xs border border-[#843F01]/30'
+          : 'bg-white text-[#22293A] rounded-tl-xs border border-[#E2E5EE]'
+      ]">
         {{ message.content }}
       </div>
 
@@ -116,11 +111,9 @@ function formatTime(isoString: string): string {
           <span v-else-if="message.status === 'failed'" class="inline-flex items-center gap-1 text-red-600">
             <AlertCircleIcon class="size-3 text-red-600" />
             <span>Failed</span>
-            <button
-              type="button"
+            <button type="button"
               class="underline font-semibold hover:text-red-800 ml-1 inline-flex items-center gap-0.5 cursor-pointer"
-              @click="emit('retry', message.tempId || message.id)"
-            >
+              @click="emit('retry', message.tempId || message.id)">
               <RotateCcwIcon class="size-2.5" />
               <span>Retry</span>
             </button>

@@ -464,16 +464,15 @@ onMounted(() => {
     <!-- Back & Header Bar -->
     <div class="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-3">
       <div class="flex items-center justify-between">
-        <router-link
-          to="/app/cases"
-          class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors"
-        >
+        <router-link to="/app/cases"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors">
           <ArrowLeftIcon class="size-4" />
           <span>Back to Cases</span>
         </router-link>
 
         <div class="flex items-center gap-2">
-          <span v-if="caseData?.concernsDepartmentHead" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
+          <span v-if="caseData?.concernsDepartmentHead"
+            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
             Department Head Bypassed
           </span>
         </div>
@@ -485,19 +484,17 @@ onMounted(() => {
             <h1 class="text-xl sm:text-2xl font-bold text-[#22293A] font-mono tracking-tight">
               Case #{{ caseId.slice(0, 14) }}...
             </h1>
-            <button
-              type="button"
+            <button type="button"
               class="p-1 rounded hover:bg-[#FAF7F2] text-[#6B7280] hover:text-[#22293A] cursor-pointer"
-              title="Copy Full Case ID"
-              @click="copyCaseId"
-            >
+              title="Copy Full Case ID" @click="copyCaseId">
               <CheckIcon v-if="copiedId" class="size-4 text-emerald-600" />
               <CopyIcon v-else class="size-4" />
             </button>
             <StatusPill v-if="caseData" :status="caseData.status" />
           </div>
           <p class="text-xs text-[#6B7280] mt-1">
-            Submitted on <strong class="text-[#22293A]">{{ formatDate(caseData?.createdAt || caseData?.transactionDate) }}</strong>
+            Submitted on <strong class="text-[#22293A]">{{ formatDate(caseData?.createdAt || caseData?.transactionDate)
+              }}</strong>
             · Category: <span class="font-bold text-[#A2561B]">{{ caseData?.category }}</span>
           </p>
         </div>
@@ -505,32 +502,20 @@ onMounted(() => {
         <!-- Action Buttons -->
         <div class="flex items-center gap-2.5 flex-wrap">
           <!-- Claim Button (if unclaimed) -->
-          <AppButton
-            v-if="isEligibleToClaim"
-            size="sm"
-            :loading="isClaiming"
-            @click="handleClaim"
-          >
+          <AppButton v-if="isEligibleToClaim" size="sm" :loading="isClaiming" @click="handleClaim">
             <HandHelpingIcon class="size-4 mr-1.5" />
             Claim Case
           </AppButton>
 
           <!-- Update Status Button (assigned officer only) -->
-          <AppButton
-            v-if="isAssignedToMe"
-            variant="outline"
-            size="sm"
-            @click="openStatusModal"
-          >
+          <AppButton v-if="isAssignedToMe" variant="outline" size="sm" @click="openStatusModal">
             <CheckCircle2Icon class="size-4 mr-1.5" />
             Update Status
           </AppButton>
 
           <!-- Consultation Channel Link -->
-          <router-link
-            :to="`/app/cases/${caseData?.id}/chat`"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs"
-          >
+          <router-link :to="`/app/cases/${caseData?.id}/chat`"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs">
             <MessageSquareIcon class="size-3.5" />
             <span>Open Case Chat</span>
           </router-link>
@@ -539,11 +524,7 @@ onMounted(() => {
     </div>
 
     <!-- Error Banner -->
-    <ErrorBanner
-      v-if="error"
-      :message="error"
-      @retry="fetchCase"
-    />
+    <ErrorBanner v-if="error" :message="error" @retry="fetchCase" />
 
     <!-- Loading Skeleton -->
     <div v-if="isLoading" class="space-y-6 animate-pulse">
@@ -557,14 +538,13 @@ onMounted(() => {
     <!-- Loaded Case Details -->
     <div v-else-if="caseData" class="space-y-6">
       <!-- Resolution Summary Banner (if resolved/dismissed) -->
-      <div
-        v-if="caseData.resolutionSummary"
-        class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1"
-      >
+      <div v-if="caseData.resolutionSummary"
+        class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1">
         <div class="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider text-[10px]">
           <CheckCircle2Icon class="size-3.5" />
           <span>Case Resolution Summary</span>
-          <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt) }})</span>
+          <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt)
+            }})</span>
         </div>
         <p class="text-xs text-[#22293A] font-medium leading-relaxed">
           {{ caseData.resolutionSummary }}
@@ -615,7 +595,8 @@ onMounted(() => {
       </div>
 
       <!-- PREMIER HERO SECTION: AI Case Analysis -->
-      <div class="p-6 rounded-2xl bg-gradient-to-br from-[#FAF6FF] via-[#F8F3EA] to-[#F8F3EA] border-2 border-[#DDD6FE] shadow-xs space-y-6">
+      <div
+        class="p-6 rounded-2xl bg-gradient-to-br from-[#FAF6FF] via-[#F8F3EA] to-[#F8F3EA] border-2 border-[#DDD6FE] shadow-xs space-y-6">
         <div class="flex items-center justify-between border-b border-[#E2D5C3] pb-3">
           <div class="flex items-center gap-2.5">
             <div class="p-2 rounded-lg bg-[#8B5CF6]/15 text-[#7C3AED]">
@@ -630,7 +611,8 @@ onMounted(() => {
               </p>
             </div>
           </div>
-          <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-[#EDE9FE] text-[#7C3AED] border border-[#DDD6FE]">
+          <span
+            class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-[#EDE9FE] text-[#7C3AED] border border-[#DDD6FE]">
             AI Generated
           </span>
         </div>
@@ -640,7 +622,8 @@ onMounted(() => {
           <h3 class="text-xs font-bold text-[#4B5563] uppercase tracking-wider">
             Incident Summary
           </h3>
-          <p class="text-xs text-[#22293A] leading-relaxed bg-[#F8F3EA] p-4 rounded-xl border border-[#E2D5C3] shadow-xs">
+          <p
+            class="text-xs text-[#22293A] leading-relaxed bg-[#F8F3EA] p-4 rounded-xl border border-[#E2D5C3] shadow-xs">
             {{ caseData.aiSummary }}
           </p>
         </div>
@@ -658,11 +641,8 @@ onMounted(() => {
               </span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <div
-                v-for="(item, idx) in structuredFindings.discrepancies"
-                :key="'disc-' + idx"
-                class="p-3.5 rounded-xl bg-[#FFF1F2] border border-[#FECDD3] text-xs text-[#881337] flex items-start gap-2.5 shadow-xs"
-              >
+              <div v-for="(item, idx) in structuredFindings.discrepancies" :key="'disc-' + idx"
+                class="p-3.5 rounded-xl bg-[#FFF1F2] border border-[#FECDD3] text-xs text-[#881337] flex items-start gap-2.5 shadow-xs">
                 <AlertTriangleIcon class="size-4 text-[#E11D48] shrink-0 mt-0.5" />
                 <span class="leading-relaxed font-medium">{{ item }}</span>
               </div>
@@ -677,11 +657,8 @@ onMounted(() => {
               </span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <div
-                v-for="(item, idx) in structuredFindings.completeness"
-                :key="'comp-' + idx"
-                class="p-3.5 rounded-xl bg-[#FFFBEB] border border-[#FDE68A] text-xs text-[#92400E] flex items-start gap-2.5 shadow-xs"
-              >
+              <div v-for="(item, idx) in structuredFindings.completeness" :key="'comp-' + idx"
+                class="p-3.5 rounded-xl bg-[#FFFBEB] border border-[#FDE68A] text-xs text-[#92400E] flex items-start gap-2.5 shadow-xs">
                 <FileTextIcon class="size-4 text-[#D97706] shrink-0 mt-0.5" />
                 <span class="leading-relaxed font-medium">{{ item }}</span>
               </div>
@@ -692,26 +669,20 @@ onMounted(() => {
           <div v-if="structuredFindings.clarifications.length > 0" class="space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[11px] font-bold text-[#4338CA] uppercase tracking-wider">
-                Recommended Inquiries for Whistleblower ({{ structuredFindings.clarifications.length }})
+                Recommended Inquiries for Case reporter ({{ structuredFindings.clarifications.length }})
               </span>
               <span class="text-[10px] text-[#6B7280]">Click icon to copy question</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <div
-                v-for="(item, idx) in structuredFindings.clarifications"
-                :key="'clar-' + idx"
-                class="p-3.5 rounded-xl bg-[#EEF2FF] border border-[#C7D2FE] text-xs text-[#312E81] flex items-start justify-between gap-2.5 shadow-xs group"
-              >
+              <div v-for="(item, idx) in structuredFindings.clarifications" :key="'clar-' + idx"
+                class="p-3.5 rounded-xl bg-[#EEF2FF] border border-[#C7D2FE] text-xs text-[#312E81] flex items-start justify-between gap-2.5 shadow-xs group">
                 <div class="flex items-start gap-2">
                   <MessageSquareIcon class="size-4 text-[#4F46E5] shrink-0 mt-0.5" />
                   <span class="leading-relaxed">{{ item }}</span>
                 </div>
-                <button
-                  type="button"
+                <button type="button"
                   class="shrink-0 p-1 rounded hover:bg-[#E0E7FF] text-[#4F46E5] opacity-75 hover:opacity-100 cursor-pointer"
-                  title="Copy question"
-                  @click="copyQuestion(item)"
-                >
+                  title="Copy question" @click="copyQuestion(item)">
                   <CopyIcon class="size-3.5" />
                 </button>
               </div>
@@ -732,14 +703,12 @@ onMounted(() => {
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div
-              v-for="(event, eIdx) in parsedTimeline"
-              :key="eIdx"
-              class="p-3.5 rounded-xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs flex flex-col justify-between space-y-2 hover:border-[#A2561B]/60 transition-colors"
-            >
+            <div v-for="(event, eIdx) in parsedTimeline" :key="eIdx"
+              class="p-3.5 rounded-xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs flex flex-col justify-between space-y-2 hover:border-[#A2561B]/60 transition-colors">
               <div>
                 <div class="flex items-center justify-between gap-1 mb-1.5">
-                  <span class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FAF7F2] border border-[#E2D5C3] text-[#A2561B]">
+                  <span
+                    class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FAF7F2] border border-[#E2D5C3] text-[#A2561B]">
                     <CalendarIcon class="size-3" />
                     {{ event.date }}
                   </span>
@@ -751,7 +720,8 @@ onMounted(() => {
                   {{ event.event }}
                 </h4>
               </div>
-              <p v-if="event.description" class="text-[11px] text-[#6B7280] leading-relaxed pt-1.5 border-t border-[#E2D5C3]/70">
+              <p v-if="event.description"
+                class="text-[11px] text-[#6B7280] leading-relaxed pt-1.5 border-t border-[#E2D5C3]/70">
                 {{ event.description }}
               </p>
             </div>
@@ -782,7 +752,8 @@ onMounted(() => {
                 <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
                   Full Description
                 </span>
-                <div class="p-3.5 rounded-xl bg-[#F2EAE0] border border-[#E2D5C3] mt-1 whitespace-pre-wrap leading-relaxed text-[#22293A] font-sans text-xs">
+                <div
+                  class="p-3.5 rounded-xl bg-[#F2EAE0] border border-[#E2D5C3] mt-1 whitespace-pre-wrap leading-relaxed text-[#22293A] font-sans text-xs">
                   {{ caseData.description }}
                 </div>
               </div>
@@ -800,16 +771,14 @@ onMounted(() => {
               </h2>
             </div>
 
-            <div v-if="!caseData.evidence || caseData.evidence.length === 0" class="text-xs text-[#6B7280] py-6 text-center">
+            <div v-if="!caseData.evidence || caseData.evidence.length === 0"
+              class="text-xs text-[#6B7280] py-6 text-center">
               No files were attached with this case.
             </div>
 
             <div v-else class="space-y-2.5">
-              <div
-                v-for="(item, idx) in caseData.evidence"
-                :key="item.id"
-                class="p-3 rounded-xl border border-[#E2D5C3] bg-[#F2EAE0] text-xs space-y-2"
-              >
+              <div v-for="(item, idx) in caseData.evidence" :key="item.id"
+                class="p-3 rounded-xl border border-[#E2D5C3] bg-[#F2EAE0] text-xs space-y-2">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-[#A2561B]/10 text-[#A2561B]">
@@ -823,20 +792,16 @@ onMounted(() => {
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-1">
-                  <button
-                    type="button"
+                  <button type="button"
                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border border-[#EADBCE] bg-white hover:bg-[#F6F7F9] text-[#22293A] transition-colors cursor-pointer"
-                    @click="handlePreviewEvidence(item, idx)"
-                  >
+                    @click="handlePreviewEvidence(item, idx)">
                     <EyeIcon class="size-3" />
                     <span>Preview</span>
                   </button>
 
-                  <button
-                    type="button"
+                  <button type="button"
                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-[#A2561B] text-white hover:bg-[#854310] transition-colors cursor-pointer"
-                    @click="handleDownloadEvidence(item, idx)"
-                  >
+                    @click="handleDownloadEvidence(item, idx)">
                     <DownloadIcon class="size-3" />
                     <span>Download</span>
                   </button>
@@ -864,15 +829,13 @@ onMounted(() => {
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-white border border-[#E2D5C3] text-[#6B7280]">
+            <span
+              class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-white border border-[#E2D5C3] text-[#6B7280]">
               ISO 37002 Compliant Ledger
             </span>
-            <button
-              type="button"
+            <button type="button"
               class="p-1.5 rounded-lg border border-[#E2D5C3] bg-white text-[#22293A] hover:bg-[#F2EAE0] transition-colors cursor-pointer text-xs flex items-center gap-1"
-              :disabled="isLoadingAudit"
-              @click="fetchAuditLogs"
-            >
+              :disabled="isLoadingAudit" @click="fetchAuditLogs">
               <RefreshCwIcon class="size-3.5" :class="{ 'animate-spin': isLoadingAudit }" />
               <span class="hidden sm:inline font-semibold">Refresh Trail</span>
             </button>
@@ -891,39 +854,38 @@ onMounted(() => {
         </div>
 
         <!-- Audit Error State -->
-        <div v-else-if="auditError" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center justify-between">
+        <div v-else-if="auditError"
+          class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center justify-between">
           <span>{{ auditError }}</span>
           <button type="button" class="font-bold underline" @click="fetchAuditLogs">Retry</button>
         </div>
 
         <!-- Audit Empty State -->
-        <div v-else-if="auditLogs.length === 0" class="text-xs text-[#6B7280] py-8 text-center bg-white/50 rounded-xl border border-dashed border-[#E2D5C3]">
+        <div v-else-if="auditLogs.length === 0"
+          class="text-xs text-[#6B7280] py-8 text-center bg-white/50 rounded-xl border border-dashed border-[#E2D5C3]">
           No audit entries recorded yet for this case.
         </div>
 
         <!-- Audit Timeline List -->
-        <div v-else class="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E2D5C3]">
-          <div
-            v-for="(log, idx) in auditLogs"
-            :key="log.id || idx"
-            class="relative group"
-          >
+        <div v-else
+          class="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E2D5C3]">
+          <div v-for="(log, idx) in auditLogs" :key="log.id || idx" class="relative group">
             <!-- Timeline dot -->
-            <div class="absolute -left-6 sm:-left-8 top-1.5 size-6 rounded-full bg-white border-2 border-[#A2561B] flex items-center justify-center text-[#A2561B] shadow-2xs group-hover:scale-110 transition-transform">
+            <div
+              class="absolute -left-6 sm:-left-8 top-1.5 size-6 rounded-full bg-white border-2 border-[#A2561B] flex items-center justify-center text-[#A2561B] shadow-2xs group-hover:scale-110 transition-transform">
               <GitCommitIcon class="size-3" />
             </div>
 
             <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-2xs space-y-2 card-hover-lift">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#F2EAE0] pb-2">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#F2EAE0] pb-2">
                 <div class="flex items-center gap-2 flex-wrap">
                   <span class="text-xs font-bold text-[#22293A]">
                     {{ formatAuditAction(log.action) }}
                   </span>
                   <!-- Actor Pill -->
-                  <span
-                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
-                    :class="getActorBadge(log.actorType).class"
-                  >
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
+                    :class="getActorBadge(log.actorType).class">
                     <component :is="getActorBadge(log.actorType).icon" class="size-2.5" />
                     {{ getActorBadge(log.actorType).label }}
                   </span>
@@ -935,23 +897,28 @@ onMounted(() => {
               </div>
 
               <!-- Status transition detail -->
-              <div v-if="log.action === 'STATUS_CHANGED' && (log.previousValue || log.newValue)" class="flex items-center gap-2 text-xs pt-1">
-                <span v-if="log.previousValue" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-200">
+              <div v-if="log.action === 'STATUS_CHANGED' && (log.previousValue || log.newValue)"
+                class="flex items-center gap-2 text-xs pt-1">
+                <span v-if="log.previousValue"
+                  class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-200">
                   {{ log.previousValue }}
                 </span>
                 <span v-if="log.previousValue" class="text-slate-400">&rarr;</span>
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <span
+                  class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 text-emerald-800 border border-emerald-300">
                   {{ log.newValue || 'CURRENT' }}
                 </span>
               </div>
 
               <!-- Forensic note -->
-              <div v-if="log.note" class="p-3 rounded-lg bg-[#F8F3EA] border border-[#E2D5C3] text-xs text-[#22293A] italic leading-relaxed">
+              <div v-if="log.note"
+                class="p-3 rounded-lg bg-[#F8F3EA] border border-[#E2D5C3] text-xs text-[#22293A] italic leading-relaxed">
                 &ldquo;{{ log.note }}&rdquo;
               </div>
 
               <!-- File ref or other metadata -->
-              <div v-else-if="log.newValue && log.action !== 'STATUS_CHANGED'" class="text-[11px] font-mono text-[#6B7280]">
+              <div v-else-if="log.newValue && log.action !== 'STATUS_CHANGED'"
+                class="text-[11px] font-mono text-[#6B7280]">
                 Reference Identifier: {{ log.newValue }}
               </div>
             </div>
@@ -961,20 +928,14 @@ onMounted(() => {
     </div>
 
     <!-- STATUS UPDATE MODAL DIALOG -->
-    <div
-      v-if="isStatusModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/60"
-    >
+    <div v-if="isStatusModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/60">
       <div class="bg-card border border-border rounded-xl shadow-lg max-w-lg w-full p-6 space-y-5">
         <div class="flex items-center justify-between border-b border-border pb-3">
           <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">
             Update Investigation Status &amp; Findings
           </h3>
-          <button
-            type="button"
-            class="text-muted-foreground hover:text-foreground p-1 rounded cursor-pointer"
-            @click="closeStatusModal"
-          >
+          <button type="button" class="text-muted-foreground hover:text-foreground p-1 rounded cursor-pointer"
+            @click="closeStatusModal">
             <XIcon class="size-4" />
           </button>
         </div>
@@ -983,10 +944,8 @@ onMounted(() => {
           <!-- Status Selector -->
           <div class="space-y-1.5">
             <label class="font-semibold text-foreground">Target Investigation Status *</label>
-            <select
-              v-model="targetStatus"
-              class="w-full h-9 px-3 rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary cursor-pointer text-xs"
-            >
+            <select v-model="targetStatus"
+              class="w-full h-9 px-3 rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary cursor-pointer text-xs">
               <option value="UNDER_INVESTIGATION">UNDER_INVESTIGATION (Active Investigation)</option>
               <option value="RESOLVED">RESOLVED (Findings Substantiated &amp; Action Taken)</option>
               <option value="CLOSED">CLOSED (Administrative Case Closure)</option>
@@ -1002,23 +961,18 @@ onMounted(() => {
                 {{ statusNote.length }} / 2,000 max
               </span>
             </div>
-            <textarea
-              v-model="statusNote"
-              rows="4"
+            <textarea v-model="statusNote" rows="4"
               placeholder="Record forensic findings, interview summaries, or reasons for this status update..."
               class="w-full p-3 rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary text-xs"
-              required
-            ></textarea>
+              required></textarea>
             <p v-if="modalErrors.note" class="text-destructive text-[11px] font-semibold">
               {{ modalErrors.note }}
             </p>
           </div>
 
           <!-- Resolution Summary (Conditional) -->
-          <div
-            v-if="targetStatus === 'RESOLVED' || targetStatus === 'DISMISSED'"
-            class="space-y-1.5 p-3 rounded bg-muted/40 border border-border"
-          >
+          <div v-if="targetStatus === 'RESOLVED' || targetStatus === 'DISMISSED'"
+            class="space-y-1.5 p-3 rounded bg-muted/40 border border-border">
             <div class="flex items-center justify-between">
               <label class="font-bold text-foreground">
                 Final Resolution Summary *
@@ -1026,15 +980,12 @@ onMounted(() => {
               <span class="text-[10px] text-primary font-bold">REQUIRED FOR {{ targetStatus }}</span>
             </div>
             <p class="text-[11px] text-muted-foreground">
-              Provide the executive summary of corrective actions, sanctions, or rationale for dismissal. This is archived into the corporate governance ledger.
+              Provide the executive summary of corrective actions, sanctions, or rationale for dismissal. This is
+              archived into the corporate governance ledger.
             </p>
-            <textarea
-              v-model="resolutionSummary"
-              rows="3"
-              placeholder="Executive resolution summary..."
+            <textarea v-model="resolutionSummary" rows="3" placeholder="Executive resolution summary..."
               class="w-full p-2.5 rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary text-xs"
-              required
-            ></textarea>
+              required></textarea>
             <p v-if="modalErrors.resolutionSummary" class="text-destructive text-[11px] font-semibold">
               {{ modalErrors.resolutionSummary }}
             </p>
@@ -1042,21 +993,11 @@ onMounted(() => {
 
           <!-- Buttons -->
           <div class="flex items-center justify-end gap-3 pt-3 border-t border-border">
-            <AppButton
-              type="button"
-              variant="outline"
-              size="sm"
-              :disabled="isUpdatingStatus"
-              @click="closeStatusModal"
-            >
+            <AppButton type="button" variant="outline" size="sm" :disabled="isUpdatingStatus" @click="closeStatusModal">
               Cancel
             </AppButton>
 
-            <AppButton
-              type="submit"
-              size="sm"
-              :loading="isUpdatingStatus"
-            >
+            <AppButton type="submit" size="sm" :loading="isUpdatingStatus">
               Submit &amp; Commit Update
             </AppButton>
           </div>
@@ -1065,18 +1006,13 @@ onMounted(() => {
     </div>
 
     <!-- EVIDENCE PREVIEW MODAL -->
-    <div
-      v-if="isPreviewOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/70"
-    >
-      <div class="bg-card border border-border rounded-xl shadow-xl max-w-3xl w-full p-5 space-y-4 max-h-[90vh] flex flex-col">
+    <div v-if="isPreviewOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/70">
+      <div
+        class="bg-card border border-border rounded-xl shadow-xl max-w-3xl w-full p-5 space-y-4 max-h-[90vh] flex flex-col">
         <div class="flex items-center justify-between border-b border-border pb-3">
           <span class="font-bold text-sm text-foreground">{{ previewFileName }}</span>
-          <button
-            type="button"
-            class="text-muted-foreground hover:text-foreground p-1 rounded cursor-pointer"
-            @click="closePreview"
-          >
+          <button type="button" class="text-muted-foreground hover:text-foreground p-1 rounded cursor-pointer"
+            @click="closePreview">
             <XIcon class="size-4" />
           </button>
         </div>
@@ -1087,18 +1023,11 @@ onMounted(() => {
             <span>Streaming authenticated evidence...</span>
           </div>
 
-          <img
-            v-else-if="previewFileType === 'IMAGE' && previewUrl"
-            :src="previewUrl"
-            alt="Evidence preview"
-            class="max-w-full max-h-[70vh] object-contain rounded border border-border"
-          />
+          <img v-else-if="previewFileType === 'IMAGE' && previewUrl" :src="previewUrl" alt="Evidence preview"
+            class="max-w-full max-h-[70vh] object-contain rounded border border-border" />
 
-          <iframe
-            v-else-if="previewFileType === 'PDF' && previewUrl"
-            :src="previewUrl"
-            class="w-full h-[70vh] rounded border border-border"
-          ></iframe>
+          <iframe v-else-if="previewFileType === 'PDF' && previewUrl" :src="previewUrl"
+            class="w-full h-[70vh] rounded border border-border"></iframe>
         </div>
       </div>
     </div>

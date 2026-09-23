@@ -41,7 +41,7 @@ export async function getStaffCaseMessages(caseId: string): Promise<ChatMessage[
 }
 
 /**
- * Send an official investigation message to the whistleblower.
+ * Send an official investigation message to the Case reporter.
  * Authorized for assigned Department Head only.
  */
 export async function sendStaffCaseMessage(caseId: string, content: string): Promise<ChatMessage> {

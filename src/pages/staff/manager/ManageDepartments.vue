@@ -130,7 +130,8 @@ onMounted(() => {
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border pb-5">
       <div>
         <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
+          <span
+            class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
             Governance Console · Directorates
           </span>
           <span class="text-xs text-muted-foreground font-mono">
@@ -146,21 +147,14 @@ onMounted(() => {
       </div>
 
       <div class="flex items-center gap-2.5">
-        <AppButton
-          variant="outline"
-          size="sm"
-          :disabled="isLoading"
-          @click="fetchDepartments"
-        >
+        <AppButton variant="outline" size="sm" :disabled="isLoading" @click="fetchDepartments">
           <RefreshCwIcon class="size-3.5 mr-1.5" :class="{ 'animate-spin': isLoading }" />
           Refresh
         </AppButton>
 
-        <button
-          type="button"
+        <button type="button"
           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-primary-700 transition-colors shadow-xs cursor-pointer"
-          @click="openCreateModal"
-        >
+          @click="openCreateModal">
           <PlusIcon class="size-4" />
           <span>Add Department</span>
         </button>
@@ -168,11 +162,7 @@ onMounted(() => {
     </div>
 
     <!-- Error Banner -->
-    <ErrorBanner
-      v-if="error"
-      :message="error"
-      @retry="fetchDepartments"
-    />
+    <ErrorBanner v-if="error" :message="error" @retry="fetchDepartments" />
 
     <!-- Telemetry Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -211,13 +201,10 @@ onMounted(() => {
     <!-- Filter Bar -->
     <div class="flex items-center justify-between gap-3 border-b border-border pb-3">
       <div class="relative w-full sm:w-72">
-        <SearchIcon class="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Filter by department name or ID..."
-          class="w-full h-8 pl-8 pr-3 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary"
-        />
+        <SearchIcon
+          class="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        <input v-model="searchQuery" type="text" placeholder="Filter by department name or ID..."
+          class="w-full h-8 pl-8 pr-3 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary" />
       </div>
       <span class="text-xs text-muted-foreground font-mono">
         Showing {{ filteredDepartments.length }} of {{ departments.length }}
@@ -229,18 +216,12 @@ onMounted(() => {
       <div v-for="i in 4" :key="i" class="h-14 bg-muted/40 rounded-lg border border-border"></div>
     </div>
 
-    <EmptyState
-      v-else-if="filteredDepartments.length === 0"
-      title="No departments found"
-      :description="searchQuery ? 'No departments match your search term.' : 'No departments have been configured yet. Add your first department.'"
-    >
+    <EmptyState v-else-if="filteredDepartments.length === 0" title="No departments found"
+      :description="searchQuery ? 'No departments match your search term.' : 'No departments have been configured yet. Add your first department.'">
       <template #action>
-        <button
-          v-if="!searchQuery"
-          type="button"
+        <button v-if="!searchQuery" type="button"
           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-primary-700 transition-colors"
-          @click="openCreateModal"
-        >
+          @click="openCreateModal">
           <PlusIcon class="size-4" />
           <span>Create Department</span>
         </button>
@@ -249,7 +230,8 @@ onMounted(() => {
 
     <div v-else class="bg-card border border-border rounded-lg overflow-x-auto shadow-xs card-creamy">
       <table class="w-full text-left text-xs">
-        <thead class="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
+        <thead
+          class="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
           <tr>
             <th class="p-3.5">Department Name</th>
             <th class="p-3.5">System Reference ID</th>
@@ -258,15 +240,12 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
-          <tr
-            v-for="dept in filteredDepartments"
-            :key="dept.id"
-            class="hover:bg-muted/20 transition-colors"
-          >
+          <tr v-for="dept in filteredDepartments" :key="dept.id" class="hover:bg-muted/20 transition-colors">
             <!-- Department Name -->
             <td class="p-3.5">
               <div class="flex items-center gap-2.5">
-                <div class="size-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                <div
+                  class="size-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
                   <Building2Icon class="size-4" />
                 </div>
                 <div>
@@ -280,12 +259,8 @@ onMounted(() => {
             <td class="p-3.5 font-mono text-xs">
               <div class="flex items-center gap-1.5 text-muted-foreground">
                 <span class="truncate max-w-[140px]" :title="dept.id">{{ dept.id }}</span>
-                <button
-                  type="button"
-                  class="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
-                  title="Copy Department ID"
-                  @click="copyId(dept.id)"
-                >
+                <button type="button" class="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
+                  title="Copy Department ID" @click="copyId(dept.id)">
                   <CheckIcon v-if="copiedId === dept.id" class="size-3 text-emerald-600" />
                   <CopyIcon v-else class="size-3" />
                 </button>
@@ -300,21 +275,15 @@ onMounted(() => {
             <!-- Actions -->
             <td class="p-3.5 text-right whitespace-nowrap">
               <div class="inline-flex items-center gap-1.5">
-                <button
-                  type="button"
+                <button type="button"
                   class="p-1.5 rounded border border-border hover:bg-muted text-foreground transition-colors cursor-pointer"
-                  title="Edit Department"
-                  @click="openEditModal(dept)"
-                >
+                  title="Edit Department" @click="openEditModal(dept)">
                   <PencilIcon class="size-3.5" />
                 </button>
 
-                <button
-                  type="button"
+                <button type="button"
                   class="p-1.5 rounded border border-destructive/30 hover:bg-destructive/10 text-destructive transition-colors cursor-pointer"
-                  title="Delete Department"
-                  @click="confirmDelete(dept)"
-                >
+                  title="Delete Department" @click="confirmDelete(dept)">
                   <Trash2Icon class="size-3.5" />
                 </button>
               </div>
@@ -325,22 +294,13 @@ onMounted(() => {
     </div>
 
     <!-- Create / Edit Department Modal -->
-    <DepartmentModal
-      :is-open="isModalOpen"
-      :department="selectedDept"
-      @close="isModalOpen = false"
-      @saved="handleDepartmentSaved"
-    />
+    <DepartmentModal :is-open="isModalOpen" :department="selectedDept" @close="isModalOpen = false"
+      @saved="handleDepartmentSaved" />
 
     <!-- Confirm Delete Modal -->
-    <ConfirmDeleteModal
-      :is-open="isDeleteModalOpen"
-      title="Delete Department"
-      message="Are you sure you want to remove this department? Whistleblower forms will no longer list this unit for incoming incident reporting."
-      :item-name="deptToDelete?.name"
-      :is-deleting="isDeleting"
-      @close="isDeleteModalOpen = false"
-      @confirm="handleDelete"
-    />
+    <ConfirmDeleteModal :is-open="isDeleteModalOpen" title="Delete Department"
+      message="Are you sure you want to remove this department? Case reporter forms will no longer list this unit for incoming incident reporting."
+      :item-name="deptToDelete?.name" :is-deleting="isDeleting" @close="isDeleteModalOpen = false"
+      @confirm="handleDelete" />
   </div>
 </template>

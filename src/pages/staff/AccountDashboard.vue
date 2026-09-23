@@ -95,10 +95,8 @@ onMounted(() => {
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border pb-5">
       <div>
         <div class="flex items-center gap-2">
-          <span
-            class="px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wider uppercase"
-            :class="isManager ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-ink-900/10 text-ink-900 border border-ink-900/20'"
-          >
+          <span class="px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wider uppercase"
+            :class="isManager ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-ink-900/10 text-ink-900 border border-ink-900/20'">
             {{ isManager ? 'Executive Governance Console' : 'Departmental Investigation' }}
           </span>
           <span class="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
@@ -110,26 +108,20 @@ onMounted(() => {
           {{ isManager ? 'Enterprise Governance & Case Overview' : 'Department Case Review & Direct Intake' }}
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          Logged in as <strong class="text-foreground font-semibold">{{ [auth.user?.firstName, auth.user?.lastName].filter(Boolean).join(' ') }}</strong>
-          ({{ auth.user?.email }}) · Staff ID: <span class="font-mono text-foreground font-semibold">{{ auth.user?.staffId || 'STF-0421' }}</span>
+          Logged in as <strong class="text-foreground font-semibold">{{ [auth.user?.firstName,
+          auth.user?.lastName].filter(Boolean).join(' ') }}</strong>
+          ({{ auth.user?.email }}) · Staff ID: <span class="font-mono text-foreground font-semibold">{{
+            auth.user?.staffId || 'STF-0421' }}</span>
         </p>
       </div>
 
       <div class="flex items-center gap-2.5">
-        <AppButton
-          variant="outline"
-          size="sm"
-          :disabled="isLoading"
-          @click="loadData"
-        >
+        <AppButton variant="outline" size="sm" :disabled="isLoading" @click="loadData">
           <RefreshCwIcon class="size-3.5 mr-1.5" :class="{ 'animate-spin': isLoading }" />
           Refresh telemetry
         </AppButton>
-        <router-link
-          v-if="isManager"
-          to="/app/reports/user-engagement"
-          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold bg-primary text-white hover:bg-primary-700 transition-colors"
-        >
+        <router-link v-if="isManager" to="/app/reports/user-engagement"
+          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold bg-primary text-white hover:bg-primary-700 transition-colors">
           <BarChart3Icon class="size-3.5" />
           Generate Engagement Report
         </router-link>
@@ -137,11 +129,7 @@ onMounted(() => {
     </div>
 
     <!-- Error Banner -->
-    <ErrorBanner
-      v-if="error"
-      :message="error"
-      @retry="loadData"
-    />
+    <ErrorBanner v-if="error" :message="error" @retry="loadData" />
 
     <!-- Loading Skeleton -->
     <div v-if="isLoading" class="space-y-6 animate-pulse">
@@ -179,7 +167,8 @@ onMounted(() => {
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
-              <router-link to="/app/departments" class="text-primary font-semibold hover:underline flex items-center gap-1">
+              <router-link to="/app/departments"
+                class="text-primary font-semibold hover:underline flex items-center gap-1">
                 <span>Manage directory</span>
                 <ArrowRightIcon class="size-3" />
               </router-link>
@@ -205,7 +194,8 @@ onMounted(() => {
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
-              <router-link to="/app/department-heads" class="text-ink-900 font-semibold hover:underline flex items-center gap-1">
+              <router-link to="/app/department-heads"
+                class="text-ink-900 font-semibold hover:underline flex items-center gap-1">
                 <span>Manage accounts</span>
                 <ArrowRightIcon class="size-3" />
               </router-link>
@@ -225,7 +215,8 @@ onMounted(() => {
             <div class="mt-4">
               <div class="flex items-center gap-2">
                 <span class="text-sm font-bold text-foreground">Zero IP Logging</span>
-                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   ACTIVE
                 </span>
               </div>
@@ -258,10 +249,8 @@ onMounted(() => {
                     </p>
                   </div>
                   <div class="mt-4">
-                    <router-link
-                      to="/app/cases"
-                      class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                    >
+                    <router-link to="/app/cases"
+                      class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
                       Open Case Assignments queue &rarr;
                     </router-link>
                   </div>
@@ -275,10 +264,8 @@ onMounted(() => {
                     </p>
                   </div>
                   <div class="mt-4">
-                    <router-link
-                      to="/app/reports/user-engagement"
-                      class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                    >
+                    <router-link to="/app/reports/user-engagement"
+                      class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
                       View Engagement Reports &rarr;
                     </router-link>
                   </div>
@@ -290,10 +277,12 @@ onMounted(() => {
             <div class="p-4 rounded-lg bg-primary/5 border border-primary/20 text-xs space-y-1.5">
               <div class="flex items-center gap-2 text-primary font-bold">
                 <AlertTriangleIcon class="size-4 shrink-0" />
-                <span>Confidential Whistleblower Mandate (Cameroon Enterprise Law)</span>
+                <span>Confidential Case reporter Mandate (Cameroon Enterprise Law)</span>
               </div>
               <p class="text-[11px] text-muted-foreground leading-relaxed">
-                As Executive Manager, all case assignment actions are cryptographically logged in the immutability ledger. Whistleblower identities remain completely air-gapped from direct view unless voluntarily disclosed in consultation chat.
+                As Executive Manager, all case assignment actions are cryptographically logged in the immutability
+                ledger. Case reporter identities remain completely air-gapped from direct view unless voluntarily
+                disclosed in consultation chat.
               </p>
             </div>
           </div>
@@ -316,16 +305,11 @@ onMounted(() => {
               </div>
 
               <div v-else class="space-y-2.5">
-                <div
-                  v-for="item in recentNotifications"
-                  :key="item.id"
-                  class="p-2.5 rounded border border-border bg-background text-xs space-y-1"
-                >
+                <div v-for="item in recentNotifications" :key="item.id"
+                  class="p-2.5 rounded border border-border bg-background text-xs space-y-1">
                   <div class="flex items-center justify-between">
-                    <span
-                      class="px-1.5 py-0.2 rounded text-[10px] font-bold"
-                      :class="item.status === 'UNREAD' ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'"
-                    >
+                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold"
+                      :class="item.status === 'UNREAD' ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'">
                       {{ item.status }}
                     </span>
                     <span class="text-[10px] text-muted-foreground font-mono">
@@ -343,10 +327,8 @@ onMounted(() => {
             </div>
 
             <div class="pt-3 border-t border-border mt-3">
-              <router-link
-                to="/app/notifications"
-                class="w-full inline-flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground font-medium"
-              >
+              <router-link to="/app/notifications"
+                class="w-full inline-flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground font-medium">
                 Go to notification center &rarr;
               </router-link>
             </div>
@@ -364,7 +346,8 @@ onMounted(() => {
               <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Assigned Operational Directorate
               </span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+              <span
+                class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
                 AUTHORIZED DIRECT INTAKE
               </span>
             </div>
@@ -422,10 +405,7 @@ onMounted(() => {
                   <CheckCircle2Icon class="size-4 text-primary" />
                   Investigation Queue &amp; Actions
                 </h3>
-                <router-link
-                  to="/app/cases"
-                  class="text-xs font-semibold text-primary hover:underline"
-                >
+                <router-link to="/app/cases" class="text-xs font-semibold text-primary hover:underline">
                   View full queue &rarr;
                 </router-link>
               </div>
@@ -437,28 +417,19 @@ onMounted(() => {
                     Cases filed under {{ departmentDisplayName }} that are awaiting initial claim and investigation.
                   </p>
                   <div class="pt-2">
-                    <AppButton
-                      to="/app/cases"
-                      size="sm"
-                      class="w-full"
-                    >
+                    <AppButton to="/app/cases" size="sm" class="w-full">
                       Open Queue
                     </AppButton>
                   </div>
                 </div>
 
                 <div class="p-4 rounded-lg bg-muted/40 border border-border space-y-2">
-                  <h4 class="text-xs font-bold text-foreground">Secure Whistleblower Channel</h4>
+                  <h4 class="text-xs font-bold text-foreground">Secure Case reporter Channel</h4>
                   <p class="text-[11px] text-muted-foreground leading-relaxed">
                     Respond to confidential inquiries from anonymous reporters on claimed investigations.
                   </p>
                   <div class="pt-2">
-                    <AppButton
-                      to="/app/cases"
-                      variant="outline"
-                      size="sm"
-                      class="w-full"
-                    >
+                    <AppButton to="/app/cases" variant="outline" size="sm" class="w-full">
                       Check Messages
                     </AppButton>
                   </div>
@@ -473,7 +444,8 @@ onMounted(() => {
                 <span>Forensic Investigation Protocol</span>
               </div>
               <p class="text-[11px] text-muted-foreground leading-relaxed">
-                All status modifications require a mandatory audit note. Cases resolved or dismissed additionally require a comprehensive resolution summary permanently stored in the audit trail.
+                All status modifications require a mandatory audit note. Cases resolved or dismissed additionally
+                require a comprehensive resolution summary permanently stored in the audit trail.
               </p>
             </div>
           </div>
@@ -496,16 +468,11 @@ onMounted(() => {
               </div>
 
               <div v-else class="space-y-2.5">
-                <div
-                  v-for="item in recentNotifications"
-                  :key="item.id"
-                  class="p-2.5 rounded border border-border bg-background text-xs space-y-1"
-                >
+                <div v-for="item in recentNotifications" :key="item.id"
+                  class="p-2.5 rounded border border-border bg-background text-xs space-y-1">
                   <div class="flex items-center justify-between">
-                    <span
-                      class="px-1.5 py-0.2 rounded text-[10px] font-bold"
-                      :class="item.status === 'UNREAD' ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'"
-                    >
+                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold"
+                      :class="item.status === 'UNREAD' ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'">
                       {{ item.status }}
                     </span>
                     <span class="text-[10px] text-muted-foreground font-mono">
@@ -523,10 +490,8 @@ onMounted(() => {
             </div>
 
             <div class="pt-3 border-t border-border mt-3">
-              <router-link
-                to="/app/notifications"
-                class="w-full inline-flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground font-medium"
-              >
+              <router-link to="/app/notifications"
+                class="w-full inline-flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground font-medium">
                 Go to notification center &rarr;
               </router-link>
             </div>

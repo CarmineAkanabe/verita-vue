@@ -234,7 +234,7 @@ async function handleSendMessage(content: string) {
         status: 'failed',
       }
     }
-    toast.error(err?.message || 'Failed to dispatch message to whistleblower.')
+    toast.error(err?.message || 'Failed to dispatch message to Case reporter.')
   } finally {
     isSending.value = false
   }
@@ -406,10 +406,8 @@ onUnmounted(() => {
               Case Consultation Channel
             </h1>
             <StatusPill v-if="caseData" :status="caseData.status" />
-            <span
-              v-if="caseData?.concernsDepartmentHead"
-              class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]"
-            >
+            <span v-if="caseData?.concernsDepartmentHead"
+              class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
               Department Head Bypassed
             </span>
           </div>
@@ -417,10 +415,8 @@ onUnmounted(() => {
 
         <!-- Right: View Case Details Link -->
         <div class="flex items-center gap-2.5">
-          <router-link
-            :to="`/app/cases/${caseId}`"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#22293A] transition-colors shadow-xs"
-          >
+          <router-link :to="`/app/cases/${caseId}`"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#22293A] transition-colors shadow-xs">
             <FileTextIcon class="size-4 text-[#A2561B]" />
             <span>View Case Details</span>
           </router-link>
@@ -429,56 +425,52 @@ onUnmounted(() => {
     </div>
 
     <!-- Dedicated Full-View Chat Container -->
-    <div class="bg-[#FFFDF8] border border-[#EADBCE] rounded-2xl shadow-xs flex flex-col h-[75vh] min-h-[580px] overflow-hidden">
+    <div
+      class="bg-[#FFFDF8] border border-[#EADBCE] rounded-2xl shadow-xs flex flex-col h-[75vh] min-h-[580px] overflow-hidden">
       <!-- Reusable Chat Header -->
-      <ChatHeader
-        :case-id="caseId"
-        :viewer="'STAFF'"
-        :back-to="`/app/cases/${caseId}`"
-        :is-reconnecting="isReconnecting"
-      />
+      <ChatHeader :case-id="caseId" :viewer="'STAFF'" :back-to="`/app/cases/${caseId}`"
+        :is-reconnecting="isReconnecting" />
 
       <!-- Message History Scroll Area -->
-      <div
-        ref="messageScrollRef"
-        class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/60"
-        @scroll="handleScroll"
-      >
+      <div ref="messageScrollRef" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/60"
+        @scroll="handleScroll">
         <!-- Security Notice -->
         <div class="text-center my-2">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCF4EE] border border-[#A2561B]/20 text-[11px] font-medium text-[#A2561B]">
+          <div
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCF4EE] border border-[#A2561B]/20 text-[11px] font-medium text-[#A2561B]">
             <LockIcon class="size-3 shrink-0" />
-            <span>Confidential Channel · Whistleblower identity is protected</span>
+            <span>Confidential Channel · Case reporter identity is protected</span>
           </div>
         </div>
 
         <!-- Loading State: Skeletons -->
         <div v-if="isMessagesLoading" class="space-y-4 py-4">
           <div class="flex justify-start">
-            <div class="max-w-[70%] w-64 h-16 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE] animate-pulse rounded-tl-xs"></div>
+            <div
+              class="max-w-[70%] w-64 h-16 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE] animate-pulse rounded-tl-xs">
+            </div>
           </div>
           <div class="flex justify-end">
-            <div class="max-w-[70%] w-72 h-20 rounded-2xl bg-[#FCF4EE] border border-[#A2561B]/20 animate-pulse rounded-tr-xs"></div>
+            <div
+              class="max-w-[70%] w-72 h-20 rounded-2xl bg-[#FCF4EE] border border-[#A2561B]/20 animate-pulse rounded-tr-xs">
+            </div>
           </div>
           <div class="flex justify-start">
-            <div class="max-w-[70%] w-56 h-14 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE] animate-pulse rounded-tl-xs"></div>
+            <div
+              class="max-w-[70%] w-56 h-14 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE] animate-pulse rounded-tl-xs">
+            </div>
           </div>
         </div>
 
         <!-- Error State Banner -->
-        <ErrorBanner
-          v-else-if="messagesError"
-          :message="messagesError"
-          action-text="Retry Sync"
-          @action="fetchMessages(false)"
-        />
+        <ErrorBanner v-else-if="messagesError" :message="messagesError" action-text="Retry Sync"
+          @action="fetchMessages(false)" />
 
         <!-- Empty State: No messages yet -->
-        <div
-          v-else-if="messages.length === 0"
-          class="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4"
-        >
-          <div class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
+        <div v-else-if="messages.length === 0"
+          class="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4">
+          <div
+            class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
             <MessageSquareIcon class="size-6" />
           </div>
           <div class="max-w-md space-y-1">
@@ -486,7 +478,8 @@ onUnmounted(() => {
               No Consultation Messages Yet
             </h3>
             <p class="text-xs text-[#6B7280]">
-              The whistleblower has submitted their report and is awaiting your inquiry. Messages sent here are delivered confidentially to their private dashboard.
+              The Case reporter has submitted their report and is awaiting your inquiry. Messages sent here are
+              delivered confidentially to their private dashboard.
             </p>
           </div>
 
@@ -496,13 +489,9 @@ onUnmounted(() => {
               Suggested Inquiries
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                v-for="(prompt, idx) in INQUIRY_SUGGESTIONS"
-                :key="idx"
-                type="button"
+              <button v-for="(prompt, idx) in INQUIRY_SUGGESTIONS" :key="idx" type="button"
                 class="p-2.5 rounded-lg border border-[#EADBCE] bg-white hover:bg-[#FAF7F2] text-left text-xs text-[#22293A] transition-colors cursor-pointer"
-                @click="populateSuggestion(prompt)"
-              >
+                @click="populateSuggestion(prompt)">
                 "{{ prompt }}"
               </button>
             </div>
@@ -511,64 +500,47 @@ onUnmounted(() => {
 
         <!-- Populated Messages List -->
         <div v-else class="space-y-2">
-          <MessageBubble
-            v-for="msg in messages"
-            :key="msg.id || msg.tempId"
-            :message="msg"
-            :viewer="'STAFF'"
-            @retry="handleRetryMessage"
-          />
+          <MessageBubble v-for="msg in messages" :key="msg.id || msg.tempId" :message="msg" :viewer="'STAFF'"
+            @retry="handleRetryMessage" />
         </div>
       </div>
 
       <!-- Bottom Action/Composer Area -->
       <div class="border-t border-[#EADBCE] bg-[#FFFDF8]">
         <!-- Authorized: Active Message Composer -->
-        <MessageComposer
-          v-if="canSendMessage"
-          :is-sending="isSending"
-          @send="handleSendMessage"
-        />
+        <MessageComposer v-if="canSendMessage" :is-sending="isSending" @send="handleSendMessage" />
 
         <!-- Read-Only: Manager Oversight Mode -->
-        <div
-          v-else-if="isManager"
-          class="p-4 bg-[#FAF7F2] text-xs text-[#6B7280] flex items-center gap-2 border-t border-[#EADBCE]"
-        >
+        <div v-else-if="isManager"
+          class="p-4 bg-[#FAF7F2] text-xs text-[#6B7280] flex items-center gap-2 border-t border-[#EADBCE]">
           <InfoIcon class="size-4 text-[#A2561B] shrink-0" />
           <span>
-            <strong>Executive Oversight Mode:</strong> You are viewing this consultation with administrative oversight permissions. Direct message dispatch is reserved for the assigned Department Head.
+            <strong>Executive Oversight Mode:</strong> You are viewing this consultation with administrative oversight
+            permissions. Direct message dispatch is reserved for the assigned Department Head.
           </span>
         </div>
 
         <!-- Read-Only: Unassigned Case -->
-        <div
-          v-else-if="!isAssignedToMe && !isCaseClosed"
-          class="p-4 bg-[#FFFBEB] text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-[#FDE68A]"
-        >
+        <div v-else-if="!isAssignedToMe && !isCaseClosed"
+          class="p-4 bg-[#FFFBEB] text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-[#FDE68A]">
           <div class="flex items-center gap-2">
             <HandHelpingIcon class="size-4 text-[#D97706] shrink-0" />
             <span>
-              <strong>Case Unassigned:</strong> You must claim this case to send messages to the whistleblower.
+              <strong>Case Unassigned:</strong> You must claim this case to send messages to the Case reporter.
             </span>
           </div>
-          <AppButton
-            size="sm"
-            :loading="isClaiming"
-            @click="handleClaimCase"
-          >
+          <AppButton size="sm" :loading="isClaiming" @click="handleClaimCase">
             Claim Case &amp; Start Discussion
           </AppButton>
         </div>
 
         <!-- Read-Only: Case Closed/Resolved -->
-        <div
-          v-else-if="isCaseClosed"
-          class="p-4 bg-[#F2F4F7] text-xs text-[#575E71] flex items-center gap-2 border-t border-[#EADBCE]"
-        >
+        <div v-else-if="isCaseClosed"
+          class="p-4 bg-[#F2F4F7] text-xs text-[#575E71] flex items-center gap-2 border-t border-[#EADBCE]">
           <LockIcon class="size-4 text-[#575E71] shrink-0" />
           <span>
-            <strong>Case Closed:</strong> This case has been marked as {{ caseData?.status }}. This consultation stream is preserved for the official record.
+            <strong>Case Closed:</strong> This case has been marked as {{ caseData?.status }}. This consultation stream
+            is preserved for the official record.
           </span>
         </div>
       </div>

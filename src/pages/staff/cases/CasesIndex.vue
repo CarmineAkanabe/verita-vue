@@ -216,7 +216,8 @@ onMounted(() => {
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border pb-5">
       <div>
         <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
+          <span
+            class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
             {{ isManager ? 'Executive Governance & Triage' : 'Case Management & Triage' }}
           </span>
           <span class="text-xs text-muted-foreground font-mono">
@@ -227,17 +228,14 @@ onMounted(() => {
           {{ isManager ? 'Organization Case Oversight & Assignment' : 'Department Investigation Queue & Dockets' }}
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          {{ isManager ? 'Oversee incoming disclosures, assign unassigned dockets to Department Heads, and monitor resolution cycles.' : 'Review incoming whistleblower disclosures, claim active dockets, and conduct forensic assessments.' }}
+          {{ isManager ? 'Oversee incoming disclosures, assign unassigned dockets to Department Heads, and monitor
+          resolution cycles.' : 'Review incoming Case reporter disclosures, claim active dockets, and conduct forensic
+          assessments.' }}
         </p>
       </div>
 
       <div class="flex items-center gap-2.5">
-        <AppButton
-          variant="outline"
-          size="sm"
-          :disabled="isLoading"
-          @click="fetchCases"
-        >
+        <AppButton variant="outline" size="sm" :disabled="isLoading" @click="fetchCases">
           <RefreshCwIcon class="size-3.5 mr-1.5" :class="{ 'animate-spin': isLoading }" />
           Refresh Queue
         </AppButton>
@@ -245,11 +243,7 @@ onMounted(() => {
     </div>
 
     <!-- Error Banner -->
-    <ErrorBanner
-      v-if="error"
-      :message="error"
-      @retry="fetchCases"
-    />
+    <ErrorBanner v-if="error" :message="error" @retry="fetchCases" />
 
     <!-- Quick Telemetry Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -299,7 +293,7 @@ onMounted(() => {
             <span class="size-2 rounded-full bg-emerald-500"></span>
             <span class="text-xs font-bold text-foreground">ISO 37002 Active</span>
           </div>
-          <span class="text-[11px] text-muted-foreground">Air-gapped whistleblower safety</span>
+          <span class="text-[11px] text-muted-foreground">Air-gapped Case reporter safety</span>
         </div>
         <div class="p-2.5 rounded bg-emerald-500/10 text-emerald-700">
           <ShieldAlertIcon class="size-5" />
@@ -312,22 +306,18 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <!-- MANAGER TABS -->
         <template v-if="isManager">
-          <button
-            type="button"
+          <button type="button"
             class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
             :class="activeTab === 'AWAITING_ASSIGNMENT' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
-            @click="activeTab = 'AWAITING_ASSIGNMENT'"
-          >
+            @click="activeTab = 'AWAITING_ASSIGNMENT'">
             <ClockIcon class="size-3.5" />
             <span>Awaiting Assignment ({{ unassignedCases.length }})</span>
           </button>
 
-          <button
-            type="button"
+          <button type="button"
             class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
             :class="activeTab === 'ALL_CASES' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
-            @click="activeTab = 'ALL_CASES'"
-          >
+            @click="activeTab = 'ALL_CASES'">
             <BriefcaseIcon class="size-3.5" />
             <span>All Cases ({{ cases.length }})</span>
           </button>
@@ -335,37 +325,32 @@ onMounted(() => {
 
         <!-- DEPARTMENT HEAD TABS -->
         <template v-else>
-          <button
-            type="button"
+          <button type="button"
             class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
             :class="activeTab === 'QUEUE' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
-            @click="activeTab = 'QUEUE'"
-          >
+            @click="activeTab = 'QUEUE'">
             <ClockIcon class="size-3.5" />
             <span>Department Queue ({{ unassignedCases.length }})</span>
           </button>
 
-          <button
-            type="button"
+          <button type="button"
             class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
             :class="activeTab === 'CLAIMED' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
-            @click="activeTab = 'CLAIMED'"
-          >
+            @click="activeTab = 'CLAIMED'">
             <BriefcaseIcon class="size-3.5" />
             <span>My Claimed Cases ({{ myClaimedCases.length }})</span>
           </button>
         </template>
 
         <!-- COMMON AUDIT LOG TAB -->
-        <button
-          type="button"
+        <button type="button"
           class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
           :class="activeTab === 'AUDIT_LOG' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
-          @click="activeTab = 'AUDIT_LOG'; fetchAuditLogs()"
-        >
+          @click="activeTab = 'AUDIT_LOG'; fetchAuditLogs()">
           <HistoryIcon class="size-3.5" />
           <span>Audit Ledger</span>
-          <span v-if="auditLogs.length > 0" class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-primary/15 text-primary font-mono">
+          <span v-if="auditLogs.length > 0"
+            class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-primary/15 text-primary font-mono">
             {{ auditLogs.length }}
           </span>
         </button>
@@ -374,19 +359,14 @@ onMounted(() => {
       <!-- Search & Category Filters (only for cases tabs) -->
       <div v-if="activeTab !== 'AUDIT_LOG'" class="flex items-center gap-2 pb-1 sm:pb-0">
         <div class="relative">
-          <SearchIcon class="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Filter reference or person..."
-            class="h-8 pl-8 pr-3 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary w-48"
-          />
+          <SearchIcon
+            class="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input v-model="searchQuery" type="text" placeholder="Filter reference or person..."
+            class="h-8 pl-8 pr-3 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary w-48" />
         </div>
 
-        <select
-          v-model="selectedCategory"
-          class="h-8 px-2.5 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary cursor-pointer"
-        >
+        <select v-model="selectedCategory"
+          class="h-8 px-2.5 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary cursor-pointer">
           <option value="ALL">All Categories</option>
           <option value="FRAUD">Fraud</option>
           <option value="HARASSMENT">Harassment</option>
@@ -398,11 +378,13 @@ onMounted(() => {
 
     <!-- AUDIT LOG TAB VIEW -->
     <div v-if="activeTab === 'AUDIT_LOG'" class="space-y-4">
-      <div class="p-3.5 rounded-lg bg-muted/40 border border-border text-xs flex items-center justify-between card-creamy">
+      <div
+        class="p-3.5 rounded-lg bg-muted/40 border border-border text-xs flex items-center justify-between card-creamy">
         <div class="flex items-center gap-2">
           <HistoryIcon class="size-4 text-primary" />
           <span class="font-semibold text-foreground">Immutable Cryptographic Audit Trail</span>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 font-mono">
+          <span
+            class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 font-mono">
             Active Ledger
           </span>
         </div>
@@ -410,12 +392,9 @@ onMounted(() => {
           <span class="text-[11px] text-muted-foreground font-mono hidden sm:inline">
             SHA-256 Ledger · ISO 37002 Certified
           </span>
-          <button
-            type="button"
+          <button type="button"
             class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border border-border bg-white hover:bg-muted/40 text-foreground transition-colors cursor-pointer shadow-2xs"
-            :disabled="isLoadingAudit"
-            @click="fetchAuditLogs"
-          >
+            :disabled="isLoadingAudit" @click="fetchAuditLogs">
             <RefreshCwIcon class="size-3" :class="{ 'animate-spin': isLoadingAudit }" />
             <span>Refresh</span>
           </button>
@@ -428,19 +407,11 @@ onMounted(() => {
       </div>
 
       <!-- Error State -->
-      <ErrorBanner
-        v-else-if="auditError"
-        :message="auditError"
-        :retryable="true"
-        @retry="fetchAuditLogs"
-      />
+      <ErrorBanner v-else-if="auditError" :message="auditError" :retryable="true" @retry="fetchAuditLogs" />
 
       <!-- Empty State -->
-      <EmptyState
-        v-else-if="auditLogs.length === 0"
-        title="No audit events recorded"
-        description="The cryptographic audit ledger will record case creations, triage decisions, and status transitions as investigations proceed."
-      >
+      <EmptyState v-else-if="auditLogs.length === 0" title="No audit events recorded"
+        description="The cryptographic audit ledger will record case creations, triage decisions, and status transitions as investigations proceed.">
         <template #action>
           <AppButton variant="outline" size="sm" @click="fetchAuditLogs">
             Refresh Ledger
@@ -451,7 +422,8 @@ onMounted(() => {
       <!-- Audit Table -->
       <div v-else class="bg-card border border-border rounded-lg overflow-x-auto shadow-xs card-creamy">
         <table class="w-full text-left text-xs">
-          <thead class="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
+          <thead
+            class="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
             <tr>
               <th class="p-3">Log Event ID</th>
               <th class="p-3">Case Reference</th>
@@ -477,10 +449,8 @@ onMounted(() => {
                 {{ formatDate(log.loggedAt) }}
               </td>
               <td class="p-3">
-                <span
-                  class="px-2 py-0.5 rounded text-[10px] font-semibold border"
-                  :class="log.actorType === 'DEPARTMENT_HEAD' ? 'bg-[#22293A] text-white border-[#22293A]' : log.actorType === 'AI' ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-slate-100 text-slate-700 border-slate-300'"
-                >
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold border"
+                  :class="log.actorType === 'DEPARTMENT_HEAD' ? 'bg-[#22293A] text-white border-[#22293A]' : log.actorType === 'AI' ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-slate-100 text-slate-700 border-slate-300'">
                   {{ log.actorType }}
                 </span>
               </td>
@@ -495,10 +465,8 @@ onMounted(() => {
                 <span v-else>—</span>
               </td>
               <td class="p-3 text-right">
-                <router-link
-                  :to="`/app/cases/${log.caseRecordId}`"
-                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-semibold bg-white border border-border hover:border-primary text-foreground hover:text-primary transition-colors"
-                >
+                <router-link :to="`/app/cases/${log.caseRecordId}`"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-semibold bg-white border border-border hover:border-primary text-foreground hover:text-primary transition-colors">
                   View Case
                 </router-link>
               </td>
@@ -516,17 +484,11 @@ onMounted(() => {
       </div>
 
       <!-- Empty State -->
-      <EmptyState
-        v-else-if="filteredCases.length === 0"
+      <EmptyState v-else-if="filteredCases.length === 0"
         :title="isManager ? (activeTab === 'AWAITING_ASSIGNMENT' ? 'No cases awaiting assignment' : 'No cases found') : (activeTab === 'QUEUE' ? 'No cases awaiting review' : 'No claimed cases found')"
-        :description="isManager ? (activeTab === 'AWAITING_ASSIGNMENT' ? 'All submitted incident reports have been assigned to officers.' : 'No matching cases found across the organization.') : (activeTab === 'QUEUE' ? 'There are currently no unclaimed incident reports in your departmental queue.' : 'You have not claimed any dockets under active investigation.')"
-      >
+        :description="isManager ? (activeTab === 'AWAITING_ASSIGNMENT' ? 'All submitted incident reports have been assigned to officers.' : 'No matching cases found across the organization.') : (activeTab === 'QUEUE' ? 'There are currently no unclaimed incident reports in your departmental queue.' : 'You have not claimed any dockets under active investigation.')">
         <template #action>
-          <AppButton
-            variant="outline"
-            size="sm"
-            @click="fetchCases"
-          >
+          <AppButton variant="outline" size="sm" @click="fetchCases">
             Refresh data
           </AppButton>
         </template>
@@ -535,7 +497,8 @@ onMounted(() => {
       <!-- Data Table -->
       <div v-else class="bg-card border border-border rounded-lg overflow-x-auto shadow-xs card-creamy">
         <table class="w-full text-left text-xs">
-          <thead class="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
+          <thead
+            class="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
             <tr>
               <th class="p-3.5">Reference ID</th>
               <th class="p-3.5">Date</th>
@@ -547,21 +510,13 @@ onMounted(() => {
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
-            <tr
-              v-for="item in filteredCases"
-              :key="item.id"
-              class="hover:bg-muted/20 transition-colors"
-            >
+            <tr v-for="item in filteredCases" :key="item.id" class="hover:bg-muted/20 transition-colors">
               <!-- Case ID -->
               <td class="p-3.5">
                 <div class="flex items-center gap-1.5 font-mono font-bold text-foreground">
                   <span class="truncate max-w-[120px]" :title="item.id">{{ item.id }}</span>
-                  <button
-                    type="button"
-                    class="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
-                    title="Copy Case UUID"
-                    @click="copyCaseId(item.id)"
-                  >
+                  <button type="button" class="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
+                    title="Copy Case UUID" @click="copyCaseId(item.id)">
                     <CheckIcon v-if="copiedId === item.id" class="size-3 text-emerald-600" />
                     <CopyIcon v-else class="size-3" />
                   </button>
@@ -576,10 +531,12 @@ onMounted(() => {
               <!-- Category -->
               <td class="p-3.5">
                 <div class="space-y-0.5">
-                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                  <span
+                    class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
                     {{ item.category }}
                   </span>
-                  <p class="text-[11px] text-muted-foreground line-clamp-1 max-w-[200px]" :title="item.purposeOfTransaction">
+                  <p class="text-[11px] text-muted-foreground line-clamp-1 max-w-[200px]"
+                    :title="item.purposeOfTransaction">
                     {{ item.purposeOfTransaction }}
                   </p>
                 </div>
@@ -599,19 +556,15 @@ onMounted(() => {
               <td class="p-3.5 whitespace-nowrap">
                 <div class="flex items-center gap-1.5">
                   <StatusPill :status="item.status" />
-                  <span
-                    v-if="item.concernsDepartmentHead"
+                  <span v-if="item.concernsDepartmentHead"
                     class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-destructive/15 text-destructive border border-destructive/20 flex items-center gap-1"
-                    title="Conflict: Concerns Department Head"
-                  >
+                    title="Conflict: Concerns Department Head">
                     <AlertTriangleIcon class="size-3" />
                     Conflict
                   </span>
-                  <span
-                    v-if="item.escalatedAt"
+                  <span v-if="item.escalatedAt"
                     class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-800 border border-amber-500/20"
-                    title="Escalated to Executive Management"
-                  >
+                    title="Escalated to Executive Management">
                     Escalated
                   </span>
                 </div>
@@ -621,33 +574,24 @@ onMounted(() => {
               <td class="p-3.5 text-right whitespace-nowrap">
                 <div class="inline-flex items-center gap-2">
                   <!-- Manager: Assign Case button (when unassigned) -->
-                  <button
-                    v-if="isManager && !item.assignedTo && item.status === 'AWAITING_REVIEW'"
-                    type="button"
+                  <button v-if="isManager && !item.assignedTo && item.status === 'AWAITING_REVIEW'" type="button"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold bg-primary text-white hover:bg-primary-700 transition-colors cursor-pointer"
-                    @click="openAssignModal(item)"
-                  >
+                    @click="openAssignModal(item)">
                     <UserCheckIcon class="size-3.5" />
                     <span>Assign Case</span>
                   </button>
 
                   <!-- Department Head: Claim button -->
-                  <button
-                    v-if="!isManager && activeTab === 'QUEUE' && item.status === 'AWAITING_REVIEW'"
-                    type="button"
+                  <button v-if="!isManager && activeTab === 'QUEUE' && item.status === 'AWAITING_REVIEW'" type="button"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold bg-primary text-white hover:bg-primary-700 transition-colors cursor-pointer"
-                    :disabled="isClaimingId === item.id"
-                    @click="handleClaim(item)"
-                  >
+                    :disabled="isClaimingId === item.id" @click="handleClaim(item)">
                     <HandHelpingIcon class="size-3.5" />
                     <span>{{ isClaimingId === item.id ? 'Claiming...' : 'Claim' }}</span>
                   </button>
 
                   <!-- View Case Details -->
-                  <router-link
-                    :to="`/app/cases/${item.id}`"
-                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold border border-border bg-background hover:bg-muted text-foreground transition-colors"
-                  >
+                  <router-link :to="`/app/cases/${item.id}`"
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold border border-border bg-background hover:bg-muted text-foreground transition-colors">
                     <span>View Case</span>
                     <ArrowRightIcon class="size-3" />
                   </router-link>
@@ -660,12 +604,7 @@ onMounted(() => {
     </div>
 
     <!-- Assign Case Modal -->
-    <AssignCaseModal
-      :is-open="isAssignModalOpen"
-      :case-item="caseToAssign"
-      :department-heads="departmentHeads"
-      @close="isAssignModalOpen = false"
-      @assigned="handleCaseAssigned"
-    />
+    <AssignCaseModal :is-open="isAssignModalOpen" :case-item="caseToAssign" :department-heads="departmentHeads"
+      @close="isAssignModalOpen = false" @assigned="handleCaseAssigned" />
   </div>
 </template>
