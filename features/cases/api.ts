@@ -38,7 +38,7 @@ export async function getPublicDepartments(): Promise<DepartmentOption[]> {
 
   try {
     const authRes = await apiClient.post<{ token: string }>('/auth/login', {
-      email: 'manjuserge@gmail.com',
+      email: 'manager@verita.com.com',
       password: 'password',
     })
     const devToken = authRes.data?.token
