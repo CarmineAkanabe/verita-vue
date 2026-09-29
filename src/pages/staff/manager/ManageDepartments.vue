@@ -299,7 +299,7 @@ onMounted(() => {
 
     <!-- Confirm Delete Modal -->
     <ConfirmDeleteModal :is-open="isDeleteModalOpen" title="Delete Department"
-      message="Are you sure you want to remove this department? Case reporter forms will no longer list this unit for incoming incident reporting."
+      message="Are you sure you want to remove this department? Case reporting forms will no longer list this unit for incoming incident reporting."
       :item-name="deptToDelete?.name" :is-deleting="isDeleting" @close="isDeleteModalOpen = false"
       @confirm="handleDelete" />
   </div>

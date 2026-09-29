@@ -93,7 +93,7 @@ async function copyCaseId() {
       </div>
 
       <!-- Right: Counterpart Identity Card -->
-      <!-- If Viewer is STAFF: Counterpart is Anonymous Case reporter -->
+      <!-- If Viewer is STAFF: Counterpart is Anonymous Case Reporter -->
       <div v-if="viewer === 'STAFF'"
         class="flex items-center gap-3 bg-[#FAF7F2] border border-[#EADBCE] rounded-xl px-3.5 py-2">
         <div

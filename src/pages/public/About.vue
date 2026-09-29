@@ -24,7 +24,8 @@ import {
     <!-- About Hero -->
     <section class="border-b border-border bg-muted/20 py-16 lg:py-20">
       <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center space-y-4 animate-fade-in-up">
-        <div class="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground shadow-xs">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground shadow-xs">
           <BookOpenIcon class="size-3.5 text-primary" />
           Enterprise Governance &amp; Ethics Standard
         </div>
@@ -43,11 +44,13 @@ import {
       <!-- Section 1: The Institutional Dilemma & Enterprise Context (Case Example: Digimark) -->
       <section class="space-y-6">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
+          <div
+            class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
             <Building2Icon class="size-5" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-foreground">The Enterprise Dilemma: From Informal Handling to Auditable Trust</h2>
+            <h2 class="text-2xl font-bold text-foreground">The Enterprise Dilemma: From Informal Handling to Auditable
+              Trust</h2>
             <p class="text-xs text-muted-foreground">Bridging informal handling with enterprise-grade compliance</p>
           </div>
         </div>
@@ -55,18 +58,22 @@ import {
         <div class="prose text-sm text-muted-foreground leading-relaxed space-y-4">
           <p>
             In many fast-growing technology, consulting, and service enterprises—such as our featured customer
-            <strong>Digimark Consulting</strong>—organizations operate without a centralized, bureaucratic human resources apparatus.
+            <strong>Digimark Consulting</strong>—organizations operate without a centralized, bureaucratic human
+            resources apparatus.
             Historically, conduct issues, procurement conflicts, or financial discrepancies were absorbed informally by
             whoever was closest: a practice lead, a project manager, or an executive partner.
           </p>
           <p>
-            This informal model introduces severe systemic friction: reporters fear interpersonal retaliation or career penalties,
+            This informal model introduces severe systemic friction: reporters fear interpersonal retaliation or career
+            penalties,
             disclosures lack verifiable evidence trails, and management lacks an objective, auditable record.
-            Even in larger enterprises with established HR departments, reporting to an internal HR representative often feels
+            Even in larger enterprises with established HR departments, reporting to an internal HR representative often
+            feels
             identity-exposing and fraught with corporate conflicts of interest.
           </p>
           <p>
-            <strong>Verita</strong> was built to solve this exact dilemma—providing an air-gapped, neutral, and cryptographically
+            <strong>Verita</strong> was built to solve this exact dilemma—providing an air-gapped, neutral, and
+            cryptographically
             isolated channel for intake, investigation, and structured resolution.
           </p>
         </div>
@@ -79,7 +86,7 @@ import {
               Core Principle
             </div>
             <h3 class="text-base font-bold text-foreground">
-              Why Confidential Whistleblowing Matters
+              Why Confidential Case Reporting Matters
             </h3>
           </template>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-muted-foreground">
@@ -104,39 +111,47 @@ import {
       <!-- Section 2: Anonymity Architecture with Photography Asset -->
       <section id="anonymity" class="space-y-6 pt-6 border-t border-border">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
+          <div
+            class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
             <LockIcon class="size-5" />
           </div>
           <div>
             <h2 class="text-2xl font-bold text-foreground">Anonymity Architecture &amp; Cryptographic Disclosures</h2>
-            <p class="text-xs text-muted-foreground">Preserving anonymous submission and minimizing identity exposure</p>
+            <p class="text-xs text-muted-foreground">Preserving anonymous submission and minimizing identity exposure
+            </p>
           </div>
         </div>
 
         <div class="text-sm text-muted-foreground leading-relaxed space-y-4">
           <p>
-            In strict alignment with academic ethics and data privacy principles, Verita does not promise absolute or "magic" anonymity.
-            Instead, our architecture focuses on <strong>preserving anonymous submission and minimizing identity exposure</strong>
+            In strict alignment with academic ethics and data privacy principles, Verita does not promise absolute or
+            "magic"
+            anonymity.
+            Instead, our architecture focuses on <strong>preserving anonymous submission and minimizing identity
+              exposure</strong>
             across two distinct dimensions:
           </p>
         </div>
 
         <!-- Security Operations Photographic Showcase -->
-        <div class="group relative rounded-xl border border-border bg-card p-2 shadow-md overflow-hidden card-hover-lift">
+        <div
+          class="group relative rounded-xl border border-border bg-card p-2 shadow-md overflow-hidden card-hover-lift">
           <div class="aspect-[21/9] sm:aspect-[24/9] w-full rounded-lg overflow-hidden bg-muted/40 relative">
-            <img
-              src="/security-operations.jpg"
-              alt="Enterprise Security and Compliance Center"
+            <img src="/security-operations.jpg" alt="Enterprise Security and Compliance Center"
               class="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-              loading="lazy"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent flex items-end p-4 sm:p-6">
+              loading="lazy" />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent flex items-end p-4 sm:p-6">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
                 <div>
-                  <p class="text-xs font-bold text-foreground uppercase tracking-wider">Air-Gapped Ingestion Pipeline</p>
-                  <p class="text-[11px] text-muted-foreground">Zero persistent session tokens · Hardware-isolated database encryption</p>
+                  <p class="text-xs font-bold text-foreground uppercase tracking-wider">Air-Gapped Ingestion Pipeline
+                  </p>
+                  <p class="text-[11px] text-muted-foreground">Zero persistent session tokens · Hardware-isolated
+                    database
+                    encryption</p>
                 </div>
-                <span class="inline-flex items-center gap-1.5 rounded bg-background/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono font-medium border border-border">
+                <span
+                  class="inline-flex items-center gap-1.5 rounded bg-background/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono font-medium border border-border">
                   <ActivityIcon class="size-3 text-emerald-500" />
                   AES-256 / SHA-256
                 </span>
@@ -154,7 +169,8 @@ import {
             </div>
             <p class="text-xs text-muted-foreground leading-relaxed">
               We never record your IP address, browser type, or device details. You do not need to create an account
-              or log in with work credentials. Access to your report is protected only by your unique Case ID and private PIN.
+              or log in with work credentials. Access to your report is protected only by your unique Case ID and
+              private PIN.
             </p>
           </div>
 
@@ -166,7 +182,8 @@ import {
             </div>
             <p class="text-xs text-muted-foreground leading-relaxed">
               We protect system metadata, but <strong>cannot remove personal details inside your files</strong>.
-              If uploading screenshots or payment receipts, please cover or crop your personal name or account numbers first.
+              If uploading screenshots or payment receipts, please cover or crop your personal name or account numbers
+              first.
             </p>
           </div>
         </div>
@@ -175,7 +192,8 @@ import {
       <!-- Section 3: AI Processing Scope & Strict Ethical Boundaries -->
       <section id="ai-scope" class="space-y-6 pt-6 border-t border-border">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
+          <div
+            class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
             <CpuIcon class="size-5" />
           </div>
           <div>
@@ -185,7 +203,8 @@ import {
         </div>
 
         <p class="text-sm text-muted-foreground leading-relaxed">
-          Artificial Intelligence in Verita is utilized strictly as an organizational assistant, not an automated tribunal.
+          Artificial Intelligence in Verita is utilized strictly as an organizational assistant, not an automated
+          tribunal.
           The system enforces strict algorithmic guardrails:
         </p>
 
@@ -231,7 +250,8 @@ import {
       <!-- Section 4: Governance, Separation of Powers, and ISO 37002:2021 -->
       <section id="policy" class="space-y-6 pt-6 border-t border-border">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
+          <div
+            class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
             <ScaleIcon class="size-5" />
           </div>
           <div>
@@ -268,7 +288,7 @@ import {
         <!-- ISO 37002 Cycle -->
         <div class="rounded-lg border border-border bg-muted/30 p-6 space-y-3 card-hover-lift">
           <h3 class="text-xs font-semibold uppercase tracking-wider text-foreground">
-            ISO 37002:2021 Whistleblowing Management Standard Alignment
+            ISO 37002:2021 Case Reporting Management Standard Alignment
           </h3>
           <p class="text-xs text-muted-foreground leading-relaxed">
             Verita implements the recognized four-stage international standard:
@@ -280,15 +300,19 @@ import {
             </div>
             <div class="border-t-2 border-primary pt-2">
               <span class="text-xs font-bold text-foreground">2. Assessing</span>
-              <p class="text-[11px] text-muted-foreground">AI timeline structuring, triage, conflict-of-interest check.</p>
+              <p class="text-[11px] text-muted-foreground">AI timeline structuring, triage, conflict-of-interest check.
+              </p>
             </div>
             <div class="border-t-2 border-primary pt-2">
               <span class="text-xs font-bold text-foreground">3. Addressing</span>
-              <p class="text-[11px] text-muted-foreground">Department Head review, two-way anonymous chat, further evidence.</p>
+              <p class="text-[11px] text-muted-foreground">Department Head review, two-way anonymous chat, further
+                evidence.
+              </p>
             </div>
             <div class="border-t-2 border-primary pt-2">
               <span class="text-xs font-bold text-foreground">4. Concluding</span>
-              <p class="text-[11px] text-muted-foreground">Resolution notes, immutable audit logs, disciplinary referral.</p>
+              <p class="text-[11px] text-muted-foreground">Resolution notes, immutable audit logs, disciplinary
+                referral.</p>
             </div>
           </div>
         </div>
@@ -297,12 +321,14 @@ import {
       <!-- Section 5: Engineering Leadership & Architecture -->
       <section class="space-y-6">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
+          <div
+            class="h-9 w-9 rounded-lg border border-border bg-primary/10 flex items-center justify-center text-primary">
             <Code2Icon class="size-5" />
           </div>
           <div>
             <h2 class="text-2xl font-bold text-foreground">Platform Architecture &amp; Engineering</h2>
-            <p class="text-xs text-muted-foreground">Lead engineering, systems architecture, and open-source provenance</p>
+            <p class="text-xs text-muted-foreground">Lead engineering, systems architecture, and open-source provenance
+            </p>
           </div>
         </div>
 
@@ -310,7 +336,8 @@ import {
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div class="space-y-1.5">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/15 text-primary border border-primary/20">
+                <span
+                  class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/15 text-primary border border-primary/20">
                   Lead Architect &amp; Core Engineer
                 </span>
                 <span class="text-xs text-muted-foreground font-mono">
@@ -328,17 +355,15 @@ import {
             </div>
 
             <!-- GitHub Profile Badge Link -->
-            <a
-              href="https://github.com/CarmineAkanabe"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#22293A] text-white hover:bg-[#1B212F] shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 shrink-0 group border border-slate-700"
-            >
+            <a href="https://github.com/CarmineAkanabe" target="_blank" rel="noopener noreferrer"
+              class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#22293A] text-white hover:bg-[#1B212F] shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 shrink-0 group border border-slate-700">
               <svg class="size-4 text-white fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
               </svg>
               <div class="text-left">
-                <p class="text-[11px] font-semibold leading-tight text-white group-hover:text-amber-400 transition-colors">
+                <p
+                  class="text-[11px] font-semibold leading-tight text-white group-hover:text-amber-400 transition-colors">
                   CarmineAkanabe
                 </p>
                 <p class="text-[10px] text-slate-400 font-mono">
@@ -367,7 +392,8 @@ import {
       </section>
 
       <!-- CTA Footer Box -->
-      <section class="rounded-xl border border-border bg-card p-8 sm:p-10 text-center space-y-4 card-hover-lift shadow-sm">
+      <section
+        class="rounded-xl border border-border bg-card p-8 sm:p-10 text-center space-y-4 card-hover-lift shadow-sm">
         <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
           Ready to submit a confidential report?
         </h2>
@@ -376,21 +402,13 @@ import {
           No email, corporate login, or identity disclosure is required.
         </p>
         <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
-          <AppButton
-            to="/cases/submit"
-            size="default"
-            variant="default"
-            class="shadow-xs hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
-          >
+          <AppButton to="/cases/submit" size="default" variant="default"
+            class="shadow-xs hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
             <ShieldAlertIcon class="size-4 mr-1.5" />
             Report an incident
           </AppButton>
-          <AppButton
-            to="/cases/verify-pin"
-            size="default"
-            variant="outline"
-            class="transition-all duration-300 hover:-translate-y-0.5"
-          >
+          <AppButton to="/cases/verify-pin" size="default" variant="outline"
+            class="transition-all duration-300 hover:-translate-y-0.5">
             Track an existing case
             <ArrowRightIcon class="size-4 ml-1.5" />
           </AppButton>

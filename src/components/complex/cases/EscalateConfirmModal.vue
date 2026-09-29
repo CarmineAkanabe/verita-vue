@@ -67,7 +67,7 @@ async function handleConfirmEscalation() {
               Escalate to General Management
             </h3>
             <p class="text-xs text-[#6B7280]">
-              Direct leadership oversight · Digimark Executive Office
+              Direct leadership oversight · Executive Governance Office
             </p>
           </div>
         </div>

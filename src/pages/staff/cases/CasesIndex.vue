@@ -228,9 +228,7 @@ onMounted(() => {
           {{ isManager ? 'Organization Case Oversight & Assignment' : 'Department Investigation Queue & Dockets' }}
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          {{ isManager ? 'Oversee incoming disclosures, assign unassigned dockets to Department Heads, and monitor
-          resolution cycles.' : 'Review incoming Case reporter disclosures, claim active dockets, and conduct forensic
-          assessments.' }}
+          {{ isManager ? 'Oversee incoming cases, assign unassigned cases to Department Heads, and monitor resolution cycles.' : 'Review incoming reports, claim active cases, and conduct case assessments.' }}
         </p>
       </div>
 
@@ -293,7 +291,7 @@ onMounted(() => {
             <span class="size-2 rounded-full bg-emerald-500"></span>
             <span class="text-xs font-bold text-foreground">ISO 37002 Active</span>
           </div>
-          <span class="text-[11px] text-muted-foreground">Air-gapped Case reporter safety</span>
+          <span class="text-[11px] text-muted-foreground">Air-gapped case reporter safety</span>
         </div>
         <div class="p-2.5 rounded bg-emerald-500/10 text-emerald-700">
           <ShieldAlertIcon class="size-5" />

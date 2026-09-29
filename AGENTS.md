@@ -7,7 +7,7 @@ Welcome to the **Verita** project workspace. This document serves as the primary
 ## 1. Project Identity & Authorship
 
 - **Project**: Verita Case Management and Consulting System
-- **Standards Compliance**: ISO 37002:2021 Whistleblowing Management Systems, EU Directive 2019/1937
+- **Standards Compliance**: ISO 37002:2021 Case Reporting Management Systems, EU Directive 2019/1937
 - **Lead Architect & Engineer**: [Carmine Akanabe](https://github.com/CarmineAkanabe)
 - **Repository Structure**:
   - `verita-vue`: Modern Vue 3.5 frontend (TypeScript, Vite, Tailwind CSS v4, Pinia, Reka UI)
@@ -39,10 +39,10 @@ Whenever you modify, extend, or review code in this project, you **MUST** adhere
 - Universal focus states: all interactive elements must support clear, high-contrast `:focus-visible` outline rings with a 2px offset.
 - All form controls must be accessible and accompanied by semantic labels.
 
-### D. Privacy & Case reporter Protection
+### D. Privacy & Case Reporter Protection
 - **Zero-PII Anonymous Intake**: Anonymous reporters are never registered with email, password, or profile data. They access their case strictly via a generated UUID `caseId` and 6-character cryptographically hashed tracking PIN (`POST /api/v1/cases/{caseId}/verify-pin`).
 - **No Fingerprinting**: Never persist, log, or broadcast IP addresses, user-agent strings, or browser fingerprints.
-- **Asymmetric Identity**: In two-way communication channels, the Case reporter is strictly displayed as `Case<ID>Reporter`. Investigator presence/typing indicators must never leak to the Case reporter view.
+- **Asymmetric Identity**: In two-way communication channels, the Case Reporter is strictly displayed as `Case<ID>Reporter`. Investigator presence/typing indicators must never leak to the Case Reporter view.
 
 ### E. Audit Ledger Integrity
 - Every state change (status update, note, claiming, AI analysis, evidence interaction) must write an immutable audit log entry through `AuditLogService`.

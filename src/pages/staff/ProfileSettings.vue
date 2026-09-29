@@ -287,7 +287,7 @@ async function handleSubmit() {
           v-model="email"
           label="Corporate Email Address"
           type="email"
-          placeholder="e.g. h.moukoko@digimark-consulting.cm"
+          placeholder="e.g. h.moukoko@enterprise.com"
           :error="fieldErrors.email"
           hint="Used for critical docket escalation notifications and air-gapped password resets."
           required
@@ -329,7 +329,7 @@ async function handleSubmit() {
         <div class="p-3 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground flex items-start gap-2">
           <InfoIcon class="size-4 shrink-0 text-primary mt-0.5" />
           <span>
-            Per Digimark corporate security policy, passwords must not contain easily guessable organizational names and must be rotated every 90 days.
+            Per enterprise corporate security policy, passwords must not contain easily guessable organizational names and must be rotated every 90 days.
           </span>
         </div>
       </div>

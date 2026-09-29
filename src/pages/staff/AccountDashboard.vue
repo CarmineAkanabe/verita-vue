@@ -221,7 +221,7 @@ onMounted(() => {
                 </span>
               </div>
               <p class="text-[11px] text-muted-foreground mt-1">
-                Compliant with ISO 37002 &amp; ISO 27001 whistleblowing standards
+                Compliant with ISO 37002 &amp; ISO 27001 Case Reporting standards
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
@@ -277,7 +277,7 @@ onMounted(() => {
             <div class="p-4 rounded-lg bg-primary/5 border border-primary/20 text-xs space-y-1.5">
               <div class="flex items-center gap-2 text-primary font-bold">
                 <AlertTriangleIcon class="size-4 shrink-0" />
-                <span>Confidential Case reporter Mandate (Cameroon Enterprise Law)</span>
+                <span>Confidential Case Reporting Mandate (Cameroon Enterprise Law)</span>
               </div>
               <p class="text-[11px] text-muted-foreground leading-relaxed">
                 As Executive Manager, all case assignment actions are cryptographically logged in the immutability
@@ -424,7 +424,7 @@ onMounted(() => {
                 </div>
 
                 <div class="p-4 rounded-lg bg-muted/40 border border-border space-y-2">
-                  <h4 class="text-xs font-bold text-foreground">Secure Case reporter Channel</h4>
+                  <h4 class="text-xs font-bold text-foreground">Secure Case Reporter Channel</h4>
                   <p class="text-[11px] text-muted-foreground leading-relaxed">
                     Respond to confidential inquiries from anonymous reporters on claimed investigations.
                   </p>

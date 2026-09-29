@@ -24,6 +24,11 @@ function isPublicRoute(config: InternalAxiosRequestConfig): boolean {
         return true
     }
 
+    // Public directory of departments for case intake routing
+    if (cleanUrl === 'departments' && method === 'get') {
+        return true
+    }
+
     return false
 }
 

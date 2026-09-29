@@ -494,7 +494,7 @@ onMounted(() => {
           </div>
           <p class="text-xs text-[#6B7280] mt-1">
             Submitted on <strong class="text-[#22293A]">{{ formatDate(caseData?.createdAt || caseData?.transactionDate)
-              }}</strong>
+            }}</strong>
             · Category: <span class="font-bold text-[#A2561B]">{{ caseData?.category }}</span>
           </p>
         </div>
@@ -544,7 +544,7 @@ onMounted(() => {
           <CheckCircle2Icon class="size-3.5" />
           <span>Case Resolution Summary</span>
           <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt)
-            }})</span>
+          }})</span>
         </div>
         <p class="text-xs text-[#22293A] font-medium leading-relaxed">
           {{ caseData.resolutionSummary }}
@@ -669,7 +669,7 @@ onMounted(() => {
           <div v-if="structuredFindings.clarifications.length > 0" class="space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[11px] font-bold text-[#4338CA] uppercase tracking-wider">
-                Recommended Inquiries for Case reporter ({{ structuredFindings.clarifications.length }})
+                Recommended Inquiries for Case Reporter ({{ structuredFindings.clarifications.length }})
               </span>
               <span class="text-[10px] text-[#6B7280]">Click icon to copy question</span>
             </div>

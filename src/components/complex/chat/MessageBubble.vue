@@ -71,7 +71,7 @@ function formatTime(isoString: string): string {
         <template v-else>
           <template v-if="viewer === 'STAFF'">
             <ShieldIcon class="size-3 text-[#575E71]" />
-            <span class="text-[#22293A]">Case reporter</span>
+            <span class="text-[#22293A]">Case Reporter</span>
             <span
               class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B]">
               Anonymous Relay

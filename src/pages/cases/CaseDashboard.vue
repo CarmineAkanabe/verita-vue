@@ -401,7 +401,7 @@ const hasAiReviewData = computed(() => {
               </div>
 
               <p class="text-xs text-[#6B7280]">
-                Submitted for investigation under Cameroonian corporate governance policies · Digimark Consulting
+                Submitted for investigation under corporate governance & compliance protocols · Enterprise Case Review
               </p>
             </div>
 
@@ -884,7 +884,7 @@ const hasAiReviewData = computed(() => {
                 All evidence files are cryptographically stamped with SHA-256 integrity hashes upon receipt. Metadata stripping removes EXIF data, IP origins, and hardware markers before storage.
               </p>
               <div class="text-[10px] text-[#9CA3AF] font-mono">
-                AES-256-GCM Vault Storage · Digimark Audit Standard
+                AES-256-GCM Vault Storage · ISO 37002 Audit Standard
               </div>
             </div>
           </div>

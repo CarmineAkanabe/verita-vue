@@ -116,7 +116,7 @@ async function handleSubmit() {
             class="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             :disabled="isSubmitting" autofocus />
           <p class="text-[11px] text-muted-foreground mt-1">
-            Official business unit name shown to anonymous Case reporters during report intake.
+            Official business unit name shown to anonymous case reporters during report intake.
           </p>
         </div>
 

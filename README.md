@@ -1,4 +1,4 @@
-# Verita — Enterprise Case reporter & Case Management System (Frontend)
+# Verita — Enterprise Case Management and Consulting System (Frontend)
 
 [![Vue 3](https://img.shields.io/badge/Vue-3.5-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -15,13 +15,13 @@ The official Vue 3 frontend application for **Verita**, an enterprise-grade plat
 
 ## 🌟 What is Verita?
 
-In many organizations, reporting ethical violations, procurement fraud, harassment, or financial irregularities is difficult. Traditional channels often lack privacy, exposing Case reporters to career retaliation or interpersonal conflict.
+In many organizations, reporting ethical violations, procurement fraud, harassment, or financial irregularities is difficult. Traditional channels often lack privacy, exposing case reporters to career retaliation or interpersonal conflict.
 
-**Verita** provides an air-gapped, cryptographically isolated platform that balances **guaranteed Case reporter anonymity** with **rigorous investigative accountability**:
+**Verita** provides an air-gapped, cryptographically isolated platform that balances **guaranteed case reporter anonymity** with **rigorous investigative accountability**:
 - Case reporters can submit incident reports without creating accounts or revealing IP addresses.
 - An AI engine (Google Gemini) structures disclosures into objective timelines and highlights red flags.
 - Dedicated Department Heads review evidence, communicate with reporters in real-time, and record status transitions.
-- Executive Managers oversee organization-wide trends, assign dockets, and govern compliance via immutable audit ledgers aligned with **ISO 37002:2021 Whistleblowing Management Systems**.
+- Executive Managers oversee organization-wide trends, assign dockets, and govern compliance via immutable audit ledgers aligned with **ISO 37002:2021 Case Reporting Management Systems**.
 
 ---
 
@@ -29,7 +29,7 @@ In many organizations, reporting ethical violations, procurement fraud, harassme
 
 ```mermaid
 graph TD
-    A[Anonymous Case reporter] -->|Submits Report with zero IP logs| B(Verita Ingestion Engine)
+    A[Anonymous Case Reporter] -->|Submits Report with zero IP logs| B(Verita Ingestion Engine)
     B -->|Generates Case ID + Tracking PIN| A
     B -->|Triggers Background AI Analysis| C(Gemini 2.5 Flash Triage)
     C -->|Structures Timeline & Discrepancies| D[Department Head Queue]
@@ -61,7 +61,7 @@ graph TD
   - Transition cases from `UNDER_INVESTIGATION` to `RESOLVED`, `CLOSED`, or `DISMISSED`.
   - Mandatory forensic investigation note required on every status change.
   - Executive resolution summary required for case closures.
-- **Live Consultation Chat (`/app/cases/:id/chat`)**: Asymmetric communication channel directly with the anonymous Case reporter.
+- **Live Consultation Chat (`/app/cases/:id/chat`)**: Asymmetric communication channel directly with the anonymous case reporter.
 - **Case History & Immutable Audit Trail**: Detailed chronological timeline of every status transition, forensic note, AI evaluation, and evidence inspection.
 
 ### 3. Executive Manager Console
@@ -199,8 +199,8 @@ Executes TypeScript type-checking (`vue-tsc -b`) followed by optimized productio
 ## 📜 Standard Compliance & Provenance
 
 Verita is engineered to meet the operational criteria of:
-- **ISO 37002:2021** (Whistleblowing Management Systems)
-- **EU Case reporter Protection Directive 2019/1937**
+- **ISO 37002:2021** (Case Reporting Management Systems)
+- **EU Directive 2019/1937**
 - **WCAG 2.1 Level AA** (Web Content Accessibility Guidelines)
 
 Developed by **[Carmine Akanabe](https://github.com/CarmineAkanabe)** for final university defense and modern enterprise implementation. Open-source under the **MIT License**.

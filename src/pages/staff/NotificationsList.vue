@@ -149,7 +149,7 @@ onMounted(() => {
           System &amp; Docket Notifications
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          Real-time incident updates, investigator assignments, and confidential Case reporter alerts.
+          Real-time incident updates, investigator assignments, and confidential case reporter alerts.
         </p>
       </div>
 

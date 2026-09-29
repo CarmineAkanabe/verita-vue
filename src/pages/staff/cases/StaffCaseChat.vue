@@ -234,7 +234,7 @@ async function handleSendMessage(content: string) {
         status: 'failed',
       }
     }
-    toast.error(err?.message || 'Failed to dispatch message to Case reporter.')
+    toast.error(err?.message || 'Failed to dispatch message to case reporter.')
   } finally {
     isSending.value = false
   }
@@ -478,7 +478,7 @@ onUnmounted(() => {
               No Consultation Messages Yet
             </h3>
             <p class="text-xs text-[#6B7280]">
-              The Case reporter has submitted their report and is awaiting your inquiry. Messages sent here are
+              The case reporter has submitted their report and is awaiting your inquiry. Messages sent here are
               delivered confidentially to their private dashboard.
             </p>
           </div>
@@ -526,7 +526,7 @@ onUnmounted(() => {
           <div class="flex items-center gap-2">
             <HandHelpingIcon class="size-4 text-[#D97706] shrink-0" />
             <span>
-              <strong>Case Unassigned:</strong> You must claim this case to send messages to the Case reporter.
+              <strong>Case Unassigned:</strong> You must claim this case to send messages to the case reporter.
             </span>
           </div>
           <AppButton size="sm" :loading="isClaiming" @click="handleClaimCase">

@@ -214,7 +214,7 @@ async function handleSubmit() {
             id="officer-email"
             v-model="email"
             type="email"
-            placeholder="officer@digimark.cm"
+            placeholder="officer@enterprise.com"
             class="w-full h-9 px-3 rounded-lg border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-mono"
             :disabled="isSubmitting"
           />

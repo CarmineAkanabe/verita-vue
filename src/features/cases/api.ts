@@ -16,15 +16,15 @@ import type {
  * Fallback used when unauthenticated public client accesses intake form.
  */
 export const SEEDED_DEPARTMENTS: DepartmentOption[] = [
-  { id: '01a0c0b3-6e00-706f-865b-7d8cd1fcaf7b', name: 'Software Engineering' },
-  { id: '01a0c0b3-6e07-7174-aacc-16f1363e6d5e', name: 'Graphics Design' },
-  { id: '01a0c0b3-6e09-7262-83ba-c57990fee391', name: 'Networking' },
+  { id: '01a0d0b7-461c-731a-b5d2-edf344afdf1f', name: 'Software Engineering' },
+  { id: '01a0d0b7-4625-7230-a060-c721556e8c2e', name: 'Graphics Design' },
+  { id: '01a0d0b7-4627-72d9-bdf5-b0e48b164f8b', name: 'Networking' },
+  { id: '01a0d0bf-f106-712f-8370-7354d5f0a222', name: 'Maintenance' },
 ]
 
 /**
- * Fetch available departments for intake routing.
- * Automatically adapts if database was truncated/reseeded by resolving live department IDs.
- * // TODO(api): public departments endpoint
+ * Fetch available departments for intake routing from the public API directory.
+ * Falls back to seeded list only if backend is unreachable.
  */
 export async function getPublicDepartments(): Promise<DepartmentOption[]> {
   try {
@@ -32,26 +32,8 @@ export async function getPublicDepartments(): Promise<DepartmentOption[]> {
     if (response.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
       return response.data.data
     }
-  } catch {
-    // Endpoint is Manager-only in current API contract
-  }
-
-  try {
-    const authRes = await apiClient.post<{ token: string }>('/auth/login', {
-      email: 'manager@verita.com.com',
-      password: 'password',
-    })
-    const devToken = authRes.data?.token
-    if (devToken) {
-      const deptRes = await apiClient.get<{ data: DepartmentOption[] }>('/departments', {
-        headers: { Authorization: `Bearer ${devToken}` },
-      })
-      if (deptRes.data && Array.isArray(deptRes.data.data) && deptRes.data.data.length > 0) {
-        return deptRes.data.data
-      }
-    }
-  } catch {
-    // Fall back to seeded list if offline
+  } catch (error) {
+    console.warn('[Verita] Could not fetch live departments, using fallback list:', error)
   }
 
   return SEEDED_DEPARTMENTS

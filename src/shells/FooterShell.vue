@@ -6,7 +6,8 @@
         <!-- Col 1: Brand & Purpose -->
         <div class="md:col-span-2 space-y-3">
           <div class="flex items-center gap-2.5">
-            <div class="h-8 w-8 rounded-md bg-white flex items-center justify-center overflow-hidden border border-border shadow-xs">
+            <div
+              class="h-8 w-8 rounded-md bg-white flex items-center justify-center overflow-hidden border border-border shadow-xs">
               <img src="/verita.png" alt="Verita Logo" class="h-full w-full object-contain p-0.5" />
             </div>
             <span class="text-base font-bold tracking-tight">Verita</span>
@@ -16,9 +17,10 @@
             An AI-assisted case management and consultation platform designed to preserve anonymous submission,
             minimize identity exposure, and provide structured, objective review for enterprise workplace misconduct.
           </p>
-          <div class="inline-flex items-center gap-2 rounded border border-border bg-background px-2.5 py-1 text-[11px] text-muted-foreground">
+          <div
+            class="inline-flex items-center gap-2 rounded border border-border bg-background px-2.5 py-1 text-[11px] text-muted-foreground">
             <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
-            Aligned with ISO 37002:2021 Whistleblowing Management Systems Guidelines
+            Aligned with ISO 37002:2021 Case Reporting Management Systems Guidelines
           </div>
         </div>
 
@@ -30,13 +32,16 @@
               <router-link to="/" class="hover:text-foreground transition-colors">Home</router-link>
             </li>
             <li>
-              <router-link to="/about" class="hover:text-foreground transition-colors">About &amp; Governance</router-link>
+              <router-link to="/about" class="hover:text-foreground transition-colors">About &amp;
+                Governance</router-link>
             </li>
             <li>
-              <router-link to="/cases/submit" class="hover:text-foreground transition-colors">Submit a Report</router-link>
+              <router-link to="/cases/submit" class="hover:text-foreground transition-colors">Submit a
+                Report</router-link>
             </li>
             <li>
-              <router-link to="/cases/verify-pin" class="hover:text-foreground transition-colors">Track Existing Case</router-link>
+              <router-link to="/cases/verify-pin" class="hover:text-foreground transition-colors">Track Existing
+                Case</router-link>
             </li>
           </ul>
         </div>
@@ -46,23 +51,28 @@
           <h4 class="text-xs font-semibold text-foreground uppercase tracking-wider">Governance</h4>
           <ul class="space-y-1.5 text-xs text-muted-foreground">
             <li>
-              <router-link to="/auth/login" class="hover:text-foreground transition-colors">Staff Portal Sign In</router-link>
+              <router-link to="/auth/login" class="hover:text-foreground transition-colors">Staff Portal Sign
+                In</router-link>
             </li>
             <li>
-              <router-link to="/about#anonymity" class="hover:text-foreground transition-colors">Anonymity Architecture</router-link>
+              <router-link to="/about#anonymity" class="hover:text-foreground transition-colors">Anonymity
+                Architecture</router-link>
             </li>
             <li>
-              <router-link to="/about#ai-scope" class="hover:text-foreground transition-colors">AI Processing Scope</router-link>
+              <router-link to="/about#ai-scope" class="hover:text-foreground transition-colors">AI Processing
+                Scope</router-link>
             </li>
             <li>
-              <router-link to="/about#policy" class="hover:text-foreground transition-colors">Non-Retaliation Policy</router-link>
+              <router-link to="/about#policy" class="hover:text-foreground transition-colors">Non-Retaliation
+                Policy</router-link>
             </li>
           </ul>
         </div>
       </div>
 
       <!-- Bottom Bar -->
-      <div class="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+      <div
+        class="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
         <p>© {{ new Date().getFullYear() }} Verita Technologies Inc. All rights reserved.</p>
         <p class="text-[11px]">
           Confidential &amp; Encrypted · No IP Logging · Human-Led Adjudication

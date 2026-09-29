@@ -470,7 +470,7 @@ import {
                 retaliation,
                 demotion, or adverse employment action targeting employees, interns, or contractors reporting in good
                 faith.
-                All reports are handled with utmost discretion under ISO 37002:2021 Case reporter management standards.
+                All reports are handled with utmost discretion under ISO 37002:2021 case reporting management standards.
               </p>
             </div>
             <div class="shrink-0">
