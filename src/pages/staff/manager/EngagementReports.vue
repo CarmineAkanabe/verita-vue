@@ -98,18 +98,17 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <span
             class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
-            Governance Console · Analytics
+            Manager Reports
           </span>
           <span class="text-xs text-muted-foreground font-mono">
-            Douala &amp; Yaoundé Regional Nodes
+            Analytics &amp; Statistics
           </span>
         </div>
         <h1 class="text-2xl font-bold text-foreground mt-1 tracking-tight print:text-xl">
-          User Engagement &amp; Case Resolution Analytics
+          Case Activity &amp; Resolution Reports
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          Executive telemetry monitoring reporting distribution, departmental incident frequency, and investigation
-          velocity.
+          Overview of case volume, reports per department, and case resolution progress across the organization.
         </p>
       </div>
 
@@ -123,7 +122,7 @@ onMounted(() => {
           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-primary-700 transition-colors shadow-xs cursor-pointer"
           @click="handlePrint">
           <PrinterIcon class="size-4" />
-          <span>Print Executive Report</span>
+          <span>Print Report</span>
         </button>
       </div>
     </div>

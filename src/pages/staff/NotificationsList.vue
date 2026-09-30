@@ -138,7 +138,7 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <span
             class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
-            Operational Telemetry
+            Staff Alerts
           </span>
           <span v-if="unreadCount > 0" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary">
             <span class="size-2 rounded-full bg-primary animate-pulse"></span>
@@ -146,10 +146,10 @@ onMounted(() => {
           </span>
         </div>
         <h1 class="text-2xl font-bold text-foreground mt-1 tracking-tight">
-          System &amp; Docket Notifications
+          System &amp; Case Notifications
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          Real-time incident updates, investigator assignments, and confidential case reporter alerts.
+          Real-time updates, case assignments, and Case Reporter messages.
         </p>
       </div>
 

@@ -128,7 +128,7 @@ async function handleSubmit() {
               Staff Portal Sign In
             </h1>
             <p class="text-xs text-muted-foreground">
-              Authorized Department Heads &amp; Executive Management
+              Authorized Department Heads &amp; Managers
             </p>
           </div>
         </div>

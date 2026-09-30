@@ -64,10 +64,10 @@ async function handleConfirmEscalation() {
           </div>
           <div>
             <h3 id="escalate-modal-title" class="text-base font-bold text-[#22293A]">
-              Escalate to General Management
+              Escalate to Manager
             </h3>
             <p class="text-xs text-[#6B7280]">
-              Direct leadership oversight · Executive Governance Office
+              Send this case directly to the Manager for independent review
             </p>
           </div>
         </div>
@@ -88,21 +88,20 @@ async function handleConfirmEscalation() {
         <div class="p-3.5 rounded-lg bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] flex items-start gap-3">
           <AlertTriangleIcon class="size-5 shrink-0 mt-0.5 text-[#D97706]" />
           <div class="text-xs space-y-1">
-            <p class="font-semibold text-[#78350F]">Notice on Escalation Scope</p>
+            <p class="font-semibold text-[#78350F]">Notice on Escalation</p>
             <p>
-              Escalating routes this report immediately to General Management and the Executive Manager.
-              Departmental supervisors will no longer handle this matter alone.
+              Escalating routes this case directly to the Manager. The Department Head will no longer handle this case alone.
             </p>
           </div>
         </div>
 
         <p class="leading-relaxed text-xs sm:text-sm text-[#4B5563]">
-          Use this procedure when:
+          Use this when:
         </p>
         <ul class="list-disc pl-5 space-y-1 text-xs text-[#4B5563]">
-          <li>The incident directly concerns or implicates the Department Head.</li>
-          <li>Local review poses an immediate conflict of interest.</li>
-          <li>There is urgent risk of reprisal or corporate disruption.</li>
+          <li>The incident involves or mentions the Department Head.</li>
+          <li>There is a conflict of interest in the department.</li>
+          <li>You need direct Manager oversight.</li>
         </ul>
 
         <div v-if="errorMessage" class="p-3 rounded-md bg-[#FEF2F2] border border-[#FCA5A5] text-[#991B1B] text-xs">

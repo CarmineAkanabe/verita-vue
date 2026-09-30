@@ -56,9 +56,9 @@ async function handleLogout() {
 </script>
 
 <template>
-  <aside class="w-64 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border min-h-screen">
+  <aside class="w-full lg:w-64 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-full">
     <!-- Brand Header -->
-    <div class="p-5 border-b border-sidebar-border">
+    <div class="p-5 border-b border-sidebar-border shrink-0">
       <router-link to="/" class="flex items-center gap-2.5 group">
         <div class="h-9 w-9 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-white/20 shadow-xs group-hover:scale-105 transition-all">
           <img src="/verita.png" alt="Verita Logo" class="h-full w-full object-contain p-0.5" />
@@ -68,14 +68,14 @@ async function handleLogout() {
             Verita
           </span>
           <span class="text-[9px] font-semibold text-sidebar-foreground/70 uppercase tracking-widest">
-            Enterprise Console
+            Staff Portal
           </span>
         </div>
       </router-link>
     </div>
 
     <!-- User Profile Strip -->
-    <div v-if="auth.user" class="p-4 border-b border-sidebar-border bg-sidebar-accent/40">
+    <div v-if="auth.user" class="p-4 border-b border-sidebar-border bg-sidebar-accent/40 shrink-0">
       <div class="flex items-center gap-3">
         <div class="h-10 w-10 rounded-full overflow-hidden bg-sidebar-primary/20 border border-sidebar-primary/40 flex items-center justify-center text-sidebar-primary font-bold text-sm shrink-0">
           <img
@@ -89,7 +89,7 @@ async function handleLogout() {
         </div>
         <div class="min-w-0 flex-1">
           <p class="text-xs font-semibold text-white truncate">
-            {{ [auth.user.firstName, auth.user.lastName].filter(Boolean).join(' ') || 'Authorized Staff' }}
+            {{ [auth.user.firstName, auth.user.lastName].filter(Boolean).join(' ') || 'Staff' }}
           </p>
           <p class="text-[11px] text-sidebar-foreground/70 truncate font-mono">
             {{ auth.user.email }}
@@ -99,15 +99,15 @@ async function handleLogout() {
       <div class="mt-2.5 flex items-center gap-1.5">
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-sidebar-primary/20 text-sidebar-primary border border-sidebar-primary/30 uppercase tracking-wider">
           <ShieldCheckIcon class="size-3" />
-          {{ isManager ? 'Executive Manager' : 'Department Head' }}
+          {{ isManager ? 'Manager' : 'Department Head' }}
         </span>
       </div>
     </div>
 
     <!-- Navigation Area -->
-    <div class="flex-1 p-3 space-y-1.5 overflow-y-auto">
+    <div class="flex-1 p-3 space-y-1.5 overflow-y-auto sidebar-scrollbar">
       <div class="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-        Staff Operations
+        Navigation
       </div>
 
       <!-- Dashboard -->
@@ -117,7 +117,7 @@ async function handleLogout() {
         :class="isActive('/app/dashboard') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
       >
         <LayoutDashboardIcon class="size-4" :class="isActive('/app/dashboard') ? 'text-sidebar-primary' : ''" />
-        <span>Staff Dashboard</span>
+        <span>Dashboard</span>
       </router-link>
 
       <!-- Case Management Queue -->
@@ -127,7 +127,7 @@ async function handleLogout() {
         :class="isActive('/app/cases') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
       >
         <BriefcaseIcon class="size-4" :class="isActive('/app/cases') ? 'text-sidebar-primary' : ''" />
-        <span>Cases &amp; Triage</span>
+        <span>Cases</span>
       </router-link>
 
       <!-- Notifications -->
@@ -137,7 +137,7 @@ async function handleLogout() {
         :class="isActive('/app/notifications') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
       >
         <BellIcon class="size-4" :class="isActive('/app/notifications') ? 'text-sidebar-primary' : ''" />
-        <span>Notifications</span>
+        <span>Alerts</span>
       </router-link>
 
       <!-- Profile Settings -->
@@ -147,13 +147,13 @@ async function handleLogout() {
         :class="isActive('/app/profile') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
       >
         <UserCogIcon class="size-4" :class="isActive('/app/profile') ? 'text-sidebar-primary' : ''" />
-        <span>Profile &amp; Security</span>
+        <span>Profile</span>
       </router-link>
 
       <!-- MANAGER-ONLY SECTION -->
       <template v-if="isManager">
         <div class="pt-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50 border-t border-sidebar-border/60 mt-3">
-          Governance Console
+          Management
         </div>
 
         <router-link
@@ -171,7 +171,7 @@ async function handleLogout() {
           :class="isActive('/app/department-heads') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
         >
           <UsersIcon class="size-4" :class="isActive('/app/department-heads') ? 'text-sidebar-primary' : ''" />
-          <span>Personnel Accounts</span>
+          <span>Department Heads</span>
         </router-link>
 
         <router-link
@@ -180,7 +180,7 @@ async function handleLogout() {
           :class="isActive('/app/reports') ? 'text-white bg-sidebar-accent border border-sidebar-border font-semibold' : 'text-sidebar-foreground/80 hover:text-white hover:bg-sidebar-accent/50'"
         >
           <BarChart3Icon class="size-4" :class="isActive('/app/reports') ? 'text-sidebar-primary' : ''" />
-          <span>Engagement Reports</span>
+          <span>Reports</span>
         </router-link>
       </template>
 
@@ -197,7 +197,7 @@ async function handleLogout() {
     </div>
 
     <!-- Footer / Sign Out Section -->
-    <div class="p-3 border-t border-sidebar-border bg-sidebar/80 space-y-2">
+    <div class="p-3 border-t border-sidebar-border bg-sidebar/80 space-y-2 shrink-0">
       <div class="flex items-center justify-between text-[10px] text-sidebar-foreground/50 px-2">
         <span class="flex items-center gap-1">
           <LockIcon class="size-3" />

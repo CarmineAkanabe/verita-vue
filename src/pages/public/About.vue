@@ -270,17 +270,17 @@ import {
           </div>
 
           <div class="rounded-xl border border-border bg-card card-creamy p-5 space-y-2 shadow-xs">
-            <h3 class="text-sm font-bold text-foreground">Executive Management</h3>
+            <h3 class="text-sm font-bold text-foreground">Managers</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              Provides administrative oversight and handles cases where the department head is bypassed or conflicted.
+              Provides organization oversight, creates departments and accounts, and assigns cases where the Department Head is conflicted.
             </p>
           </div>
 
           <div class="rounded-xl border border-border bg-card card-creamy p-5 space-y-2 shadow-xs">
             <h3 class="text-sm font-bold text-foreground">Escalation Protection</h3>
             <p class="text-xs text-muted-foreground leading-relaxed">
-              If an assigned reviewer is unresponsive or dismissive, the reporter can escalate the case
-              directly to Executive Management.
+              If an assigned reviewer is unresponsive or dismissive, the Case Reporter can escalate the case
+              directly to Managers.
             </p>
           </div>
         </div>

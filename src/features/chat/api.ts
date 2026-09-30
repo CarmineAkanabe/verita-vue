@@ -12,7 +12,7 @@ export async function getReporterMessages(): Promise<ReporterChatResponse> {
 }
 
 /**
- * Send an end-to-end confidential message to the investigation docket.
+ * Send an end-to-end confidential message to the case chat.
  * Payload is strictly text + emojis only (up to 2,000 characters).
  */
 export async function sendReporterMessage(content: string): Promise<ChatMessage> {

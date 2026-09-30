@@ -171,10 +171,10 @@ async function handleAssign() {
           </select>
           <p v-if="departmentHeads.length === 0" class="text-xs text-destructive flex items-center gap-1">
             <AlertTriangleIcon class="size-3.5" />
-            No Department Head accounts found. Please provision personnel accounts first.
+            No Department Head accounts found. Please add a Department Head first.
           </p>
           <p v-else class="text-[11px] text-muted-foreground">
-            Once assigned, this case will be moved to the officer's active investigation docket.
+            Once assigned, this case will be visible to this Department Head to review.
           </p>
         </div>
 

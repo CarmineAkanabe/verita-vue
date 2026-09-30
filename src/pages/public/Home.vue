@@ -285,7 +285,7 @@ import {
               </li>
               <li class="flex items-center gap-2">
                 <CheckCircle2Icon class="size-3.5 text-primary shrink-0" />
-                <span>Executive Management oversight</span>
+                <span>Manager oversight</span>
               </li>
             </ul>
           </AppCard>

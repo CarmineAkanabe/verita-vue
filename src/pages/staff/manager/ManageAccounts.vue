@@ -1,6 +1,7 @@
 <!-- pages/staff/manager/ManageAccounts.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import type { Department, DepartmentHeadUser } from '@/features/manager/types'
 import {
   getDepartmentHeads,
@@ -25,6 +26,7 @@ import {
   RadioIcon,
 } from '@lucide/vue'
 
+const route = useRoute()
 const departmentHeads = ref<DepartmentHeadUser[]>([])
 const departments = ref<Department[]>([])
 const isLoading = ref(true)
@@ -55,7 +57,7 @@ async function loadData() {
     departmentHeads.value = heads
     departments.value = depts
   } catch (err: any) {
-    error.value = err?.message || 'Failed to load personnel accounts. Please check connectivity.'
+    error.value = err?.message || 'Failed to load department heads. Please check connectivity.'
   } finally {
     isLoading.value = false
   }
@@ -128,14 +130,14 @@ async function handleDelete() {
   try {
     await deleteDepartmentHead(officerToDelete.value.id)
     const name = `${officerToDelete.value.firstName} ${officerToDelete.value.lastName}`
-    toast.success(`Officer account for ${name} has been removed.`)
+    toast.success(`Account for ${name} has been removed.`)
     departmentHeads.value = departmentHeads.value.filter(
       (h) => h.id !== officerToDelete.value?.id
     )
     isDeleteModalOpen.value = false
     officerToDelete.value = null
   } catch (err: any) {
-    toast.error(err?.response?.data?.message || err?.message || 'Failed to remove officer account.')
+    toast.error(err?.response?.data?.message || err?.message || 'Failed to remove account.')
   } finally {
     isDeleting.value = false
   }
@@ -154,8 +156,11 @@ function formatDate(iso?: string) {
   }
 }
 
-onMounted(() => {
-  loadData()
+onMounted(async () => {
+  await loadData()
+  if (route.query.action === 'add') {
+    openCreateModal()
+  }
 })
 </script>
 
@@ -166,17 +171,17 @@ onMounted(() => {
       <div>
         <div class="flex items-center gap-2">
           <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
-            Governance Console · Personnel
+            Manager Settings
           </span>
           <span class="text-xs text-muted-foreground font-mono">
-            Douala &amp; Yaoundé Regional Nodes
+            Staff Management
           </span>
         </div>
         <h1 class="text-2xl font-bold text-foreground mt-1 tracking-tight">
-          Manage Personnel Accounts
+          Department Heads
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          Provision authorized Department Head credentials, assign directorates, and monitor real-time presence.
+          Add or manage Department Heads and assign them to departments to review incoming cases.
         </p>
       </div>
 
@@ -197,7 +202,7 @@ onMounted(() => {
           @click="openCreateModal"
         >
           <UserPlusIcon class="size-4" />
-          <span>Provision Officer</span>
+          <span>Add Department Head</span>
         </button>
       </div>
     </div>
@@ -214,7 +219,7 @@ onMounted(() => {
       <div class="bg-card border border-border rounded-lg p-4 flex items-center justify-between card-creamy">
         <div>
           <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Total Officers
+            Total Department Heads
           </span>
           <p class="text-2xl font-extrabold text-foreground font-mono mt-0.5">
             {{ departmentHeads.length }}
@@ -286,18 +291,18 @@ onMounted(() => {
 
     <EmptyState
       v-else-if="filteredOfficers.length === 0"
-      title="No personnel accounts found"
-      :description="searchQuery ? 'No officers match your search criteria.' : 'No Department Head officers have been provisioned yet.'"
+      title="No Department Heads found"
+      :description="searchQuery ? 'No Department Heads match your search.' : 'No Department Heads have been added yet.'"
     >
       <template #action>
         <button
           v-if="!searchQuery"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-primary-700 transition-colors"
+          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-primary-700 transition-colors cursor-pointer"
           @click="openCreateModal"
         >
           <UserPlusIcon class="size-4" />
-          <span>Provision First Officer</span>
+          <span>Add First Department Head</span>
         </button>
       </template>
     </EmptyState>

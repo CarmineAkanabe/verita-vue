@@ -192,7 +192,7 @@ async function handleSubmit() {
               Clearance Role
             </span>
             <p class="font-bold text-sm text-foreground">
-              {{ auth.user?.role === 'MANAGER' ? 'Executive Manager' : 'Department Head' }}
+              {{ auth.user?.role === 'MANAGER' ? 'Manager' : 'Department Head' }}
             </p>
           </div>
 
@@ -289,7 +289,7 @@ async function handleSubmit() {
           type="email"
           placeholder="e.g. h.moukoko@enterprise.com"
           :error="fieldErrors.email"
-          hint="Used for critical docket escalation notifications and air-gapped password resets."
+          hint="Used for case notifications and password resets."
           required
         />
       </div>

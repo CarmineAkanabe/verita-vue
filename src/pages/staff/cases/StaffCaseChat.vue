@@ -120,7 +120,7 @@ async function fetchCaseDetails() {
     const data = await getStaffCaseDetail(caseId.value)
     caseData.value = data
   } catch (err: any) {
-    caseError.value = err?.message || 'Failed to load case docket information.'
+    caseError.value = err?.message || 'Failed to load case information.'
   } finally {
     isCaseLoading.value = false
   }
@@ -372,7 +372,7 @@ watch(
 
 onMounted(async () => {
   if (isManager.value) {
-    toast.error('Executive Managers are restricted from accessing confidential Case Reporter consultation channels under ISO 37002 air-gapping protocols.')
+    toast.error('Managers do not have access to private case chat. Case chat is between the Case Reporter and the Department Head.')
     router.replace(`/app/cases/${caseId.value}`)
     return
   }
@@ -521,8 +521,7 @@ onUnmounted(() => {
           class="p-4 bg-[#FAF7F2] text-xs text-[#6B7280] flex items-center gap-2 border-t border-[#EADBCE]">
           <InfoIcon class="size-4 text-[#A2561B] shrink-0" />
           <span>
-            <strong>Executive Oversight Mode:</strong> You are viewing this consultation with administrative oversight
-            permissions. Direct message dispatch is reserved for the assigned Department Head.
+            <strong>Manager Notice:</strong> Direct chat is between the assigned Department Head and the Case Reporter.
           </span>
         </div>
 

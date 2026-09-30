@@ -227,17 +227,17 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <span
             class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
-            {{ isManager ? 'Executive Governance & Triage' : 'Case Management & Triage' }}
+            {{ isManager ? 'Manager Oversight' : 'Department Cases' }}
           </span>
           <span class="text-xs text-muted-foreground font-mono">
-            Douala &amp; Yaoundé Regional Nodes
+            Active Cases
           </span>
         </div>
         <h1 class="text-2xl font-bold text-foreground mt-1 tracking-tight">
-          {{ isManager ? 'Organization Case Oversight & Assignment' : 'Department Investigation Queue & Dockets' }}
+          {{ isManager ? 'All Organization Cases' : 'Department Case Queue' }}
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          {{ isManager ? 'Oversee incoming cases, assign unassigned cases to Department Heads, and monitor resolution cycles.' : 'Review incoming reports, claim active cases, and conduct case assessments.' }}
+          {{ isManager ? 'Review cases across departments and assign unassigned cases to Department Heads.' : 'Review reports in your department and manage active cases.' }}
         </p>
       </div>
 
@@ -493,7 +493,7 @@ onMounted(() => {
       <!-- Empty State -->
       <EmptyState v-else-if="filteredCases.length === 0"
         :title="isManager ? (activeTab === 'AWAITING_ASSIGNMENT' ? 'No cases awaiting assignment' : 'No cases found') : (activeTab === 'QUEUE' ? 'No cases awaiting review' : 'No claimed cases found')"
-        :description="isManager ? (activeTab === 'AWAITING_ASSIGNMENT' ? 'All submitted incident reports have been assigned to officers.' : 'No matching cases found across the organization.') : (activeTab === 'QUEUE' ? 'There are currently no unclaimed incident reports in your departmental queue.' : 'You have not claimed any dockets under active investigation.')">
+        :description="isManager ? (activeTab === 'AWAITING_ASSIGNMENT' ? 'All submitted incident reports have been assigned to Department Heads.' : 'No matching cases found across the organization.') : (activeTab === 'QUEUE' ? 'There are currently no unclaimed incident reports in your departmental queue.' : 'You have not claimed any active cases yet.')">
         <template #action>
           <AppButton variant="outline" size="sm" @click="fetchCases">
             Refresh data
@@ -584,7 +584,7 @@ onMounted(() => {
                   </span>
                   <span v-if="item.escalatedAt"
                     class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-800 border border-amber-500/20"
-                    title="Escalated to Executive Management">
+                    title="Escalated to Manager">
                     Escalated
                   </span>
                 </div>
@@ -612,7 +612,7 @@ onMounted(() => {
                   <!-- View Case / Case Overview -->
                   <router-link :to="`/app/cases/${item.id}`"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold border border-border bg-background hover:bg-muted text-foreground transition-colors"
-                    :title="isManager ? 'View Executive Case Overview (Metadata Only)' : 'View Full Case Record & Evidence'">
+                    :title="isManager ? 'View Case Summary' : 'View Full Case Record & Evidence'">
                     <span>{{ isManager ? 'Case Overview' : 'View Case' }}</span>
                     <ArrowRightIcon class="size-3" />
                   </router-link>

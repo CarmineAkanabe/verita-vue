@@ -139,7 +139,7 @@ function formatAuditAction(action: string): string {
     case 'MESSAGE_SENT':
       return 'Consultation Message Sent'
     case 'ESCALATED':
-      return 'Case Escalated to Executive Management'
+      return 'Case Escalated to Manager'
     default:
       return action.replaceAll('_', ' ')
   }
@@ -512,7 +512,7 @@ onMounted(() => {
         <div class="flex items-center gap-2 flex-wrap">
           <span v-if="isManager"
             class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A2561B]/10 text-[#A2561B] border border-[#A2561B]/20">
-            Executive Oversight · Case Metadata Only
+            Manager View · Case Summary
           </span>
           <span v-if="caseData?.concernsDepartmentHead"
             class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
@@ -591,13 +591,13 @@ onMounted(() => {
       <!-- BRANCH 1: MANAGER EXECUTIVE VIEW (METADATA & WORKING OFFICER ONLY)        -->
       <!-- ========================================================================= -->
       <template v-if="isManager">
-        <!-- Confidentiality Air-Gap Notice -->
+        <!-- Privacy Safeguard Notice -->
         <div class="p-4 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/20 text-xs text-[#A2561B] flex items-start gap-3 shadow-xs">
           <ShieldAlertIcon class="size-4 shrink-0 mt-0.5" />
           <div class="space-y-1">
-            <p class="font-bold">Executive Confidentiality Air-Gap Active (ISO 37002)</p>
+            <p class="font-bold">Manager Privacy Safeguard Active</p>
             <p class="text-[11px] text-[#6B7280] leading-relaxed">
-              Under Verita zero-knowledge governance, Executive Management views docket allocation, case metadata, and audit events only. Full evidentiary statements, raw case narratives, AI forensic evaluations, and direct consultation channels are air-gapped to designated department investigators.
+              To protect the Case Reporter's privacy, Managers view case overview details and assigned staff only. Full statements, evidence files, and case chat are handled directly by the Department Head.
             </p>
           </div>
         </div>
@@ -615,17 +615,17 @@ onMounted(() => {
           </p>
         </div>
 
-        <!-- Executive Case Particulars Card (Creamy Card) -->
+        <!-- Case Details Card (Creamy Card) -->
         <div class="p-6 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-5">
           <div class="flex items-center justify-between border-b border-[#EADBCE] pb-3">
             <div class="flex items-center gap-2">
               <BriefcaseIcon class="size-4 text-[#A2561B]" />
               <h2 class="text-xs font-bold uppercase tracking-wider text-[#22293A]">
-                Executive Case Particulars
+                Case Details
               </h2>
             </div>
             <span class="text-[11px] font-mono text-[#6B7280]">
-              Metadata Record
+              Case Record
             </span>
           </div>
 
@@ -713,7 +713,7 @@ onMounted(() => {
                 </span>
                 <span v-if="caseData.escalatedAt"
                   class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-800 border border-amber-500/20"
-                  title="Escalated to Executive Management">
+                  title="Escalated to Manager">
                   Escalated
                 </span>
               </div>
@@ -1170,10 +1170,9 @@ onMounted(() => {
               <span class="text-[10px] text-primary font-bold">REQUIRED FOR {{ targetStatus }}</span>
             </div>
             <p class="text-[11px] text-muted-foreground">
-              Provide the executive summary of corrective actions, sanctions, or rationale for dismissal. This is
-              archived into the corporate governance ledger.
+              Provide a clear summary of corrective actions, sanctions, or reasons for resolution.
             </p>
-            <textarea v-model="resolutionSummary" rows="3" placeholder="Executive resolution summary..."
+            <textarea v-model="resolutionSummary" rows="3" placeholder="Describe the resolution or outcome..."
               class="w-full p-2.5 rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary text-xs"
               required></textarea>
             <p v-if="modalErrors.resolutionSummary" class="text-destructive text-[11px] font-semibold">

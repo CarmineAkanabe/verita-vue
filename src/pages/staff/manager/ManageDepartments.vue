@@ -1,6 +1,7 @@
 <!-- pages/staff/manager/ManageDepartments.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import type { Department } from '@/features/manager/types'
 import { getDepartments, deleteDepartment } from '@/features/manager/api'
 import { toast } from '@/plugins/toast'
@@ -21,6 +22,7 @@ import {
   CheckIcon,
 } from '@lucide/vue'
 
+const route = useRoute()
 const departments = ref<Department[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
@@ -119,8 +121,11 @@ function formatDate(iso?: string) {
   }
 }
 
-onMounted(() => {
-  fetchDepartments()
+onMounted(async () => {
+  await fetchDepartments()
+  if (route.query.action === 'add') {
+    openCreateModal()
+  }
 })
 </script>
 
@@ -132,17 +137,17 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <span
             class="px-2 py-0.5 rounded text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
-            Governance Console · Directorates
+            Manager Settings
           </span>
           <span class="text-xs text-muted-foreground font-mono">
-            Douala &amp; Yaoundé Regional Nodes
+            Organization Structure
           </span>
         </div>
         <h1 class="text-2xl font-bold text-foreground mt-1 tracking-tight">
-          Manage Enterprise Departments
+          Departments
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
-          Configure operational directorates available for confidential case intake and investigator allocation.
+          Manage departments where incidents can be reported and assigned to Department Heads.
         </p>
       </div>
 
@@ -169,12 +174,12 @@ onMounted(() => {
       <div class="bg-card border border-border rounded-lg p-4 flex items-center justify-between card-creamy">
         <div>
           <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Total Operational Units
+            Total Departments
           </span>
           <p class="text-2xl font-extrabold text-foreground font-mono mt-0.5">
             {{ departments.length }}
           </p>
-          <span class="text-[11px] text-muted-foreground">Registered directorates in organization</span>
+          <span class="text-[11px] text-muted-foreground">Active units available for reporting</span>
         </div>
         <div class="p-2.5 rounded bg-primary/10 text-primary">
           <Building2Icon class="size-5" />

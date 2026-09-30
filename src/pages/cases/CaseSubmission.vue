@@ -621,9 +621,9 @@ async function proceedToDashboard() {
             <!-- Concerns Department Head Toggle -->
             <AppSwitch
               v-model="form.concernsDepartmentHead"
-              label="Does this report concern or involve the Head of this department?"
-              description="If checked, this case bypasses the department head completely and routes directly to General Management for independent review."
-              badge="Bypass Available"
+              label="Does this case involve the Department Head?"
+              description="Turn this on if the Department Head is involved. The case will go straight to the Manager instead."
+              badge="Manager Review"
             />
 
             <div
@@ -631,7 +631,7 @@ async function proceedToDashboard() {
               class="p-2.5 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 text-[11px] text-[#A2561B] flex items-center gap-2 font-medium"
             >
               <ShieldCheckIcon class="size-4 shrink-0" />
-              <span>Executive Management Bypass Active: Department head will have zero access.</span>
+              <span>Manager Bypass Active: The Department Head will not see this case.</span>
             </div>
           </div>
 

@@ -432,7 +432,7 @@ const hasAiReviewData = computed(() => {
                 class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-[#F2F4F7] text-[#6B7280] border border-[#E2E5EE]"
               >
                 <CheckCircle2Icon class="size-4 text-emerald-600" />
-                <span>Under Executive Escalation</span>
+                <span>Escalated to Manager</span>
               </div>
             </div>
           </div>
@@ -554,7 +554,7 @@ const hasAiReviewData = computed(() => {
               </div>
 
               <p class="text-xs sm:text-sm text-[#6B7280] leading-relaxed">
-                Verita's automated intake engine is reviewing the provided transaction details, cross-indexing exhibits, and structuring an executive timeline. The executive findings and chronology will automatically appear in this section once synthesis completes.
+                We are reviewing your report and organizing key details. A clear summary and timeline will appear here once ready.
               </p>
 
               <div class="pt-2 flex items-center gap-3 text-xs">
@@ -565,7 +565,7 @@ const hasAiReviewData = computed(() => {
                   @click="loadDashboard(true)"
                 >
                   <RefreshCwIcon :class="['size-3.5', isRefreshing && 'animate-spin']" />
-                  <span>Check Intake Status</span>
+                  <span>Check Status</span>
                 </button>
                 <span class="text-[#D1D5DB]">·</span>
                 <span class="text-[#9CA3AF] text-[11px]">
@@ -583,9 +583,9 @@ const hasAiReviewData = computed(() => {
         >
           <AlertTriangleIcon class="size-5 text-[#DC2626] shrink-0 mt-0.5" />
           <div class="text-xs space-y-1">
-            <h4 class="font-bold text-[#991B1B] text-sm">Automated Synthesis Alert</h4>
+            <h4 class="font-bold text-[#991B1B] text-sm">Review Notice</h4>
             <p class="leading-relaxed">
-              Automated intake analysis could not be fully compiled for this submission. However, your incident report remains securely logged and has been routed directly to the Department Head and General Management for manual review.
+              Automated summary could not be completed for this report. Your case is securely saved and will be reviewed directly by the Department Head and Manager.
             </p>
           </div>
         </div>
@@ -602,23 +602,23 @@ const hasAiReviewData = computed(() => {
               </div>
               <div>
                 <h3 class="text-base font-bold text-[#22293A]">
-                  Automated Intake Review &amp; Synthesis
+                  Case Summary &amp; Key Details
                 </h3>
                 <p class="text-xs text-[#6B7280]">
-                  Objective intake extraction for investigative prioritization
+                  Key facts organized from your report to assist review
                 </p>
               </div>
             </div>
 
             <span class="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider hidden sm:inline">
-              Verified Intake Summary
+              Verified Summary
             </span>
           </div>
 
-          <!-- Executive AI Summary -->
+          <!-- Incident Summary -->
           <div v-if="caseData.aiSummary" class="space-y-2">
             <h4 class="text-xs font-bold text-[#22293A] uppercase tracking-wider">
-              Executive Incident Summary
+              Summary of Incident
             </h4>
             <div class="p-4 rounded-lg bg-[#F8F9FA] border border-[#E2E5EE] text-xs sm:text-sm text-[#22293A] leading-relaxed">
               {{ caseData.aiSummary }}

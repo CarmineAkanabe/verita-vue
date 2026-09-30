@@ -23,6 +23,9 @@ import {
   ArrowRightIcon,
   RefreshCwIcon,
   BarChart3Icon,
+  PlusIcon,
+  UserPlusIcon,
+  BriefcaseIcon,
 } from '@lucide/vue'
 
 const auth = useAuthStore()
@@ -97,15 +100,15 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <span class="px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wider uppercase"
             :class="isManager ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-ink-900/10 text-ink-900 border border-ink-900/20'">
-            {{ isManager ? 'Executive Governance Console' : 'Departmental Investigation' }}
+            {{ isManager ? 'Manager' : 'Department Head' }}
           </span>
           <span class="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
             <span class="size-2 rounded-full bg-emerald-600"></span>
-            Douala &amp; Yaoundé CEMAC Node
+            Active Session
           </span>
         </div>
         <h1 class="text-2xl font-bold text-foreground mt-1 tracking-tight">
-          {{ isManager ? 'Enterprise Governance & Case Overview' : 'Department Case Review & Direct Intake' }}
+          {{ isManager ? 'Manager Dashboard' : 'Department Case Review' }}
         </h1>
         <p class="text-xs text-muted-foreground mt-0.5">
           Logged in as <strong class="text-foreground font-semibold">{{ [auth.user?.firstName,
@@ -118,12 +121,12 @@ onMounted(() => {
       <div class="flex items-center gap-2.5">
         <AppButton variant="outline" size="sm" :disabled="isLoading" @click="loadData">
           <RefreshCwIcon class="size-3.5 mr-1.5" :class="{ 'animate-spin': isLoading }" />
-          Refresh telemetry
+          Refresh
         </AppButton>
         <router-link v-if="isManager" to="/app/reports/user-engagement"
-          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold bg-primary text-white hover:bg-primary-700 transition-colors">
+          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold bg-primary text-white hover:bg-primary-700 transition-colors shadow-xs">
           <BarChart3Icon class="size-3.5" />
-          Generate Engagement Report
+          View Reports
         </router-link>
       </div>
     </div>
@@ -146,13 +149,69 @@ onMounted(() => {
     <div v-else class="space-y-6">
       <!-- MANAGER DASHBOARD BRANCH -->
       <section v-if="isManager && managerData" class="space-y-6">
+
+        <!-- Quick Actions Row (Fast mobile & desktop shortcuts) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <router-link
+            to="/app/departments?action=add"
+            class="p-3.5 rounded-xl bg-card border border-border hover:border-primary/60 transition-all flex items-center gap-3 group shadow-xs"
+          >
+            <div class="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
+              <PlusIcon class="size-4" />
+            </div>
+            <div class="text-left min-w-0">
+              <p class="text-xs font-bold text-foreground truncate">Add Department</p>
+              <p class="text-[10px] text-muted-foreground truncate">New unit</p>
+            </div>
+          </router-link>
+
+          <router-link
+            to="/app/department-heads?action=add"
+            class="p-3.5 rounded-xl bg-card border border-border hover:border-primary/60 transition-all flex items-center gap-3 group shadow-xs"
+          >
+            <div class="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
+              <UserPlusIcon class="size-4" />
+            </div>
+            <div class="text-left min-w-0">
+              <p class="text-xs font-bold text-foreground truncate">Add Dept Head</p>
+              <p class="text-[10px] text-muted-foreground truncate">Assign head</p>
+            </div>
+          </router-link>
+
+          <router-link
+            to="/app/cases"
+            class="p-3.5 rounded-xl bg-card border border-border hover:border-primary/60 transition-all flex items-center gap-3 group shadow-xs"
+          >
+            <div class="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
+              <BriefcaseIcon class="size-4" />
+            </div>
+            <div class="text-left min-w-0">
+              <p class="text-xs font-bold text-foreground truncate">All Cases</p>
+              <p class="text-[10px] text-muted-foreground truncate">Review &amp; assign</p>
+            </div>
+          </router-link>
+
+          <router-link
+            to="/app/reports/user-engagement"
+            class="p-3.5 rounded-xl bg-card border border-border hover:border-primary/60 transition-all flex items-center gap-3 group shadow-xs"
+          >
+            <div class="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
+              <BarChart3Icon class="size-4" />
+            </div>
+            <div class="text-left min-w-0">
+              <p class="text-xs font-bold text-foreground truncate">Reports</p>
+              <p class="text-[10px] text-muted-foreground truncate">Activity analytics</p>
+            </div>
+          </router-link>
+        </div>
+
         <!-- Top Metrics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Department Count -->
-          <div class="bg-card border border-border rounded-lg p-5 flex flex-col justify-between">
+          <div class="bg-card border border-border rounded-lg p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Operational Departments
+                Departments
               </span>
               <div class="p-2 rounded bg-primary/10 text-primary">
                 <Building2Icon class="size-5" />
@@ -163,23 +222,23 @@ onMounted(() => {
                 {{ managerData.departmentCount }}
               </div>
               <p class="text-[11px] text-muted-foreground mt-1">
-                Active corporate intake directories across Cameroon
+                Active organization departments
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
               <router-link to="/app/departments"
                 class="text-primary font-semibold hover:underline flex items-center gap-1">
-                <span>Manage directory</span>
+                <span>Manage departments</span>
                 <ArrowRightIcon class="size-3" />
               </router-link>
             </div>
           </div>
 
           <!-- Personnel Count -->
-          <div class="bg-card border border-border rounded-lg p-5 flex flex-col justify-between">
+          <div class="bg-card border border-border rounded-lg p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Registered Staff &amp; Heads
+                Department Heads
               </span>
               <div class="p-2 rounded bg-ink-900/10 text-ink-900">
                 <UsersIcon class="size-5" />
@@ -190,23 +249,23 @@ onMounted(() => {
                 {{ managerData.userCount }}
               </div>
               <p class="text-[11px] text-muted-foreground mt-1">
-                Credentialed personnel with air-gapped review clearance
+                Department heads assigned to review cases
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
               <router-link to="/app/department-heads"
                 class="text-ink-900 font-semibold hover:underline flex items-center gap-1">
-                <span>Manage accounts</span>
+                <span>Manage department heads</span>
                 <ArrowRightIcon class="size-3" />
               </router-link>
             </div>
           </div>
 
           <!-- Security & Audit Telemetry -->
-          <div class="bg-card border border-border rounded-lg p-5 flex flex-col justify-between">
+          <div class="bg-card border border-border rounded-lg p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Governance &amp; Telemetry
+                Privacy Safeguards
               </span>
               <div class="p-2 rounded bg-emerald-500/10 text-emerald-700">
                 <ShieldCheckIcon class="size-5" />
@@ -214,19 +273,19 @@ onMounted(() => {
             </div>
             <div class="mt-4">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-bold text-foreground">Zero IP Logging</span>
+                <span class="text-sm font-bold text-foreground">Zero IP Tracking</span>
                 <span
                   class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   ACTIVE
                 </span>
               </div>
               <p class="text-[11px] text-muted-foreground mt-1">
-                Compliant with ISO 37002 &amp; ISO 27001 Case Reporting standards
+                Aligned with ISO 37002 Case Reporting standards
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
-              <span class="text-muted-foreground text-[11px]">CEMAC Node Node-01</span>
-              <span class="text-emerald-700 font-mono text-[11px]">100% Operational</span>
+              <span class="text-muted-foreground text-[11px]">Reporter Privacy</span>
+              <span class="text-emerald-700 font-mono text-[11px]">Protected</span>
             </div>
           </div>
         </div>
@@ -234,39 +293,39 @@ onMounted(() => {
         <!-- Manager Quick Operations Workspace -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2 space-y-4">
-            <div class="bg-card border border-border rounded-lg p-5">
+            <div class="bg-card border border-border rounded-lg p-5 shadow-xs">
               <h2 class="text-sm font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
                 <FolderLockIcon class="size-4 text-primary" />
-                Case Governance &amp; Conflict Management
+                Case Assignment &amp; Oversight
               </h2>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div class="p-4 rounded-lg bg-muted/40 border border-border flex flex-col justify-between">
                   <div>
-                    <h3 class="text-xs font-bold text-foreground">Unassigned &amp; Conflict Cases</h3>
+                    <h3 class="text-xs font-bold text-foreground">Case Queue &amp; Assignments</h3>
                     <p class="text-[11px] text-muted-foreground mt-1 leading-relaxed">
-                      Review incidents where the department head is cited or requires external impartial assignment.
+                      Review incoming cases across departments and assign unassigned cases to Department Heads.
                     </p>
                   </div>
                   <div class="mt-4">
                     <router-link to="/app/cases"
                       class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
-                      Open Case Assignments queue &rarr;
+                      Open Cases Queue &rarr;
                     </router-link>
                   </div>
                 </div>
 
                 <div class="p-4 rounded-lg bg-muted/40 border border-border flex flex-col justify-between">
                   <div>
-                    <h3 class="text-xs font-bold text-foreground">Operational Analytics</h3>
+                    <h3 class="text-xs font-bold text-foreground">Activity Analytics</h3>
                     <p class="text-[11px] text-muted-foreground mt-1 leading-relaxed">
-                      Analyze case intake volume by department, average resolution times, and category distributions.
+                      Check reports by department, resolution progress, and case category counts.
                     </p>
                   </div>
                   <div class="mt-4">
                     <router-link to="/app/reports/user-engagement"
                       class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
-                      View Engagement Reports &rarr;
+                      View Reports &rarr;
                     </router-link>
                   </div>
                 </div>
@@ -277,12 +336,10 @@ onMounted(() => {
             <div class="p-4 rounded-lg bg-primary/5 border border-primary/20 text-xs space-y-1.5">
               <div class="flex items-center gap-2 text-primary font-bold">
                 <AlertTriangleIcon class="size-4 shrink-0" />
-                <span>Confidential Case Reporting Mandate (Cameroon Enterprise Law)</span>
+                <span>Privacy &amp; Role Notice</span>
               </div>
               <p class="text-[11px] text-muted-foreground leading-relaxed">
-                As Executive Manager, all case assignment actions are cryptographically logged in the immutability
-                ledger. Case reporter identities remain completely air-gapped from direct view unless voluntarily
-                disclosed in consultation chat.
+                As Manager, case assignment actions are logged in the audit ledger. Case reporter identity, full statements, and evidence files remain confidential with the assigned Department Head.
               </p>
             </div>
           </div>
@@ -384,7 +441,7 @@ onMounted(() => {
                 {{ deptHeadData.assignedCaseCount }}
               </div>
               <p class="text-[11px] text-muted-foreground mt-1">
-                Dockets actively undergoing investigation or awaiting action
+                Cases actively undergoing review or awaiting action
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
@@ -456,7 +513,7 @@ onMounted(() => {
               <div class="flex items-center justify-between mb-3">
                 <h2 class="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
                   <BellIcon class="size-3.5 text-primary" />
-                  Docket Alerts
+                  Case Alerts
                 </h2>
                 <router-link to="/app/notifications" class="text-[11px] text-primary hover:underline font-semibold">
                   View all

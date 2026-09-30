@@ -218,3 +218,18 @@
   border-color: #D8CEF6 !important;
   box-shadow: 0 2px 6px rgba(124, 58, 237, 0.06) !important;
 }
+
+/* Sleek custom scrollbars for dark sidebar */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}

@@ -133,7 +133,7 @@ const router = createRouter({
           name: 'manager-department-heads',
           beforeEnter: requireRole(['MANAGER']),
           component: () => import('@/pages/staff/manager/ManageAccounts.vue'),
-          meta: { title: 'Personnel Accounts — Verita' },
+          meta: { title: 'Department Heads — Verita' },
         },
         {
           path: 'reports/user-engagement',

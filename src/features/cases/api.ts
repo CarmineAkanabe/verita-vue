@@ -91,7 +91,7 @@ export async function addReporterEvidence(files: File[]): Promise<ReporterCaseDa
 }
 
 /**
- * Escalate a case directly to the Executive Manager.
+ * Escalate a case directly to the Manager.
  */
 export async function escalateCase(): Promise<EscalateCaseResponse> {
   const response = await apiClient.post<EscalateCaseResponse>('/cases/me/escalate')

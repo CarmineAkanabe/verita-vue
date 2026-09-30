@@ -47,7 +47,7 @@ export async function deleteDepartment(id: string): Promise<void> {
 }
 
 /**
- * Fetch all personnel accounts (Department Heads).
+ * Fetch all Department Heads.
  */
 export async function getDepartmentHeads(): Promise<DepartmentHeadUser[]> {
   const response = await apiClient.get<any>('/department-heads')
