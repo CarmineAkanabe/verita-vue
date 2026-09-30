@@ -34,19 +34,19 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur-none">
+  <header class="sticky top-0 z-40 w-full border-b border-[#D8C7B0] bg-[#EFE6D8] shadow-xs">
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
       <!-- Brand Logo / Wordmark -->
       <div class="flex items-center gap-3">
         <router-link to="/" class="flex items-center gap-2.5 group">
-          <div class="h-9 w-9 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-border shadow-xs group-hover:scale-105 group-hover:border-primary/60 transition-all duration-300">
+          <div class="h-9 w-9 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-[#D8C7B0] shadow-xs group-hover:scale-105 group-hover:border-primary/60 transition-all duration-300">
             <img src="/verita.png" alt="Verita Logo" class="h-full w-full object-contain p-0.5" />
           </div>
           <div class="flex flex-col">
-            <span class="text-base font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
+            <span class="text-base font-bold tracking-tight text-[#22293A] group-hover:text-primary transition-colors">
               Verita
             </span>
-            <span class="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+            <span class="text-[10px] font-semibold text-[#6A5A48] uppercase tracking-wider">
               Enterprise Trust Platform
             </span>
           </div>
@@ -54,24 +54,24 @@ async function handleLogout() {
       </div>
 
       <!-- Desktop Navigation Links -->
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
         <router-link
           to="/"
-          class="text-foreground hover:text-primary transition-colors"
-          active-class="text-primary font-semibold"
+          class="text-[#22293A]/85 hover:text-primary transition-colors"
+          active-class="!text-primary font-bold"
         >
           Home
         </router-link>
         <router-link
           to="/about"
-          class="text-foreground hover:text-primary transition-colors"
-          active-class="text-primary font-semibold"
+          class="text-[#22293A]/85 hover:text-primary transition-colors"
+          active-class="!text-primary font-bold"
         >
           About &amp; Governance
         </router-link>
         <a
           href="/#how-it-works"
-          class="text-muted-foreground hover:text-foreground transition-colors"
+          class="text-[#6A5A48] hover:text-[#22293A] transition-colors"
         >
           How It Works
         </a>
@@ -80,24 +80,29 @@ async function handleLogout() {
       <!-- Desktop Header Actions -->
       <div class="hidden md:flex items-center gap-3">
         <template v-if="auth.isStaffAuthenticated">
-          <div class="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-muted/60 border border-border/80 text-xs">
+          <div class="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#E2D5C0] border border-[#D8C7B0] text-xs">
             <UserCheckIcon class="size-3.5 text-primary" />
-            <span class="font-medium text-foreground">
+            <span class="font-semibold text-[#22293A]">
               {{ auth.user?.firstName || 'Staff' }}
             </span>
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-primary/10 text-primary">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-primary/15 text-primary">
               {{ auth.user?.role === 'MANAGER' ? 'Manager' : 'Dept Head' }}
             </span>
           </div>
 
-          <AppButton to="/app" variant="secondary" size="sm">
+          <AppButton
+            to="/app"
+            variant="secondary"
+            size="sm"
+            class="bg-white/90 hover:bg-white border border-[#D8C7B0] text-[#22293A] shadow-2xs font-semibold cursor-pointer"
+          >
             Staff Portal
           </AppButton>
 
           <AppButton
             variant="ghost"
             size="sm"
-            class="text-muted-foreground hover:text-destructive cursor-pointer"
+            class="text-[#6A5A48] hover:text-destructive cursor-pointer"
             :loading="isLoggingOut"
             @click="handleLogout"
           >
@@ -108,14 +113,24 @@ async function handleLogout() {
         <template v-else>
           <router-link
             to="/auth/login"
-            class="text-xs font-medium text-muted-foreground hover:text-foreground px-2 py-1 transition-colors"
+            class="text-xs font-semibold text-[#6A5A48] hover:text-[#22293A] px-2 py-1 transition-colors"
           >
             Staff sign in
           </router-link>
-          <AppButton to="/cases/verify-pin" variant="outline" size="sm">
+          <AppButton
+            to="/cases/verify-pin"
+            variant="outline"
+            size="sm"
+            class="bg-white/90 hover:bg-white border-[#D8C7B0] text-[#22293A] shadow-2xs font-semibold"
+          >
             Track a case
           </AppButton>
-          <AppButton to="/cases/submit" variant="default" size="sm">
+          <AppButton
+            to="/cases/submit"
+            variant="default"
+            size="sm"
+            class="shadow-xs font-semibold"
+          >
             <ShieldCheckIcon class="size-4 mr-1.5" />
             Report an incident
           </AppButton>
@@ -126,7 +141,7 @@ async function handleLogout() {
       <div class="flex md:hidden">
         <button
           type="button"
-          class="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
+          class="inline-flex items-center justify-center rounded-md p-2 text-[#22293A] hover:bg-[#E2D5C0] border border-transparent hover:border-[#D8C7B0] focus:outline-none focus:ring-2 focus:ring-ring transition-colors cursor-pointer"
           @click="mobileMenuOpen = !mobileMenuOpen"
           aria-label="Toggle navigation menu"
         >
@@ -137,44 +152,44 @@ async function handleLogout() {
     </div>
 
     <!-- Mobile Navigation Drawer / Dropdown -->
-    <div v-if="mobileMenuOpen" class="border-b border-border bg-background px-4 pt-2 pb-6 md:hidden">
+    <div v-if="mobileMenuOpen" class="border-b border-[#D8C7B0] bg-[#EFE6D8] px-4 pt-2 pb-6 md:hidden shadow-md">
       <div class="flex flex-col space-y-3 pt-2">
         <router-link
           to="/"
-          class="text-sm font-medium text-foreground hover:text-primary py-2"
+          class="text-sm font-semibold text-[#22293A] hover:text-primary py-2"
           @click="mobileMenuOpen = false"
         >
           Home
         </router-link>
         <router-link
           to="/about"
-          class="text-sm font-medium text-foreground hover:text-primary py-2"
+          class="text-sm font-semibold text-[#22293A] hover:text-primary py-2"
           @click="mobileMenuOpen = false"
         >
           About &amp; Governance
         </router-link>
         <a
           href="/#how-it-works"
-          class="text-sm font-medium text-muted-foreground hover:text-foreground py-2"
+          class="text-sm font-semibold text-[#6A5A48] hover:text-[#22293A] py-2"
           @click="mobileMenuOpen = false"
         >
           How It Works
         </a>
 
-        <div class="pt-4 border-t border-border flex flex-col gap-2">
+        <div class="pt-4 border-t border-[#D8C7B0] flex flex-col gap-2">
           <template v-if="auth.isStaffAuthenticated">
-            <div class="flex items-center justify-between p-2 rounded-lg bg-muted/60 border border-border text-xs mb-1">
-              <span class="font-medium text-foreground">{{ auth.user?.firstName }} {{ auth.user?.lastName }}</span>
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary">
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[#E2D5C0] border border-[#D8C7B0] text-xs mb-1">
+              <span class="font-semibold text-[#22293A]">{{ auth.user?.firstName }} {{ auth.user?.lastName }}</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/15 text-primary">
                 {{ auth.user?.role }}
               </span>
             </div>
-            <AppButton to="/app" variant="secondary" class="w-full justify-center" @click="mobileMenuOpen = false">
+            <AppButton to="/app" variant="secondary" class="w-full justify-center bg-white/90 hover:bg-white border border-[#D8C7B0] text-[#22293A] font-semibold" @click="mobileMenuOpen = false">
               Staff Portal
             </AppButton>
             <AppButton
               variant="outline"
-              class="w-full justify-center text-destructive border-destructive/30"
+              class="w-full justify-center text-destructive border-destructive/30 bg-white/80"
               :loading="isLoggingOut"
               @click="handleLogout"
             >
@@ -183,16 +198,16 @@ async function handleLogout() {
             </AppButton>
           </template>
           <template v-else>
-            <AppButton to="/cases/submit" variant="default" class="w-full justify-center" @click="mobileMenuOpen = false">
+            <AppButton to="/cases/submit" variant="default" class="w-full justify-center font-semibold" @click="mobileMenuOpen = false">
               <ShieldCheckIcon class="size-4 mr-1.5" />
               Report an incident
             </AppButton>
-            <AppButton to="/cases/verify-pin" variant="outline" class="w-full justify-center" @click="mobileMenuOpen = false">
+            <AppButton to="/cases/verify-pin" variant="outline" class="w-full justify-center bg-white/90 hover:bg-white border-[#D8C7B0] text-[#22293A] font-semibold" @click="mobileMenuOpen = false">
               Track a case
             </AppButton>
             <router-link
               to="/auth/login"
-              class="text-center text-xs text-muted-foreground hover:text-foreground py-2"
+              class="text-center text-xs font-semibold text-[#6A5A48] hover:text-[#22293A] py-2"
               @click="mobileMenuOpen = false"
             >
               Staff sign in &rarr;

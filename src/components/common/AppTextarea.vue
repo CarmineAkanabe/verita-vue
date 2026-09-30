@@ -1,7 +1,6 @@
 <!-- components/common/AppTextarea.vue -->
 <script setup lang="ts">
 import { useId, computed } from 'vue'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
 const props = withDefaults(
@@ -54,7 +53,7 @@ function onInput(e: Event) {
     </div>
 
     <!-- Textarea Element -->
-    <Textarea
+    <textarea
       :id="textareaId"
       :value="modelValue"
       :placeholder="placeholder"
@@ -64,6 +63,7 @@ function onInput(e: Event) {
       :maxlength="maxlength"
       :aria-invalid="!!error"
       :aria-describedby="error ? `${textareaId}-error` : hint ? `${textareaId}-hint` : undefined"
+      class="placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex min-h-20 w-full rounded-md border border-input bg-card px-3 py-2 text-base sm:text-xs shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 aria-invalid:border-destructive text-foreground"
       :class="[
         error ? 'border-destructive focus-visible:ring-destructive/30' : '',
         textareaClass,

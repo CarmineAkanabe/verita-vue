@@ -19,7 +19,10 @@ import { toast } from '@/plugins/toast'
 import AppButton from '@/components/common/AppButton.vue'
 import StatusPill from '@/components/common/StatusPill.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
+import AssignCaseModal from '@/components/complex/manager/AssignCaseModal.vue'
 import { getCaseAuditLogs, type CaseAuditLog } from '@/features/cases/audit'
+import { getDepartmentHeads } from '@/features/manager/api'
+import type { DepartmentHeadUser } from '@/features/manager/types'
 import {
   ArrowLeftIcon,
   CopyIcon,
@@ -41,16 +44,39 @@ import {
   ShieldIcon,
   BotIcon,
   UserCheckIcon,
+  BriefcaseIcon,
+  ShieldAlertIcon,
 } from '@lucide/vue'
 
 const route = useRoute()
 const auth = useAuthStore()
+
+const isManager = computed(() => auth.user?.role === 'MANAGER')
+const departmentHeads = ref<DepartmentHeadUser[]>([])
+const isAssignModalOpen = ref(false)
 
 const caseId = computed(() => route.params.id as string)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 const caseData = ref<StaffCase | null>(null)
 const copiedId = ref(false)
+
+const assignedOfficerName = computed(() => {
+  if (!caseData.value?.assignedTo) return 'Unassigned'
+  const head = departmentHeads.value.find((h) => h.id === caseData.value?.assignedTo)
+  if (head) {
+    return [head.firstName, head.lastName].filter(Boolean).join(' ') || head.email
+  }
+  return 'Assigned Officer'
+})
+
+function handleCaseAssigned(payload: { caseId: string; departmentHeadId: string; departmentHeadName: string }) {
+  if (caseData.value) {
+    caseData.value.assignedTo = payload.departmentHeadId
+    caseData.value.status = 'UNDER_INVESTIGATION'
+  }
+  fetchAuditLogs()
+}
 
 // Claiming
 const isClaiming = ref(false)
@@ -135,10 +161,23 @@ async function fetchCase() {
   error.value = null
 
   try {
-    const data = await getStaffCaseDetail(caseId.value)
-    caseData.value = data
-    targetStatus.value = data.status
-    fetchAuditLogs()
+    const promises: Promise<any>[] = [getStaffCaseDetail(caseId.value)]
+    if (isManager.value) {
+      promises.push(getDepartmentHeads())
+    }
+
+    const results = await Promise.allSettled(promises)
+    if (results[0].status === 'fulfilled') {
+      caseData.value = results[0].value
+      targetStatus.value = results[0].value.status
+      fetchAuditLogs()
+    } else {
+      throw results[0].reason
+    }
+
+    if (isManager.value && results[1] && results[1].status === 'fulfilled') {
+      departmentHeads.value = results[1].value
+    }
   } catch (err: any) {
     error.value = err?.message || 'Failed to retrieve case details.'
   } finally {
@@ -470,7 +509,11 @@ onMounted(() => {
           <span>Back to Cases</span>
         </router-link>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span v-if="isManager"
+            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A2561B]/10 text-[#A2561B] border border-[#A2561B]/20">
+            Executive Oversight · Case Metadata Only
+          </span>
           <span v-if="caseData?.concernsDepartmentHead"
             class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
             Department Head Bypassed
@@ -501,20 +544,26 @@ onMounted(() => {
 
         <!-- Action Buttons -->
         <div class="flex items-center gap-2.5 flex-wrap">
-          <!-- Claim Button (if unclaimed) -->
-          <AppButton v-if="isEligibleToClaim" size="sm" :loading="isClaiming" @click="handleClaim">
+          <!-- Manager: Assign Case Button (when unassigned) -->
+          <AppButton v-if="isManager && !caseData?.assignedTo && caseData?.status === 'AWAITING_REVIEW'" size="sm" @click="isAssignModalOpen = true">
+            <UserCheckIcon class="size-4 mr-1.5" />
+            Assign Case
+          </AppButton>
+
+          <!-- Claim Button (department head only, if unclaimed) -->
+          <AppButton v-if="!isManager && isEligibleToClaim" size="sm" :loading="isClaiming" @click="handleClaim">
             <HandHelpingIcon class="size-4 mr-1.5" />
             Claim Case
           </AppButton>
 
-          <!-- Update Status Button (assigned officer only) -->
-          <AppButton v-if="isAssignedToMe" variant="outline" size="sm" @click="openStatusModal">
+          <!-- Update Status Button (assigned department head only) -->
+          <AppButton v-if="!isManager && isAssignedToMe" variant="outline" size="sm" @click="openStatusModal">
             <CheckCircle2Icon class="size-4 mr-1.5" />
             Update Status
           </AppButton>
 
-          <!-- Consultation Channel Link -->
-          <router-link :to="`/app/cases/${caseData?.id}/chat`"
+          <!-- Consultation Channel Link (Department Head only - strictly hidden for Manager) -->
+          <router-link v-if="!isManager" :to="`/app/cases/${caseData?.id}/chat`"
             class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs">
             <MessageSquareIcon class="size-3.5" />
             <span>Open Case Chat</span>
@@ -537,62 +586,202 @@ onMounted(() => {
 
     <!-- Loaded Case Details -->
     <div v-else-if="caseData" class="space-y-6">
-      <!-- Resolution Summary Banner (if resolved/dismissed) -->
-      <div v-if="caseData.resolutionSummary"
-        class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1">
-        <div class="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider text-[10px]">
-          <CheckCircle2Icon class="size-3.5" />
-          <span>Case Resolution Summary</span>
-          <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt)
-          }})</span>
-        </div>
-        <p class="text-xs text-[#22293A] font-medium leading-relaxed">
-          {{ caseData.resolutionSummary }}
-        </p>
-      </div>
 
-      <!-- Quick Metrics Grid (Creamy Cards) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Amount Involved -->
-        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
-            Amount Involved
-          </span>
-          <p class="text-xl font-extrabold text-[#A2561B] font-mono mt-1">
-            {{ formatAmount(caseData.amountInvolved) }}
+      <!-- ========================================================================= -->
+      <!-- BRANCH 1: MANAGER EXECUTIVE VIEW (METADATA & WORKING OFFICER ONLY)        -->
+      <!-- ========================================================================= -->
+      <template v-if="isManager">
+        <!-- Confidentiality Air-Gap Notice -->
+        <div class="p-4 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/20 text-xs text-[#A2561B] flex items-start gap-3 shadow-xs">
+          <ShieldAlertIcon class="size-4 shrink-0 mt-0.5" />
+          <div class="space-y-1">
+            <p class="font-bold">Executive Confidentiality Air-Gap Active (ISO 37002)</p>
+            <p class="text-[11px] text-[#6B7280] leading-relaxed">
+              Under Verita zero-knowledge governance, Executive Management views docket allocation, case metadata, and audit events only. Full evidentiary statements, raw case narratives, AI forensic evaluations, and direct consultation channels are air-gapped to designated department investigators.
+            </p>
+          </div>
+        </div>
+
+        <!-- Resolution Summary Banner (if resolved/dismissed) -->
+        <div v-if="caseData.resolutionSummary"
+          class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1">
+          <div class="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider text-[10px]">
+            <CheckCircle2Icon class="size-3.5" />
+            <span>Case Resolution Summary</span>
+            <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt) }})</span>
+          </div>
+          <p class="text-xs text-[#22293A] font-medium leading-relaxed">
+            {{ caseData.resolutionSummary }}
           </p>
         </div>
 
-        <!-- Person / Unit Involved -->
-        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
-            Person / Unit Involved
-          </span>
-          <p class="text-sm font-bold text-[#22293A] truncate mt-1" :title="caseData.personInvolved">
-            {{ caseData.personInvolved || 'Unspecified' }}
+        <!-- Executive Case Particulars Card (Creamy Card) -->
+        <div class="p-6 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-5">
+          <div class="flex items-center justify-between border-b border-[#EADBCE] pb-3">
+            <div class="flex items-center gap-2">
+              <BriefcaseIcon class="size-4 text-[#A2561B]" />
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#22293A]">
+                Executive Case Particulars
+              </h2>
+            </div>
+            <span class="text-[11px] font-mono text-[#6B7280]">
+              Metadata Record
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+            <!-- Reference ID -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Case Reference</span>
+              <p class="font-mono font-bold text-[#22293A] text-sm mt-1 truncate" :title="caseData.id">
+                {{ caseData.id }}
+              </p>
+            </div>
+
+            <!-- Date -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Incident Date</span>
+              <p class="font-mono font-bold text-[#22293A] text-sm mt-1">
+                {{ formatDate(caseData.transactionDate || caseData.createdAt) }}
+              </p>
+            </div>
+
+            <!-- Category -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Category &amp; Scope</span>
+              <p class="font-bold text-[#A2561B] text-sm mt-1">
+                {{ caseData.category }}
+              </p>
+            </div>
+
+            <!-- Disputed Amount -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Disputed Amount</span>
+              <p class="font-mono font-extrabold text-[#A2561B] text-base mt-1">
+                {{ formatAmount(caseData.amountInvolved) }}
+              </p>
+            </div>
+
+            <!-- Person Involved -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Person / Unit Cited</span>
+              <p class="font-bold text-[#22293A] text-sm mt-1 truncate" :title="caseData.personInvolved">
+                {{ caseData.personInvolved || 'Unspecified' }}
+              </p>
+            </div>
+
+            <!-- Purpose of Transaction -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Report Purpose / Label</span>
+              <p class="font-bold text-[#22293A] text-sm mt-1 truncate" :title="caseData.purposeOfTransaction">
+                {{ caseData.purposeOfTransaction || 'General Incident Disclosure' }}
+              </p>
+            </div>
+
+            <!-- Working Officer -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE] sm:col-span-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Assigned Working Officer</span>
+              <div class="flex items-center justify-between gap-2 mt-1">
+                <div class="flex items-center gap-2">
+                  <UserCheckIcon v-if="caseData.assignedTo" class="size-4 text-emerald-600 shrink-0" />
+                  <ClockIcon v-else class="size-4 text-amber-500 shrink-0" />
+                  <span class="font-bold text-[#22293A] text-sm">
+                    {{ assignedOfficerName }}
+                  </span>
+                </div>
+                <button
+                  v-if="!caseData.assignedTo && caseData.status === 'AWAITING_REVIEW'"
+                  type="button"
+                  class="px-2.5 py-1 rounded text-xs font-semibold bg-primary text-white hover:bg-primary-700 transition-colors cursor-pointer"
+                  @click="isAssignModalOpen = true"
+                >
+                  Assign Officer
+                </button>
+              </div>
+            </div>
+
+            <!-- Status & Flags -->
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Status &amp; Flags</span>
+              <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <StatusPill :status="caseData.status" />
+                <span v-if="caseData.concernsDepartmentHead"
+                  class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-destructive/15 text-destructive border border-destructive/20 flex items-center gap-1"
+                  title="Conflict: Concerns Department Head">
+                  <AlertTriangleIcon class="size-3" />
+                  Conflict Flag
+                </span>
+                <span v-if="caseData.escalatedAt"
+                  class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-800 border border-amber-500/20"
+                  title="Escalated to Executive Management">
+                  Escalated
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- ========================================================================= -->
+      <!-- BRANCH 2: DEPARTMENT HEAD FULL INVESTIGATION VIEW                         -->
+      <!-- ========================================================================= -->
+      <template v-else>
+        <!-- Resolution Summary Banner (if resolved/dismissed) -->
+        <div v-if="caseData.resolutionSummary"
+          class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1">
+          <div class="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider text-[10px]">
+            <CheckCircle2Icon class="size-3.5" />
+            <span>Case Resolution Summary</span>
+            <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt)
+            }})</span>
+          </div>
+          <p class="text-xs text-[#22293A] font-medium leading-relaxed">
+            {{ caseData.resolutionSummary }}
           </p>
         </div>
 
-        <!-- Date of Incident -->
-        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
-            Date of Incident
-          </span>
-          <p class="text-sm font-bold text-[#22293A] font-mono mt-1">
-            {{ caseData.transactionDate || 'Not specified' }}
-          </p>
-        </div>
+        <!-- Quick Metrics Grid (Creamy Cards) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Amount Involved -->
+          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+              Amount Involved
+            </span>
+            <p class="text-xl font-extrabold text-[#A2561B] font-mono mt-1">
+              {{ formatAmount(caseData.amountInvolved) }}
+            </p>
+          </div>
 
-        <!-- Assigned Officer -->
-        <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
-            Assigned Officer
-          </span>
-          <p class="text-sm font-bold text-[#22293A] mt-1">
-            {{ isAssignedToMe ? 'Assigned to You' : caseData.assignedTo ? 'Assigned to Staff' : 'Unclaimed' }}
-          </p>
+          <!-- Person / Unit Involved -->
+          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+              Person / Unit Involved
+            </span>
+            <p class="text-sm font-bold text-[#22293A] truncate mt-1" :title="caseData.personInvolved">
+              {{ caseData.personInvolved || 'Unspecified' }}
+            </p>
+          </div>
+
+          <!-- Date of Incident -->
+          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+              Date of Incident
+            </span>
+            <p class="text-sm font-bold text-[#22293A] font-mono mt-1">
+              {{ caseData.transactionDate || 'Not specified' }}
+            </p>
+          </div>
+
+          <!-- Assigned Officer -->
+          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+              Assigned Officer
+            </span>
+            <p class="text-sm font-bold text-[#22293A] mt-1">
+              {{ isAssignedToMe ? 'Assigned to You' : caseData.assignedTo ? 'Assigned to Staff' : 'Unclaimed' }}
+            </p>
+          </div>
         </div>
-      </div>
 
       <!-- PREMIER HERO SECTION: AI Case Analysis -->
       <div
@@ -811,6 +1000,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
+      </template>
 
       <!-- CASE HISTORY & IMMUTABLE AUDIT TRAIL -->
       <div class="p-6 rounded-2xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs space-y-6">
@@ -1031,5 +1221,14 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
+    <!-- ASSIGN CASE MODAL (FOR MANAGERS) -->
+    <AssignCaseModal
+      :is-open="isAssignModalOpen"
+      :case-item="caseData"
+      :department-heads="departmentHeads"
+      @close="isAssignModalOpen = false"
+      @assigned="handleCaseAssigned"
+    />
   </div>
 </template>

@@ -1,7 +1,6 @@
 <!-- components/common/AppInput.vue -->
 <script setup lang="ts">
 import { ref, useId, computed } from 'vue'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { EyeIcon, EyeOffIcon } from '@lucide/vue'
 
@@ -67,7 +66,7 @@ function onInput(e: Event) {
         <slot name="prefix" />
       </div>
 
-      <Input
+      <input
         :id="inputId"
         :type="computedType"
         :value="modelValue"
@@ -77,6 +76,7 @@ function onInput(e: Event) {
         :autocomplete="autocomplete"
         :aria-invalid="!!error"
         :aria-describedby="error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined"
+        class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-10 sm:h-9 w-full min-w-0 rounded-md border border-input bg-card px-3 py-1 text-base sm:text-xs shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 aria-invalid:border-destructive text-foreground"
         :class="[
           $slots.prefix ? 'pl-9' : '',
           props.type === 'password' || $slots.suffix ? 'pr-10' : '',

@@ -1,7 +1,7 @@
 <!-- pages/staff/cases/StaffCaseChat.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
 import {
   getStaffCaseDetail,
@@ -33,6 +33,7 @@ import {
 } from '@lucide/vue'
 
 const route = useRoute()
+const router = useRouter()
 const auth = useAuthStore()
 
 const caseId = computed(() => route.params.id as string)
@@ -370,6 +371,11 @@ watch(
 )
 
 onMounted(async () => {
+  if (isManager.value) {
+    toast.error('Executive Managers are restricted from accessing confidential Case Reporter consultation channels under ISO 37002 air-gapping protocols.')
+    router.replace(`/app/cases/${caseId.value}`)
+    return
+  }
   await fetchCaseDetails()
   connectStaffWebSocket()
   startPolling(5000)

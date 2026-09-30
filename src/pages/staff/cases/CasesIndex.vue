@@ -178,6 +178,15 @@ function copyCaseId(id: string) {
   }, 2500)
 }
 
+function getAssignedOfficerName(assignedToId?: string | null): string {
+  if (!assignedToId) return 'Unassigned'
+  const head = departmentHeads.value.find((h) => h.id === assignedToId)
+  if (head) {
+    return [head.firstName, head.lastName].filter(Boolean).join(' ') || head.email
+  }
+  return 'Assigned Officer'
+}
+
 function formatAmount(amount: string | number | undefined): string {
   if (amount === undefined || amount === null) return '0 FCFA'
   const numeric = typeof amount === 'string' ? parseFloat(amount) : amount
@@ -301,11 +310,11 @@ onMounted(() => {
 
     <!-- Filter & Navigation Tabs -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-1">
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
         <!-- MANAGER TABS -->
         <template v-if="isManager">
           <button type="button"
-            class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
+            class="px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0"
             :class="activeTab === 'AWAITING_ASSIGNMENT' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
             @click="activeTab = 'AWAITING_ASSIGNMENT'">
             <ClockIcon class="size-3.5" />
@@ -313,7 +322,7 @@ onMounted(() => {
           </button>
 
           <button type="button"
-            class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
+            class="px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0"
             :class="activeTab === 'ALL_CASES' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
             @click="activeTab = 'ALL_CASES'">
             <BriefcaseIcon class="size-3.5" />
@@ -324,7 +333,7 @@ onMounted(() => {
         <!-- DEPARTMENT HEAD TABS -->
         <template v-else>
           <button type="button"
-            class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
+            class="px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0"
             :class="activeTab === 'QUEUE' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
             @click="activeTab = 'QUEUE'">
             <ClockIcon class="size-3.5" />
@@ -332,7 +341,7 @@ onMounted(() => {
           </button>
 
           <button type="button"
-            class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
+            class="px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0"
             :class="activeTab === 'CLAIMED' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
             @click="activeTab = 'CLAIMED'">
             <BriefcaseIcon class="size-3.5" />
@@ -342,7 +351,7 @@ onMounted(() => {
 
         <!-- COMMON AUDIT LOG TAB -->
         <button type="button"
-          class="px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5"
+          class="px-3 sm:px-4 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0"
           :class="activeTab === 'AUDIT_LOG' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
           @click="activeTab = 'AUDIT_LOG'; fetchAuditLogs()">
           <HistoryIcon class="size-3.5" />
@@ -355,16 +364,16 @@ onMounted(() => {
       </div>
 
       <!-- Search & Category Filters (only for cases tabs) -->
-      <div v-if="activeTab !== 'AUDIT_LOG'" class="flex items-center gap-2 pb-1 sm:pb-0">
-        <div class="relative">
+      <div v-if="activeTab !== 'AUDIT_LOG'" class="flex items-center gap-2 pb-1 sm:pb-0 w-full sm:w-auto">
+        <div class="relative flex-1 sm:flex-none">
           <SearchIcon
             class="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input v-model="searchQuery" type="text" placeholder="Filter reference or person..."
-            class="h-8 pl-8 pr-3 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary w-48" />
+            class="h-8 pl-8 pr-3 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary w-full sm:w-48" />
         </div>
 
         <select v-model="selectedCategory"
-          class="h-8 px-2.5 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary cursor-pointer">
+          class="h-8 px-2 text-xs rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary cursor-pointer shrink-0">
           <option value="ALL">All Categories</option>
           <option value="FRAUD">Fraud</option>
           <option value="HARASSMENT">Harassment</option>
@@ -465,7 +474,7 @@ onMounted(() => {
               <td class="p-3 text-right">
                 <router-link :to="`/app/cases/${log.caseRecordId}`"
                   class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-semibold bg-white border border-border hover:border-primary text-foreground hover:text-primary transition-colors">
-                  View Case
+                  {{ isManager ? 'Case Overview' : 'View Case' }}
                 </router-link>
               </td>
             </tr>
@@ -503,6 +512,7 @@ onMounted(() => {
               <th class="p-3.5">Category &amp; Scope</th>
               <th class="p-3.5">Person Involved</th>
               <th class="p-3.5">Disputed Amount</th>
+              <th class="p-3.5">Working Officer</th>
               <th class="p-3.5">Status &amp; Flags</th>
               <th class="p-3.5 text-right">Actions</th>
             </tr>
@@ -550,6 +560,18 @@ onMounted(() => {
                 {{ formatAmount(item.amountInvolved) }}
               </td>
 
+              <!-- Working Officer -->
+              <td class="p-3.5 whitespace-nowrap text-xs">
+                <span v-if="item.assignedTo" class="inline-flex items-center gap-1.5 font-medium text-foreground">
+                  <UserCheckIcon class="size-3 text-emerald-600" />
+                  <span>{{ getAssignedOfficerName(item.assignedTo) }}</span>
+                </span>
+                <span v-else class="inline-flex items-center gap-1 text-muted-foreground font-mono text-[11px]">
+                  <ClockIcon class="size-3 text-amber-500" />
+                  <span>Unassigned</span>
+                </span>
+              </td>
+
               <!-- Status & Conflict Flags -->
               <td class="p-3.5 whitespace-nowrap">
                 <div class="flex items-center gap-1.5">
@@ -587,10 +609,11 @@ onMounted(() => {
                     <span>{{ isClaimingId === item.id ? 'Claiming...' : 'Claim' }}</span>
                   </button>
 
-                  <!-- View Case Details -->
+                  <!-- View Case / Case Overview -->
                   <router-link :to="`/app/cases/${item.id}`"
-                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold border border-border bg-background hover:bg-muted text-foreground transition-colors">
-                    <span>View Case</span>
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-semibold border border-border bg-background hover:bg-muted text-foreground transition-colors"
+                    :title="isManager ? 'View Executive Case Overview (Metadata Only)' : 'View Full Case Record & Evidence'">
+                    <span>{{ isManager ? 'Case Overview' : 'View Case' }}</span>
                     <ArrowRightIcon class="size-3" />
                   </router-link>
                 </div>

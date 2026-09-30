@@ -117,6 +117,7 @@ const router = createRouter({
         {
           path: 'cases/:id/chat',
           name: 'staff-case-chat',
+          beforeEnter: requireRole(['DEPARTMENT_HEAD']),
           component: () => import('@/pages/staff/cases/StaffCaseChat.vue'),
           meta: { title: 'Case Consultation — Verita' },
         },

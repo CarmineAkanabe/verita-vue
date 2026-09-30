@@ -382,8 +382,8 @@ async function proceedToDashboard() {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-4rem)] bg-[#F6F7F9] py-8 px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-3xl space-y-6">
+  <div class="min-h-[calc(100vh-4rem)] bg-[#F6F7F9] py-5 px-3 sm:py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl space-y-5 sm:space-y-6">
 
       <!-- ========================================================================= -->
       <!-- POST-SUBMISSION CREDENTIALS VIEW                                          -->
@@ -503,73 +503,77 @@ async function proceedToDashboard() {
         </div>
 
         <!-- 4-Step Visual Stepper Bar -->
-        <div class="p-3 sm:p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-          <div class="grid grid-cols-4 gap-2 text-center text-xs">
+        <div class="p-2.5 sm:p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+          <div class="grid grid-cols-4 gap-1 sm:gap-2 text-center text-xs">
             <!-- Step 1 Indicator -->
             <button
               type="button"
-              class="flex flex-col items-center gap-1.5 p-1.5 rounded-lg transition-colors cursor-pointer"
+              class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
               :class="currentStep === 1 ? 'text-[#A2561B] font-bold' : currentStep > 1 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
               @click="goToStep(1)"
             >
               <div
-                class="size-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
                 :class="currentStep === 1 ? 'bg-[#A2561B] text-white shadow-xs' : currentStep > 1 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-[#6B7280]'"
               >
-                <CheckCircle2Icon v-if="currentStep > 1" class="size-4" />
+                <CheckCircle2Icon v-if="currentStep > 1" class="size-3.5 sm:size-4" />
                 <span v-else>1</span>
               </div>
-              <span class="text-[11px] truncate">Department</span>
+              <span class="text-[11px] hidden sm:inline truncate">Department</span>
+              <span class="text-[10px] sm:hidden truncate">Dept</span>
             </button>
 
             <!-- Step 2 Indicator -->
             <button
               type="button"
-              class="flex flex-col items-center gap-1.5 p-1.5 rounded-lg transition-colors cursor-pointer"
+              class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
               :class="currentStep === 2 ? 'text-[#A2561B] font-bold' : currentStep > 2 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
               @click="goToStep(2)"
             >
               <div
-                class="size-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
                 :class="currentStep === 2 ? 'bg-[#A2561B] text-white shadow-xs' : currentStep > 2 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-[#6B7280]'"
               >
-                <CheckCircle2Icon v-if="currentStep > 2" class="size-4" />
+                <CheckCircle2Icon v-if="currentStep > 2" class="size-3.5 sm:size-4" />
                 <span v-else>2</span>
               </div>
-              <span class="text-[11px] truncate">Incident Details</span>
+              <span class="text-[11px] hidden sm:inline truncate">Incident Details</span>
+              <span class="text-[10px] sm:hidden truncate">Details</span>
             </button>
 
             <!-- Step 3 Indicator -->
             <button
               type="button"
-              class="flex flex-col items-center gap-1.5 p-1.5 rounded-lg transition-colors cursor-pointer"
+              class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
               :class="currentStep === 3 ? 'text-[#A2561B] font-bold' : currentStep > 3 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
               @click="goToStep(3)"
             >
               <div
-                class="size-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
                 :class="currentStep === 3 ? 'bg-[#A2561B] text-white shadow-xs' : currentStep > 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-[#6B7280]'"
               >
-                <CheckCircle2Icon v-if="currentStep > 3" class="size-4" />
+                <CheckCircle2Icon v-if="currentStep > 3" class="size-3.5 sm:size-4" />
                 <span v-else>3</span>
               </div>
-              <span class="text-[11px] truncate">Description &amp; Files</span>
+              <span class="text-[11px] hidden sm:inline truncate">Description &amp; Files</span>
+              <span class="text-[10px] sm:hidden truncate">Files</span>
             </button>
 
             <!-- Step 4 Indicator -->
             <button
               type="button"
-              class="flex flex-col items-center gap-1.5 p-1.5 rounded-lg transition-colors cursor-pointer"
+              class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
               :class="currentStep === 4 ? 'text-[#A2561B] font-bold' : 'text-[#9CA3AF]'"
               @click="goToStep(4)"
             >
               <div
-                class="size-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
                 :class="currentStep === 4 ? 'bg-[#A2561B] text-white shadow-xs' : 'bg-[#F2F4F7] text-[#6B7280]'"
               >
                 <span>4</span>
               </div>
-              <span class="text-[11px] truncate">Review &amp; Submit</span>
+              <span class="text-[11px] hidden sm:inline truncate">Review &amp; Submit</span>
+              <span class="text-[10px] sm:hidden truncate">Review</span>
             </button>
           </div>
         </div>
@@ -581,7 +585,7 @@ async function proceedToDashboard() {
         </div>
 
         <!-- Main Wizard Card Container -->
-        <div class="p-6 sm:p-8 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-6">
+        <div class="p-4 sm:p-8 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-6">
 
           <!-- ========================================================================= -->
           <!-- STEP 1: Department Selection                                              -->
@@ -834,11 +838,11 @@ async function proceedToDashboard() {
           </div>
 
           <!-- Wizard Navigation Bar -->
-          <div class="pt-4 border-t border-[#EADBCE] flex items-center justify-between gap-3">
+          <div class="pt-4 border-t border-[#EADBCE] flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
             <button
               v-if="currentStep > 1"
               type="button"
-              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer"
+              class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-lg border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer w-full sm:w-auto"
               @click="prevStep"
             >
               <ArrowLeftIcon class="size-3.5" />
@@ -847,18 +851,19 @@ async function proceedToDashboard() {
             <button
               v-else
               type="button"
-              class="text-xs text-[#6B7280] hover:text-[#22293A] transition-colors cursor-pointer"
+              class="text-xs text-[#6B7280] hover:text-[#22293A] transition-colors cursor-pointer py-1.5 text-center sm:text-left"
               @click="handleReset"
             >
               Reset Form
             </button>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
               <AppButton
                 v-if="currentStep < 4"
                 type="button"
                 variant="default"
                 size="default"
+                class="w-full sm:w-auto justify-center"
                 @click="nextStep"
               >
                 <span>Continue to Step {{ currentStep + 1 }}</span>
@@ -870,6 +875,7 @@ async function proceedToDashboard() {
                 type="button"
                 variant="default"
                 size="lg"
+                class="w-full sm:w-auto justify-center"
                 :loading="isSubmitting"
                 @click="handleSubmit"
               >
