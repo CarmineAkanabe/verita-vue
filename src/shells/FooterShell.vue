@@ -66,6 +66,10 @@
               <router-link to="/about#policy" class="hover:text-foreground transition-colors">Non-Retaliation
                 Policy</router-link>
             </li>
+            <li>
+              <router-link to="/terms" class="hover:text-foreground transition-colors font-medium text-primary">Terms of
+                Service</router-link>
+            </li>
           </ul>
         </div>
       </div>
@@ -73,7 +77,10 @@
       <!-- Bottom Bar -->
       <div
         class="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-        <p>© {{ new Date().getFullYear() }} Verita Technologies Inc. All rights reserved.</p>
+        <p>
+          © {{ new Date().getFullYear() }} Verita Technologies Inc. All rights reserved. ·
+          <router-link to="/terms" class="hover:text-foreground underline">Terms of Service</router-link>
+        </p>
         <p class="text-[11px]">
           Confidential &amp; Encrypted · No IP Logging · Human-Led Adjudication
         </p>

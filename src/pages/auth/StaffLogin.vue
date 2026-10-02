@@ -216,8 +216,8 @@ async function handleSubmit() {
       <div class="rounded-lg border border-border/60 bg-muted/30 p-3.5 text-left flex items-start gap-2.5">
         <LockIcon class="size-4 text-primary shrink-0 mt-0.5" />
         <p class="text-[11px] text-muted-foreground leading-relaxed">
-          <strong class="text-foreground">Audited Access:</strong> All staff logins and session tokens are
-          cryptographically signed and recorded in the immutable compliance audit log.
+          <strong class="text-foreground">Audited Access:</strong> All staff logins and casework actions are recorded in the compliance audit ledger and bound by Verita's
+          <router-link to="/terms" target="_blank" class="text-primary hover:underline font-semibold">Terms of Service</router-link>.
         </p>
       </div>
 

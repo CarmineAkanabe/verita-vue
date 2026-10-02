@@ -277,6 +277,12 @@ async function handleSubmit() {
           {{ errorMessage }}
         </div>
 
+        <!-- Governance & Terms Notice -->
+        <p class="text-[11px] text-muted-foreground leading-relaxed">
+          By provisioning this account, you certify that the appointed Department Head is authorized to conduct confidential casework under Verita's
+          <router-link to="/terms" target="_blank" class="text-primary hover:underline font-semibold">Terms of Service &amp; Confidentiality Protocols</router-link>.
+        </p>
+
         <!-- Actions -->
         <div class="pt-4 border-t border-border flex items-center justify-end gap-2.5">
           <AppButton
@@ -295,8 +301,8 @@ async function handleSubmit() {
             :disabled="isSubmitting"
           >
             <CheckCircle2Icon v-if="!isSubmitting" class="size-4" />
-            <span v-if="isSubmitting">Saving Officer...</span>
-            <span v-else>{{ isEditMode ? 'Update Officer Account' : 'Provision Officer' }}</span>
+            <span v-if="isSubmitting">Saving Account...</span>
+            <span v-else>{{ isEditMode ? 'Update Department Head' : 'Add Department Head' }}</span>
           </button>
         </div>
       </form>

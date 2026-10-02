@@ -126,6 +126,11 @@ async function handleSubmit() {
           {{ errorMessage }}
         </div>
 
+        <p class="text-[11px] text-muted-foreground leading-relaxed">
+          Departmental case allocations and investigator oversight operate under Verita's
+          <router-link to="/terms" target="_blank" class="text-primary hover:underline font-semibold">Terms of Service</router-link>.
+        </p>
+
         <!-- Actions -->
         <div class="pt-4 border-t border-border flex items-center justify-end gap-2.5">
           <AppButton variant="outline" size="sm" type="button" :disabled="isSubmitting" @click="emit('close')">

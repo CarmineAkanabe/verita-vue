@@ -21,6 +21,16 @@ const router = createRouter({
           meta: { title: 'About Verita — Confidential Consultation' },
         },
         {
+          path: 'terms',
+          name: 'terms-of-service',
+          component: () => import('@/pages/public/TermsOfService.vue'),
+          meta: { title: 'Terms of Service — Verita' },
+        },
+        {
+          path: 'terms-of-service',
+          redirect: { name: 'terms-of-service' },
+        },
+        {
           path: 'cases/submit',
           name: 'submit-case',
           component: () => import('@/pages/cases/CaseSubmission.vue'),

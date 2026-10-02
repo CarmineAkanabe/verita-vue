@@ -43,10 +43,40 @@ import {
   RefreshCwIcon,
   ShieldIcon,
   BotIcon,
-  UserCheckIcon,
   BriefcaseIcon,
   ShieldAlertIcon,
+  LockIcon,
+  Loader2Icon,
+  UserCheckIcon,
 } from '@lucide/vue'
+
+// Dedicated Case Loading State
+const loadingProgress = ref(0)
+const loadingStageIndex = ref(0)
+let loadingInterval: any = null
+
+const departmentHeadLoadingStages = [
+  {
+    title: 'Verifying Department Head Clearance & Case Authorization...',
+    detail: 'Checking cryptographic session tokens against role permissions matrix',
+  },
+  {
+    title: 'Decrypting Case Record & Asymmetric Reporter Protections...',
+    detail: 'Isolating identity parameters and accessing encrypted incident payload',
+  },
+  {
+    title: 'Loading Evidence Files & AI Forensic Indicators...',
+    detail: 'Synthesizing evidence files, metadata verification, and AI discrepancy audit',
+  },
+  {
+    title: 'Synchronizing Immutable Audit Ledger...',
+    detail: 'Logging authorized case inspection event to ISO 37002 compliance ledger',
+  },
+  {
+    title: 'Case Workspace Initialized!',
+    detail: 'Access granted. Rendering complete case investigation dashboard...',
+  },
+]
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -159,30 +189,86 @@ function getActorBadge(actorType: string) {
 async function fetchCase() {
   isLoading.value = true
   error.value = null
+  loadingProgress.value = 8
+  loadingStageIndex.value = 0
 
-  try {
-    const promises: Promise<any>[] = [getStaffCaseDetail(caseId.value)]
-    if (isManager.value) {
-      promises.push(getDepartmentHeads())
-    }
+  const startTime = Date.now()
+  const minimumDuration = 1200 // 1.2s smooth presentation
 
-    const results = await Promise.allSettled(promises)
-    if (results[0].status === 'fulfilled') {
-      caseData.value = results[0].value
-      targetStatus.value = results[0].value.status
-      fetchAuditLogs()
-    } else {
-      throw results[0].reason
-    }
+  let fetchFinished = false
+  let fetchError: any = null
 
-    if (isManager.value && results[1] && results[1].status === 'fulfilled') {
-      departmentHeads.value = results[1].value
-    }
-  } catch (err: any) {
-    error.value = err?.message || 'Failed to retrieve case details.'
-  } finally {
-    isLoading.value = false
+  // Start background API calls
+  const promises: Promise<any>[] = [getStaffCaseDetail(caseId.value)]
+  if (isManager.value) {
+    promises.push(getDepartmentHeads())
   }
+
+  Promise.allSettled(promises)
+    .then((results) => {
+      if (results[0].status === 'fulfilled') {
+        caseData.value = results[0].value
+        targetStatus.value = results[0].value.status
+        fetchAuditLogs()
+      } else {
+        fetchError = results[0].reason
+      }
+
+      if (isManager.value && results[1] && results[1].status === 'fulfilled') {
+        departmentHeads.value = results[1].value
+      }
+      fetchFinished = true
+    })
+    .catch((err) => {
+      fetchError = err
+      fetchFinished = true
+    })
+
+  // Start progress animation
+  await new Promise<void>((resolve) => {
+    if (loadingInterval) clearInterval(loadingInterval)
+    loadingInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime
+
+      if (fetchError) {
+        clearInterval(loadingInterval)
+        resolve()
+        return
+      }
+
+      if (elapsed < 300) {
+        loadingStageIndex.value = 0
+        loadingProgress.value = Math.min(25, Math.floor(8 + (elapsed / 300) * 17))
+      } else if (elapsed < 650) {
+        loadingStageIndex.value = 1
+        loadingProgress.value = Math.min(55, Math.floor(25 + ((elapsed - 300) / 350) * 30))
+      } else if (elapsed < 1000) {
+        loadingStageIndex.value = 2
+        loadingProgress.value = Math.min(85, Math.floor(55 + ((elapsed - 650) / 350) * 30))
+      } else if (elapsed < minimumDuration) {
+        loadingStageIndex.value = 3
+        loadingProgress.value = Math.min(96, Math.floor(85 + ((elapsed - 1000) / 200) * 11))
+      } else {
+        if (fetchFinished) {
+          clearInterval(loadingInterval)
+          loadingStageIndex.value = 4
+          loadingProgress.value = 100
+          setTimeout(() => {
+            resolve()
+          }, 300)
+        } else {
+          loadingStageIndex.value = 3
+          loadingProgress.value = 96
+        }
+      }
+    }, 40)
+  })
+
+  if (fetchError) {
+    error.value = fetchError?.message || 'Failed to retrieve case details.'
+  }
+
+  isLoading.value = false
 }
 
 async function handleClaim() {
@@ -500,92 +586,220 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Back & Header Bar -->
-    <div class="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-3">
-      <div class="flex items-center justify-between">
-        <router-link to="/app/cases"
-          class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors">
+    <!-- ========================================================================= -->
+    <!-- DEDICATED CASE DASHBOARD LOADING SCREEN                                   -->
+    <!-- ========================================================================= -->
+    <div v-if="isLoading" class="p-6 sm:p-10 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-lg space-y-8 animate-fade-in card-creamy">
+      <!-- Top Classification Tag & Back Link -->
+      <div class="flex items-center justify-between border-b border-[#EADBCE] pb-4">
+        <router-link
+          to="/app/cases"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors"
+        >
           <ArrowLeftIcon class="size-4" />
           <span>Back to Cases</span>
         </router-link>
 
-        <div class="flex items-center gap-2 flex-wrap">
-          <span v-if="isManager"
-            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A2561B]/10 text-[#A2561B] border border-[#A2561B]/20">
-            Manager View · Case Summary
+        <div class="flex items-center gap-2">
+          <span
+            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+            :class="isManager ? 'bg-[#A2561B]/10 text-[#A2561B] border border-[#A2561B]/20' : 'bg-[#22293A] text-white border border-[#22293A]'"
+          >
+            {{ isManager ? 'Manager Secure View' : 'Department Head Casework' }}
           </span>
-          <span v-if="caseData?.concernsDepartmentHead"
-            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
-            Department Head Bypassed
-          </span>
+          <span class="text-[11px] font-mono text-[#6B7280] hidden sm:inline">ISO 37002 Audited</span>
         </div>
       </div>
 
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-3">
-            <h1 class="text-xl sm:text-2xl font-bold text-[#22293A] font-mono tracking-tight">
-              Case #{{ caseId.slice(0, 14) }}...
-            </h1>
-            <button type="button"
-              class="p-1 rounded hover:bg-[#FAF7F2] text-[#6B7280] hover:text-[#22293A] cursor-pointer"
-              title="Copy Full Case ID" @click="copyCaseId">
-              <CheckIcon v-if="copiedId" class="size-4 text-emerald-600" />
-              <CopyIcon v-else class="size-4" />
-            </button>
-            <StatusPill v-if="caseData" :status="caseData.status" />
+      <!-- Central Animated Radar & Percentage Area -->
+      <div class="flex flex-col items-center text-center space-y-4 py-4">
+        <div class="relative size-28 sm:size-32 flex items-center justify-center">
+          <!-- Outer rotating radar ring -->
+          <div class="absolute inset-0 rounded-full border-2 border-dashed border-[#22293A]/30 animate-radar"></div>
+          <!-- Glowing pulse circle -->
+          <div class="absolute inset-2 rounded-full bg-gradient-to-tr from-[#22293A]/10 to-[#A2561B]/15 animate-pulse-glow"></div>
+          <!-- Inner ring -->
+          <div class="absolute inset-4 rounded-full border border-[#A2561B]/40"></div>
+          <!-- Center Icon -->
+          <div class="relative z-10 flex flex-col items-center justify-center">
+            <LockIcon v-if="loadingStageIndex === 0" class="size-10 text-[#22293A] animate-pulse" />
+            <ShieldIcon v-else-if="loadingStageIndex === 1" class="size-10 text-[#A2561B] animate-pulse" />
+            <BotIcon v-else-if="loadingStageIndex === 2" class="size-10 text-purple-700 animate-pulse" />
+            <HistoryIcon v-else-if="loadingStageIndex === 3" class="size-10 text-[#22293A] animate-pulse" />
+            <CheckCircle2Icon v-else class="size-12 text-emerald-600 animate-in zoom-in" />
           </div>
-          <p class="text-xs text-[#6B7280] mt-1">
-            Submitted on <strong class="text-[#22293A]">{{ formatDate(caseData?.createdAt || caseData?.transactionDate)
-            }}</strong>
-            · Category: <span class="font-bold text-[#A2561B]">{{ caseData?.category }}</span>
+        </div>
+
+        <!-- Readout & Status -->
+        <div class="space-y-1.5">
+          <div class="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-[#22293A]">
+            {{ loadingProgress }}<span class="text-2xl text-[#A2561B]">%</span>
+          </div>
+          <h2 class="text-base sm:text-lg font-bold text-[#22293A]">
+            {{ departmentHeadLoadingStages[loadingStageIndex].title }}
+          </h2>
+          <p class="text-xs text-[#6B7280] max-w-md mx-auto leading-relaxed">
+            {{ departmentHeadLoadingStages[loadingStageIndex].detail }}
           </p>
         </div>
+      </div>
 
-        <!-- Action Buttons -->
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <!-- Manager: Assign Case Button (when unassigned) -->
-          <AppButton v-if="isManager && !caseData?.assignedTo && caseData?.status === 'AWAITING_REVIEW'" size="sm" @click="isAssignModalOpen = true">
-            <UserCheckIcon class="size-4 mr-1.5" />
-            Assign Case
-          </AppButton>
-
-          <!-- Claim Button (department head only, if unclaimed) -->
-          <AppButton v-if="!isManager && isEligibleToClaim" size="sm" :loading="isClaiming" @click="handleClaim">
-            <HandHelpingIcon class="size-4 mr-1.5" />
-            Claim Case
-          </AppButton>
-
-          <!-- Update Status Button (assigned department head only) -->
-          <AppButton v-if="!isManager && isAssignedToMe" variant="outline" size="sm" @click="openStatusModal">
-            <CheckCircle2Icon class="size-4 mr-1.5" />
-            Update Status
-          </AppButton>
-
-          <!-- Consultation Channel Link (Department Head only - strictly hidden for Manager) -->
-          <router-link v-if="!isManager" :to="`/app/cases/${caseData?.id}/chat`"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs">
-            <MessageSquareIcon class="size-3.5" />
-            <span>Open Case Chat</span>
-          </router-link>
+      <!-- High-tech Progress Bar -->
+      <div class="space-y-2">
+        <div class="h-3 w-full bg-[#EADBCE]/50 rounded-full overflow-hidden p-0.5 border border-[#EADBCE]">
+          <div
+            class="h-full rounded-full bg-gradient-to-r from-[#22293A] via-[#A2561B] to-emerald-600 transition-all duration-150 ease-out shadow-xs"
+            :style="{ width: `${loadingProgress}%` }"
+          ></div>
         </div>
       </div>
-    </div>
 
-    <!-- Error Banner -->
-    <ErrorBanner v-if="error" :message="error" @retry="fetchCase" />
+      <!-- Stage Progression Checklist -->
+      <div class="space-y-2.5 pt-2">
+        <div
+          v-for="(stage, idx) in departmentHeadLoadingStages.slice(0, 4)"
+          :key="idx"
+          class="flex items-center gap-3 p-3 rounded-xl border text-xs transition-all duration-300"
+          :class="
+            idx < loadingStageIndex
+              ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+              : idx === loadingStageIndex
+              ? 'bg-white border-[#22293A] shadow-xs text-[#22293A] font-semibold'
+              : 'bg-transparent border-transparent text-[#6B7280]/60'
+          "
+        >
+          <div
+            class="size-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold"
+            :class="
+              idx < loadingStageIndex
+                ? 'bg-emerald-600 text-white'
+                : idx === loadingStageIndex
+                ? 'bg-[#22293A] text-white animate-pulse'
+                : 'bg-[#EADBCE]/60 text-[#6B7280]'
+            "
+          >
+            <CheckIcon v-if="idx < loadingStageIndex" class="size-3.5 stroke-[3]" />
+            <Loader2Icon v-else-if="idx === loadingStageIndex" class="size-3.5 animate-spin" />
+            <span v-else>{{ idx + 1 }}</span>
+          </div>
 
-    <!-- Loading Skeleton -->
-    <div v-if="isLoading" class="space-y-6 animate-pulse">
-      <div class="h-44 bg-muted/40 rounded-xl border border-border"></div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 h-72 bg-muted/40 rounded-xl border border-border"></div>
-        <div class="h-72 bg-muted/40 rounded-xl border border-border"></div>
+          <div class="flex-1 truncate">
+            <span>{{ stage.title }}</span>
+          </div>
+
+          <span
+            class="text-[10px] font-mono px-2 py-0.5 rounded font-semibold shrink-0"
+            :class="
+              idx < loadingStageIndex
+                ? 'bg-emerald-100 text-emerald-800'
+                : idx === loadingStageIndex
+                ? 'bg-[#22293A]/10 text-[#22293A]'
+                : 'text-[#6B7280]/50'
+            "
+          >
+            {{ idx < loadingStageIndex ? 'VERIFIED' : idx === loadingStageIndex ? 'INSPECTING' : 'QUEUED' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Security Notice Footer -->
+      <div class="pt-4 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#6B7280]">
+        <span class="flex items-center gap-1.5">
+          <ShieldAlertIcon class="size-3.5 text-primary" />
+          Investigator Non-Disclosure Protocols Active
+        </span>
+        <span class="font-mono">Case Vault #{{ caseId.slice(0, 8) }}</span>
       </div>
     </div>
 
-    <!-- Loaded Case Details -->
+    <!-- Error State (when not loading and error occurred without caseData) -->
+    <div v-else-if="error && !caseData" class="space-y-4">
+      <router-link
+        to="/app/cases"
+        class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors"
+      >
+        <ArrowLeftIcon class="size-4" />
+        <span>Back to Cases</span>
+      </router-link>
+      <ErrorBanner :message="error" @retry="fetchCase" />
+    </div>
+
+    <!-- Loaded Case Details View -->
     <div v-else-if="caseData" class="space-y-6">
+      <!-- Back & Header Bar -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+          <router-link to="/app/cases"
+            class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors">
+            <ArrowLeftIcon class="size-4" />
+            <span>Back to Cases</span>
+          </router-link>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <span v-if="isManager"
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A2561B]/10 text-[#A2561B] border border-[#A2561B]/20">
+              Manager View · Case Summary
+            </span>
+            <span v-if="caseData?.concernsDepartmentHead"
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
+              Department Head Bypassed
+            </span>
+          </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3">
+              <h1 class="text-xl sm:text-2xl font-bold text-[#22293A] font-mono tracking-tight">
+                Case #{{ caseId.slice(0, 14) }}...
+              </h1>
+              <button type="button"
+                class="p-1 rounded hover:bg-[#FAF7F2] text-[#6B7280] hover:text-[#22293A] cursor-pointer"
+                title="Copy Full Case ID" @click="copyCaseId">
+                <CheckIcon v-if="copiedId" class="size-4 text-emerald-600" />
+                <CopyIcon v-else class="size-4" />
+              </button>
+              <StatusPill v-if="caseData" :status="caseData.status" />
+            </div>
+            <p class="text-xs text-[#6B7280] mt-1">
+              Submitted on <strong class="text-[#22293A]">{{ formatDate(caseData?.createdAt || caseData?.transactionDate)
+              }}</strong>
+              · Category: <span class="font-bold text-[#A2561B]">{{ caseData?.category }}</span>
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <!-- Manager: Assign Case Button (when unassigned) -->
+            <AppButton v-if="isManager && !caseData?.assignedTo && caseData?.status === 'AWAITING_REVIEW'" size="sm" @click="isAssignModalOpen = true">
+              <UserCheckIcon class="size-4 mr-1.5" />
+              Assign Case
+            </AppButton>
+
+            <!-- Claim Button (department head only, if unclaimed) -->
+            <AppButton v-if="!isManager && isEligibleToClaim" size="sm" :loading="isClaiming" @click="handleClaim">
+              <HandHelpingIcon class="size-4 mr-1.5" />
+              Claim Case
+            </AppButton>
+
+            <!-- Update Status Button (assigned department head only) -->
+            <AppButton v-if="!isManager && isAssignedToMe" variant="outline" size="sm" @click="openStatusModal">
+              <CheckCircle2Icon class="size-4 mr-1.5" />
+              Update Status
+            </AppButton>
+
+            <!-- Consultation Channel Link (Department Head only - strictly hidden for Manager) -->
+            <router-link v-if="!isManager" :to="`/app/cases/${caseData?.id}/chat`"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs">
+              <MessageSquareIcon class="size-3.5" />
+              <span>Open Case Chat</span>
+            </router-link>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Banner (if error occurred during status update etc.) -->
+      <ErrorBanner v-if="error" :message="error" @retry="fetchCase" />
 
       <!-- ========================================================================= -->
       <!-- BRANCH 1: MANAGER EXECUTIVE VIEW (METADATA & WORKING OFFICER ONLY)        -->

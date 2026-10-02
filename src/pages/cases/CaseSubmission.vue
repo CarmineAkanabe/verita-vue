@@ -29,12 +29,48 @@ import {
   FileCheck2Icon,
   BuildingIcon,
   CalendarIcon,
-  FileTextIcon,
   SendIcon,
+  BotIcon,
+  SparklesIcon,
+  CheckIcon,
+  Loader2Icon,
 } from '@lucide/vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// Pretentious Submission Loading State
+const isPretentiousLoading = ref(false)
+const pretentiousProgress = ref(0)
+const currentPretentiousStepIndex = ref(0)
+let pretentiousInterval: any = null
+
+const pretentiousSteps = [
+  {
+    title: 'Submitting report to secure intake vault...',
+    detail: 'Transmitting encrypted payload through anonymous zero-trace proxy tunnel',
+  },
+  {
+    title: 'Reaching Verita AI analysis system...',
+    detail: 'Establishing secure cryptographic handshake with Google Gemini analysis gateway',
+  },
+  {
+    title: 'Performing AI forensic analysis & evidence check...',
+    detail: 'Executing automated discrepancy detection, date verification, and file hashing',
+  },
+  {
+    title: 'Structuring case record & zero-knowledge ledger...',
+    detail: 'Writing immutable compliance entry to audit ledger and encrypting evidence vaults',
+  },
+  {
+    title: 'Rendering secure dashboard & tracking credentials...',
+    detail: 'Generating 6-character cryptographic tracking PIN and air-gapped session keys',
+  },
+  {
+    title: 'Case intake verified & ready!',
+    detail: 'Case record established. Loading your access credentials...',
+  },
+]
 
 // State
 const idempotencyKey = ref<string>(generateUUID())
@@ -224,6 +260,63 @@ function formatAmountDisplay(val: string): string {
   return `${num.toLocaleString('fr-FR')} FCFA`
 }
 
+function handleSubmissionError(err: any) {
+  const status = err?.status ?? err?.response?.status
+  const fieldErrors = err?.errors ?? err?.response?.data?.errors ?? {}
+  const detailMsg = err?.detail ?? err?.response?.data?.detail ?? err?.message
+
+  if (status === 429) {
+    isRateLimited.value = true
+    errors.general = 'Too many attempts. Please wait a minute before trying again.'
+  } else if (status === 422 || Object.keys(fieldErrors).length > 0) {
+    if (fieldErrors.departmentId) errors.departmentId = fieldErrors.departmentId[0]
+    if (fieldErrors.purposeOfTransaction) errors.purposeOfTransaction = fieldErrors.purposeOfTransaction[0]
+    if (fieldErrors.amountInvolved) errors.amountInvolved = fieldErrors.amountInvolved[0]
+    if (fieldErrors.transactionDate) errors.transactionDate = fieldErrors.transactionDate[0]
+    if (fieldErrors.personInvolved) errors.personInvolved = fieldErrors.personInvolved[0]
+    if (fieldErrors.description) errors.description = fieldErrors.description[0]
+    if (fieldErrors.evidence || fieldErrors['evidence.0']) {
+      errors.evidence = fieldErrors.evidence?.[0] || fieldErrors['evidence.0']?.[0] || 'Please upload valid files (JPG, PNG, PDF <= 10MB).'
+    }
+    errors.general = detailMsg || 'Please review the highlighted fields.'
+  } else {
+    errors.general = detailMsg || 'Failed to submit the case. Please try again.'
+  }
+}
+
+function runPretentiousAnimation(minimumDuration = 3000): Promise<void> {
+  return new Promise((resolve) => {
+    const startTime = Date.now()
+    if (pretentiousInterval) clearInterval(pretentiousInterval)
+
+    pretentiousInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime
+
+      if (elapsed < 550) {
+        currentPretentiousStepIndex.value = 0
+        pretentiousProgress.value = Math.min(22, Math.floor(5 + (elapsed / 550) * 17))
+      } else if (elapsed < 1200) {
+        currentPretentiousStepIndex.value = 1
+        pretentiousProgress.value = Math.min(46, Math.floor(22 + ((elapsed - 550) / 650) * 24))
+      } else if (elapsed < 1850) {
+        currentPretentiousStepIndex.value = 2
+        pretentiousProgress.value = Math.min(70, Math.floor(46 + ((elapsed - 1200) / 650) * 24))
+      } else if (elapsed < 2500) {
+        currentPretentiousStepIndex.value = 3
+        pretentiousProgress.value = Math.min(88, Math.floor(70 + ((elapsed - 1850) / 650) * 18))
+      } else if (elapsed < minimumDuration) {
+        currentPretentiousStepIndex.value = 4
+        pretentiousProgress.value = Math.min(98, Math.floor(88 + ((elapsed - 2500) / 500) * 10))
+      } else {
+        clearInterval(pretentiousInterval)
+        currentPretentiousStepIndex.value = 5
+        pretentiousProgress.value = 100
+        setTimeout(resolve, 450)
+      }
+    }, 50)
+  })
+}
+
 async function handleSubmit() {
   for (let i = 1; i <= 3; i++) {
     if (!validateStep(i)) {
@@ -234,27 +327,33 @@ async function handleSubmit() {
   }
 
   isSubmitting.value = true
+  isPretentiousLoading.value = true
+  pretentiousProgress.value = 5
+  currentPretentiousStepIndex.value = 0
   errors.general = ''
   isRateLimited.value = false
+  window.scrollTo({ top: 80, behavior: 'smooth' })
 
   try {
-    const result = await submitCase(
-      {
-        departmentId: form.departmentId,
-        description: form.description.trim(),
-        purposeOfTransaction: form.purposeOfTransaction.trim(),
-        amountInvolved: parseFloat(form.amountInvolved) || 0,
-        personInvolved: form.personInvolved.trim(),
-        transactionDate: form.transactionDate,
-        concernsDepartmentHead: form.concernsDepartmentHead,
-        evidence: form.evidence,
-      },
-      idempotencyKey.value
-    )
+    const [result] = await Promise.all([
+      submitCase(
+        {
+          departmentId: form.departmentId,
+          description: form.description.trim(),
+          purposeOfTransaction: form.purposeOfTransaction.trim(),
+          amountInvolved: parseFloat(form.amountInvolved) || 0,
+          personInvolved: form.personInvolved.trim(),
+          transactionDate: form.transactionDate,
+          concernsDepartmentHead: form.concernsDepartmentHead,
+          evidence: form.evidence,
+        },
+        idempotencyKey.value
+      ),
+      runPretentiousAnimation(),
+    ])
 
     submittedResult.value = result
     submittedTimestamp.value = new Date().toLocaleString()
-    isSubmitted.value = true
 
     try {
       const savedPayload = {
@@ -270,32 +369,17 @@ async function handleSubmit() {
       // LocalStorage quota or private mode fallback
     }
 
+    isPretentiousLoading.value = false
+    isSubmitting.value = false
+    isSubmitted.value = true
     toast.success('Case submitted successfully.')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (err: any) {
-    const status = err?.status ?? err?.response?.status
-    const fieldErrors = err?.errors ?? err?.response?.data?.errors ?? {}
-    const detailMsg = err?.detail ?? err?.response?.data?.detail ?? err?.message
-
-    if (status === 429) {
-      isRateLimited.value = true
-      errors.general = 'Too many attempts. Please wait a minute before trying again.'
-    } else if (status === 422 || Object.keys(fieldErrors).length > 0) {
-      if (fieldErrors.departmentId) errors.departmentId = fieldErrors.departmentId[0]
-      if (fieldErrors.purposeOfTransaction) errors.purposeOfTransaction = fieldErrors.purposeOfTransaction[0]
-      if (fieldErrors.amountInvolved) errors.amountInvolved = fieldErrors.amountInvolved[0]
-      if (fieldErrors.transactionDate) errors.transactionDate = fieldErrors.transactionDate[0]
-      if (fieldErrors.personInvolved) errors.personInvolved = fieldErrors.personInvolved[0]
-      if (fieldErrors.description) errors.description = fieldErrors.description[0]
-      if (fieldErrors.evidence || fieldErrors['evidence.0']) {
-        errors.evidence = fieldErrors.evidence?.[0] || fieldErrors['evidence.0']?.[0] || 'Please upload valid files (JPG, PNG, PDF <= 10MB).'
-      }
-      errors.general = detailMsg || 'Please review the highlighted fields.'
-    } else {
-      errors.general = detailMsg || 'Failed to submit the case. Please try again.'
-    }
-  } finally {
+    if (pretentiousInterval) clearInterval(pretentiousInterval)
+    isPretentiousLoading.value = false
     isSubmitting.value = false
+    handleSubmissionError(err)
+    window.scrollTo({ top: 120, behavior: 'smooth' })
   }
 }
 
@@ -386,9 +470,127 @@ async function proceedToDashboard() {
     <div class="mx-auto max-w-3xl space-y-5 sm:space-y-6">
 
       <!-- ========================================================================= -->
+      <!-- PRETENTIOUS ANIMATED SUBMISSION LOADING VIEW                              -->
+      <!-- ========================================================================= -->
+      <template v-if="isPretentiousLoading">
+        <div class="p-6 sm:p-10 rounded-2xl bg-[#FFFDF8] border-2 border-[#EADBCE] shadow-lg space-y-8 animate-fade-in card-creamy">
+          <!-- Top Classification Tag -->
+          <div class="flex items-center justify-between border-b border-[#EADBCE] pb-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#A2561B]/10 border border-[#A2561B]/20 text-xs font-bold text-[#A2561B]">
+              <LockIcon class="size-3.5" />
+              <span>Zero-Knowledge Intake Ingestion</span>
+            </div>
+            <span class="text-[11px] font-mono text-[#6B7280]">ISO 37002 Protocol Active</span>
+          </div>
+
+          <!-- Central Animated Hologram/Radar Area -->
+          <div class="flex flex-col items-center text-center space-y-4 py-4">
+            <div class="relative size-28 sm:size-32 flex items-center justify-center">
+              <!-- Outer rotating radar ring -->
+              <div class="absolute inset-0 rounded-full border-2 border-dashed border-[#A2561B]/40 animate-radar"></div>
+              <!-- Glowing pulse circle -->
+              <div class="absolute inset-2 rounded-full bg-gradient-to-tr from-[#A2561B]/15 to-[#22293A]/10 animate-pulse-glow"></div>
+              <!-- Inner ring -->
+              <div class="absolute inset-4 rounded-full border border-[#22293A]/30"></div>
+              <!-- Center Icon / percentage -->
+              <div class="relative z-10 flex flex-col items-center justify-center">
+                <BotIcon v-if="currentPretentiousStepIndex === 1 || currentPretentiousStepIndex === 2" class="size-10 text-[#A2561B] animate-pulse" />
+                <SparklesIcon v-else-if="currentPretentiousStepIndex === 3 || currentPretentiousStepIndex === 4" class="size-10 text-[#22293A] animate-pulse" />
+                <CheckCircle2Icon v-else-if="currentPretentiousStepIndex === 5" class="size-12 text-emerald-600 animate-in zoom-in" />
+                <ShieldCheckIcon v-else class="size-10 text-[#A2561B] animate-pulse" />
+              </div>
+            </div>
+
+            <!-- Percentage Readout -->
+            <div class="space-y-1">
+              <div class="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-[#22293A]">
+                {{ pretentiousProgress }}<span class="text-2xl text-[#A2561B]">%</span>
+              </div>
+              <h2 class="text-base sm:text-lg font-bold text-[#22293A]">
+                {{ pretentiousSteps[currentPretentiousStepIndex].title }}
+              </h2>
+              <p class="text-xs text-[#6B7280] max-w-md mx-auto leading-relaxed">
+                {{ pretentiousSteps[currentPretentiousStepIndex].detail }}
+              </p>
+            </div>
+          </div>
+
+          <!-- High-tech Progress Bar -->
+          <div class="space-y-2">
+            <div class="h-3 w-full bg-[#EADBCE]/50 rounded-full overflow-hidden p-0.5 border border-[#EADBCE]">
+              <div
+                class="h-full rounded-full bg-gradient-to-r from-[#22293A] via-[#A2561B] to-emerald-600 transition-all duration-150 ease-out shadow-xs"
+                :style="{ width: `${pretentiousProgress}%` }"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Step Progression List -->
+          <div class="space-y-2.5 pt-2">
+            <div
+              v-for="(step, idx) in pretentiousSteps.slice(0, 5)"
+              :key="idx"
+              class="flex items-center gap-3 p-3 rounded-xl border text-xs transition-all duration-300"
+              :class="
+                idx < currentPretentiousStepIndex
+                  ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                  : idx === currentPretentiousStepIndex
+                  ? 'bg-white border-[#A2561B] shadow-xs text-[#22293A] font-semibold'
+                  : 'bg-transparent border-transparent text-[#6B7280]/60'
+              "
+            >
+              <!-- Step Status Icon -->
+              <div
+                class="size-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold"
+                :class="
+                  idx < currentPretentiousStepIndex
+                    ? 'bg-emerald-600 text-white'
+                    : idx === currentPretentiousStepIndex
+                    ? 'bg-[#A2561B] text-white animate-pulse'
+                    : 'bg-[#EADBCE]/60 text-[#6B7280]'
+                "
+              >
+                <CheckIcon v-if="idx < currentPretentiousStepIndex" class="size-3.5 stroke-[3]" />
+                <Loader2Icon v-else-if="idx === currentPretentiousStepIndex" class="size-3.5 animate-spin" />
+                <span v-else>{{ idx + 1 }}</span>
+              </div>
+
+              <!-- Step Label -->
+              <div class="flex-1 truncate">
+                <span>{{ step.title }}</span>
+              </div>
+
+              <!-- State Tag -->
+              <span
+                class="text-[10px] font-mono px-2 py-0.5 rounded font-semibold shrink-0"
+                :class="
+                  idx < currentPretentiousStepIndex
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : idx === currentPretentiousStepIndex
+                    ? 'bg-[#A2561B]/15 text-[#A2561B]'
+                    : 'text-[#6B7280]/50'
+                "
+              >
+                {{ idx < currentPretentiousStepIndex ? 'VERIFIED' : idx === currentPretentiousStepIndex ? 'PROCESSING' : 'PENDING' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Bottom Security Badge -->
+          <div class="pt-4 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#6B7280]">
+            <span class="flex items-center gap-1.5">
+              <ShieldCheckIcon class="size-3.5 text-emerald-600" />
+              End-to-End Cryptographic Air-Gap
+            </span>
+            <span class="font-mono">Do not close this window</span>
+          </div>
+        </div>
+      </template>
+
+      <!-- ========================================================================= -->
       <!-- POST-SUBMISSION CREDENTIALS VIEW                                          -->
       <!-- ========================================================================= -->
-      <template v-if="isSubmitted && submittedResult">
+      <template v-else-if="isSubmitted && submittedResult">
         <div class="p-6 sm:p-8 rounded-2xl bg-[#FFFDF8] border-2 border-[#EADBCE] shadow-sm space-y-6 animate-fade-in">
           <!-- Header Success Badge -->
           <div class="flex items-center gap-3">
@@ -830,10 +1032,18 @@ async function proceedToDashboard() {
               </div>
             </div>
 
-            <!-- Assurance note -->
-            <div class="p-3 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/20 flex items-center gap-2 text-xs text-[#A2561B]">
-              <ShieldCheckIcon class="size-4 shrink-0" />
-              <span>Upon submission, you will receive a unique Case ID and Tracking PIN.</span>
+            <!-- Terms of Service & Assurance Note -->
+            <div class="p-3.5 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/20 text-xs text-[#6B7280] leading-relaxed space-y-1.5">
+              <div class="flex items-center gap-2 font-bold text-[#A2561B]">
+                <ShieldCheckIcon class="size-4 shrink-0" />
+                <span>Zero-Retaliation Protection &amp; Terms Agreement</span>
+              </div>
+              <p>
+                By submitting this confidential report, you confirm the information provided is truthful to the best of your recollection.
+                Your intake is governed by Verita's
+                <router-link to="/terms" target="_blank" class="font-semibold text-[#A2561B] hover:underline">Terms of Service</router-link>
+                and protected under ISO 37002 anonymity standards.
+              </p>
             </div>
           </div>
 

@@ -244,8 +244,9 @@ async function handleSubmit() {
         <ShieldCheckIcon class="size-4 text-emerald-600 shrink-0 mt-0.5" />
         <p class="text-[11px] text-muted-foreground leading-relaxed">
           <strong class="text-foreground">Zero-knowledge security:</strong> Credentials are verified without
-          storing cookies or browser tracking tokens. If credentials are lost, they cannot be recovered by
-          administrators.
+          storing tracking cookies or fingerprints, in accordance with Verita's
+          <router-link to="/terms" target="_blank" class="text-primary hover:underline font-semibold">Terms of Service</router-link>.
+          Lost credentials cannot be retrieved by administrators.
         </p>
       </div>
 
