@@ -1,8 +1,8 @@
-// features/chat/store.ts
 import { defineStore } from 'pinia'
 import { getReporterMessages, sendReporterMessage } from './api'
 import type { ChatMessage, DepartmentHeadInfo } from './types'
-import { getEcho, disconnectEcho } from '@/shared/realtime/socket-client'
+import { getEcho, disconnectEcho, extractIncomingMessage, type SocketStatus } from '@/shared/realtime/socket-client'
+import { toast } from '@/plugins/toast'
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
@@ -11,10 +11,13 @@ export const useChatStore = defineStore('chat', {
     isLoading: false,
     isSending: false,
     isReconnecting: false,
+    socketStatus: 'connecting' as SocketStatus,
     pollTimer: null as any | null,
     pollErrorCount: 0,
     isPollingActive: false,
     currentChannelName: null as string | null,
+    lastConnectedCaseId: null as string | null,
+    lastConnectedToken: null as string | null,
   }),
 
   getters: {
@@ -23,6 +26,7 @@ export const useChatStore = defineStore('chat', {
     departmentHeadName: (state) => state.departmentHead?.name ?? 'Awaiting Department Head Assignment',
     presenceStatus: (state) => state.departmentHead?.presenceStatus ?? 'OFFLINE',
     isOfficerOnline: (state) => state.departmentHead?.presenceStatus === 'ONLINE',
+    isSocketConnected: (state) => state.socketStatus === 'connected',
   },
 
   actions: {
@@ -125,8 +129,18 @@ export const useChatStore = defineStore('chat', {
 
       // Optimistically append locally
       this.messages.push(optimisticMessage)
-      this.isSending = true
 
+      // Strict WebSocket enforcement: Fail immediately if Reverb is offline
+      if (this.socketStatus !== 'connected') {
+        const index = this.messages.findIndex((m) => m.id === tempId || m.tempId === tempId)
+        if (index !== -1) {
+          this.messages[index].status = 'failed'
+        }
+        toast.error('Real-time WebSocket offline (Reverb is not running). Connect WebSocket to send.')
+        return
+      }
+
+      this.isSending = true
       try {
         const confirmed = await sendReporterMessage(content)
 
@@ -138,7 +152,7 @@ export const useChatStore = defineStore('chat', {
             status: 'sent',
           }
         }
-      } catch (err) {
+      } catch (err: any) {
         // Tag as failed to permit user retry
         const index = this.messages.findIndex((m) => m.id === tempId || m.tempId === tempId)
         if (index !== -1) {
@@ -147,6 +161,7 @@ export const useChatStore = defineStore('chat', {
             status: 'failed',
           }
         }
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to dispatch message.')
       } finally {
         this.isSending = false
       }
@@ -155,6 +170,12 @@ export const useChatStore = defineStore('chat', {
     async retryMessage(tempId: string) {
       const target = this.messages.find((m) => m.id === tempId || m.tempId === tempId)
       if (!target) return
+
+      if (this.socketStatus !== 'connected') {
+        target.status = 'failed'
+        toast.error('Real-time WebSocket offline. Cannot retry until Reverb connects.')
+        return
+      }
 
       target.status = 'pending'
       try {
@@ -172,6 +193,9 @@ export const useChatStore = defineStore('chat', {
     },
 
     connectWebSocket(caseId: string, token: string) {
+      this.lastConnectedCaseId = caseId
+      this.lastConnectedToken = token
+
       try {
         const echo = getEcho(token)
         const channelName = `case.${caseId}`
@@ -192,44 +216,102 @@ export const useChatStore = defineStore('chat', {
         const channel = echo.private(channelName)
 
         const onMessage = (data: any) => {
-          if (!data || !data.id) return
-          this.receiveSocketMessage({
-            id: data.id,
-            senderType: data.senderType,
-            content: data.content,
-            sentAt: data.sentAt,
-            status: 'sent',
-          })
-
-          if (data.senderType === 'DEPARTMENT_HEAD' || data.presenceStatus === 'ONLINE') {
-            if (this.departmentHead) {
-              this.departmentHead.presenceStatus = 'ONLINE'
+          console.log('[Reporter Socket Event Received]:', data)
+          const parsed = extractIncomingMessage(data)
+          if (parsed) {
+            this.receiveSocketMessage(parsed)
+            if (parsed.senderType === 'DEPARTMENT_HEAD') {
+              if (this.departmentHead) {
+                this.departmentHead.presenceStatus = 'ONLINE'
+              }
             }
+          }
+          if (data?.presenceStatus && this.departmentHead) {
+            this.departmentHead.presenceStatus = data.presenceStatus
           }
         }
 
         channel.listen('.message.sent', onMessage)
         channel.listen('MessageSent', onMessage)
+        channel.listen('.MessageSent', onMessage)
+        channel.listen('message.sent', onMessage)
         channel.listen('.department-head.presence', (data: any) => {
           if (this.departmentHead && data?.presenceStatus) {
             this.departmentHead.presenceStatus = data.presenceStatus
           }
         })
 
+        if (typeof (channel as any).listenToAll === 'function') {
+          ;(channel as any).listenToAll((eventName: string, data: any) => {
+            console.log(`[Reporter Socket Channel Event] ${eventName}:`, data)
+            if (eventName.toLowerCase().includes('message')) {
+              onMessage(data)
+            }
+          })
+        }
+
+        if (typeof (channel as any).error === 'function') {
+          ;(channel as any).error((err: any) => {
+            console.error(`[Reporter Channel Error] on '${channelName}':`, err)
+          })
+        }
+
+        if ((channel as any).subscription) {
+          ;(channel as any).subscription.bind('pusher:subscription_succeeded', () => {
+            console.log(`[Reporter Channel Subscribed] Successfully joined '${channelName}'`)
+          })
+          ;(channel as any).subscription.bind('pusher:subscription_error', (status: any) => {
+            console.error(`[Reporter Channel Subscription Error] on '${channelName}':`, status)
+          })
+        }
+
         if ((echo as any).connector?.pusher?.connection) {
           const conn = (echo as any).connector.pusher.connection
+          this.socketStatus = (conn.state as SocketStatus) || 'connecting'
+
+          if (conn.state !== 'connected') {
+            try {
+              conn.connect()
+            } catch {
+              // ignore
+            }
+          }
+
+          conn.bind('state_change', (states: { previous: string; current: string }) => {
+            this.socketStatus = states.current as SocketStatus
+            if (states.current === 'connected') {
+              this.isReconnecting = false
+              this.fetchMessages(true)
+            } else if (states.current === 'unavailable' || states.current === 'failed') {
+              this.isReconnecting = true
+            }
+          })
           conn.bind('connected', () => {
+            this.socketStatus = 'connected'
             this.isReconnecting = false
           })
           conn.bind('unavailable', () => {
+            this.socketStatus = 'unavailable'
             this.isReconnecting = true
           })
           conn.bind('failed', () => {
+            this.socketStatus = 'failed'
             this.isReconnecting = true
+          })
+          conn.bind('disconnected', () => {
+            this.socketStatus = 'disconnected'
           })
         }
       } catch (err) {
         console.warn('Reverb socket connection warning:', err)
+        this.socketStatus = 'failed'
+      }
+    },
+
+    reconnectWebSocket() {
+      if (this.lastConnectedCaseId && this.lastConnectedToken) {
+        this.disconnectWebSocket()
+        this.connectWebSocket(this.lastConnectedCaseId, this.lastConnectedToken)
       }
     },
 

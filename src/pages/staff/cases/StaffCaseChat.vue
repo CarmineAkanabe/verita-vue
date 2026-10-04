@@ -14,7 +14,7 @@ import {
 import type { StaffCase } from '@/features/cases/types'
 import type { ChatMessage } from '@/features/chat/types'
 import { toast } from '@/plugins/toast'
-import { getEcho } from '@/shared/realtime/socket-client'
+import { getEcho, disconnectEcho, globalSocketStatus, extractIncomingMessage, type SocketStatus } from '@/shared/realtime/socket-client'
 import { staffToken } from '@/shared/api/auth'
 
 import ChatHeader from '@/components/complex/chat/ChatHeader.vue'
@@ -52,9 +52,8 @@ const isMessagesLoading = ref(true)
 const messagesError = ref<string | null>(null)
 const isSending = ref(false)
 const isReconnecting = ref(false)
-const pollErrorCount = ref(0)
-let pollTimer: any = null
-let isPollingActive = false
+const socketStatus = globalSocketStatus
+const isSocketConnected = computed(() => globalSocketStatus.value === 'connected')
 
 // Auto-scroll
 const messageScrollRef = ref<HTMLDivElement | null>(null)
@@ -153,14 +152,9 @@ async function fetchMessages(silent = false) {
     merged.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
 
     messages.value = merged
-    pollErrorCount.value = 0
     isReconnecting.value = false
     messagesError.value = null
   } catch (err: any) {
-    pollErrorCount.value++
-    if (pollErrorCount.value >= 2) {
-      isReconnecting.value = true
-    }
     if (!silent) {
       messagesError.value = err?.message || 'Unable to sync consultation messages.'
     }
@@ -168,35 +162,6 @@ async function fetchMessages(silent = false) {
     if (!silent) {
       isMessagesLoading.value = false
     }
-  }
-}
-
-function startPolling(baseIntervalMs = 3000) {
-  stopPolling()
-  isPollingActive = true
-
-  fetchMessages(false)
-
-  const scheduleNext = () => {
-    if (!isPollingActive) return
-    const multiplier = Math.min(Math.pow(1.5, pollErrorCount.value), 4)
-    const delay = Math.round(baseIntervalMs * multiplier)
-
-    pollTimer = setTimeout(async () => {
-      if (!isPollingActive) return
-      await fetchMessages(true)
-      scheduleNext()
-    }, delay)
-  }
-
-  scheduleNext()
-}
-
-function stopPolling() {
-  isPollingActive = false
-  if (pollTimer) {
-    clearTimeout(pollTimer)
-    pollTimer = null
   }
 }
 
@@ -216,6 +181,16 @@ async function handleSendMessage(content: string) {
   messages.value.push(optimisticMessage)
   shouldAutoScroll.value = true
   scrollToBottom(true)
+
+  // Strict WebSocket enforcement: Fail immediately if Reverb is offline
+  if (socketStatus.value !== 'connected') {
+    const idx = messages.value.findIndex((m) => m.id === tempId || m.tempId === tempId)
+    if (idx !== -1) {
+      messages.value[idx].status = 'failed'
+    }
+    toast.error('Real-time WebSocket is offline (Reverb is not running on port 8080). Messages cannot be sent.')
+    return
+  }
 
   isSending.value = true
   try {
@@ -244,6 +219,12 @@ async function handleSendMessage(content: string) {
 async function handleRetryMessage(tempId: string) {
   const target = messages.value.find((m) => m.id === tempId || m.tempId === tempId)
   if (!target) return
+
+  if (socketStatus.value !== 'connected') {
+    target.status = 'failed'
+    toast.error('Real-time WebSocket offline. Cannot retry until Reverb connects.')
+    return
+  }
 
   target.status = 'pending'
   try {
@@ -294,32 +275,22 @@ function connectStaffWebSocket() {
     currentChannel = echo.private(channelName)
 
     const onIncomingMessage = (data: any) => {
-      if (!data || !data.id) return
+      console.log('[Staff Socket Event Received]:', data)
+      const parsed = extractIncomingMessage(data)
+      if (!parsed) return
 
-      const exists = messages.value.some((m) => m.id === data.id)
+      const exists = messages.value.some((m) => m.id === parsed.id)
       if (exists) return
 
       const pendingIdx = messages.value.findIndex(
-        (m) => m.status === 'pending' && m.content === data.content && m.senderType === data.senderType
+        (m) => m.status === 'pending' && m.content === parsed.content && m.senderType === parsed.senderType
       )
       if (pendingIdx !== -1) {
-        messages.value[pendingIdx] = {
-          id: data.id,
-          senderType: data.senderType,
-          content: data.content,
-          sentAt: data.sentAt,
-          status: 'sent',
-        }
+        messages.value[pendingIdx] = parsed
         return
       }
 
-      messages.value.push({
-        id: data.id,
-        senderType: data.senderType,
-        content: data.content,
-        sentAt: data.sentAt,
-        status: 'sent',
-      })
+      messages.value.push(parsed)
       messages.value.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
       if (shouldAutoScroll.value) {
         scrollToBottom(true)
@@ -328,21 +299,73 @@ function connectStaffWebSocket() {
 
     currentChannel.listen('.message.sent', onIncomingMessage)
     currentChannel.listen('MessageSent', onIncomingMessage)
+    currentChannel.listen('.MessageSent', onIncomingMessage)
+    currentChannel.listen('message.sent', onIncomingMessage)
+
+    if (typeof (currentChannel as any).listenToAll === 'function') {
+      ;(currentChannel as any).listenToAll((eventName: string, data: any) => {
+        console.log(`[Staff Socket Channel Event] ${eventName}:`, data)
+        if (eventName.toLowerCase().includes('message')) {
+          onIncomingMessage(data)
+        }
+      })
+    }
+
+    if (typeof (currentChannel as any).error === 'function') {
+      ;(currentChannel as any).error((err: any) => {
+        console.error(`[Staff Channel Error] on '${channelName}':`, err)
+      })
+    }
+
+    if ((currentChannel as any).subscription) {
+      ;(currentChannel as any).subscription.bind('pusher:subscription_succeeded', () => {
+        console.log(`[Staff Channel Subscribed] Successfully joined '${channelName}'`)
+      })
+      ;(currentChannel as any).subscription.bind('pusher:subscription_error', (status: any) => {
+        console.error(`[Staff Channel Subscription Error] on '${channelName}':`, status)
+      })
+    }
 
     if ((echo as any).connector?.pusher?.connection) {
       const conn = (echo as any).connector.pusher.connection
+      socketStatus.value = (conn.state as SocketStatus) || 'connecting'
+
+      if (conn.state !== 'connected') {
+        try {
+          conn.connect()
+        } catch {
+          // ignore
+        }
+      }
+
+      conn.bind('state_change', (states: { previous: string; current: string }) => {
+        socketStatus.value = states.current as SocketStatus
+        if (states.current === 'connected') {
+          isReconnecting.value = false
+          fetchMessages(true)
+        } else if (states.current === 'unavailable' || states.current === 'failed') {
+          isReconnecting.value = true
+        }
+      })
       conn.bind('connected', () => {
+        socketStatus.value = 'connected'
         isReconnecting.value = false
       })
       conn.bind('unavailable', () => {
+        socketStatus.value = 'unavailable'
         isReconnecting.value = true
       })
       conn.bind('failed', () => {
+        socketStatus.value = 'failed'
         isReconnecting.value = true
+      })
+      conn.bind('disconnected', () => {
+        socketStatus.value = 'disconnected'
       })
     }
   } catch (err) {
     console.warn('Staff Reverb socket connection error:', err)
+    socketStatus.value = 'failed'
   }
 }
 
@@ -356,16 +379,22 @@ function disconnectStaffWebSocket() {
     }
     currentChannel = null
   }
+  disconnectEcho()
+}
+
+function reconnectStaffWebSocket() {
+  disconnectStaffWebSocket()
+  connectStaffWebSocket()
 }
 
 watch(
   caseId,
-  (newId, oldId) => {
+  async (newId, oldId) => {
     if (newId && newId !== oldId) {
       disconnectStaffWebSocket()
-      fetchCaseDetails()
+      await fetchCaseDetails()
+      await fetchMessages(false)
       connectStaffWebSocket()
-      startPolling(5000)
     }
   }
 )
@@ -377,14 +406,13 @@ onMounted(async () => {
     return
   }
   await fetchCaseDetails()
+  await fetchMessages(false)
   connectStaffWebSocket()
-  startPolling(5000)
   scrollToBottom(false)
 })
 
 onUnmounted(() => {
   disconnectStaffWebSocket()
-  stopPolling()
 })
 </script>
 
@@ -434,18 +462,28 @@ onUnmounted(() => {
     <div
       class="bg-[#FFFDF8] border border-[#EADBCE] rounded-2xl shadow-xs flex flex-col h-[75vh] min-h-[580px] overflow-hidden">
       <!-- Reusable Chat Header -->
-      <ChatHeader :case-id="caseId" :viewer="'STAFF'" :back-to="`/app/cases/${caseId}`"
-        :is-reconnecting="isReconnecting" />
+      <ChatHeader
+        :case-id="caseId"
+        viewer="STAFF"
+        :back-to="`/app/cases/${caseId}`"
+        :is-reconnecting="isReconnecting"
+        :is-socket-connected="isSocketConnected"
+        :socket-status="socketStatus"
+        @reconnect="reconnectStaffWebSocket"
+      />
 
-      <!-- Message History Scroll Area -->
-      <div ref="messageScrollRef" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/60"
-        @scroll="handleScroll">
-        <!-- Security Notice -->
-        <div class="text-center my-2">
+      <!-- Message History Scroll Area with WhatsApp Wallpaper -->
+      <div
+        ref="messageScrollRef"
+        class="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3 chat-wallpaper-whatsapp"
+        @scroll="handleScroll"
+      >
+        <!-- Security Notice Banner -->
+        <div class="text-center my-2 sm:my-3">
           <div
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCF4EE] border border-[#A2561B]/20 text-[11px] font-medium text-[#A2561B]">
-            <LockIcon class="size-3 shrink-0" />
-            <span>Confidential Channel · Case reporter identity is protected</span>
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFF9EE]/90 backdrop-blur-xs border border-[#EADBCE] text-xs font-medium text-[#8C5D39] shadow-2xs max-w-lg mx-auto">
+            <LockIcon class="size-3.5 shrink-0 text-[#A2561B]" />
+            <span>Confidential Channel · Case reporter identity is protected under ISO 37002 anonymity rules.</span>
           </div>
         </div>
 
@@ -474,7 +512,7 @@ onUnmounted(() => {
 
         <!-- Empty State: No messages yet -->
         <div v-else-if="messages.length === 0"
-          class="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4">
+          class="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4 bg-[#FFFDF9]/90 backdrop-blur-xs rounded-2xl border border-[#EADBCE] shadow-2xs my-6">
           <div
             class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
             <MessageSquareIcon class="size-6" />
@@ -514,7 +552,13 @@ onUnmounted(() => {
       <!-- Bottom Action/Composer Area -->
       <div class="border-t border-[#EADBCE] bg-[#FFFDF8]">
         <!-- Authorized: Active Message Composer -->
-        <MessageComposer v-if="canSendMessage" :is-sending="isSending" @send="handleSendMessage" />
+        <MessageComposer
+          v-if="canSendMessage"
+          :is-sending="isSending"
+          :is-socket-connected="isSocketConnected"
+          @send="handleSendMessage"
+          @reconnect="reconnectStaffWebSocket"
+        />
 
         <!-- Read-Only: Manager Oversight Mode -->
         <div v-else-if="isManager"

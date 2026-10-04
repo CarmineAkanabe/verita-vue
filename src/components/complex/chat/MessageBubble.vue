@@ -3,7 +3,7 @@
 import { computed } from 'vue'
 import type { ChatMessage } from '@/features/chat/types'
 import {
-  CheckIcon,
+  CheckCheckIcon,
   Loader2Icon,
   AlertCircleIcon,
   RotateCcwIcon,
@@ -45,85 +45,82 @@ function formatTime(isoString: string): string {
 
 <template>
   <div :class="[
-    'flex w-full my-2',
+    'flex w-full my-1.5 sm:my-2 px-1 sm:px-2',
     isOutgoing ? 'justify-end' : 'justify-start'
   ]">
-    <!-- Message Container with Max Width -->
+    <!-- Bubble Container -->
     <div :class="[
-      'max-w-[85%] sm:max-w-[70%] flex flex-col',
+      'max-w-[88%] sm:max-w-[76%] md:max-w-[65%] flex flex-col',
       isOutgoing ? 'items-end' : 'items-start'
     ]">
-      <!-- Sender Meta Label -->
-      <div class="flex items-center gap-1.5 mb-1 px-1 text-[11px] font-semibold text-[#6B7280]">
-        <!-- If Outgoing from Viewer -->
-        <template v-if="isOutgoing">
+      <!-- The Speech Bubble Card -->
+      <div :class="[
+        'relative px-3.5 py-2.5 sm:px-4 sm:py-2.5 text-[13.5px] sm:text-sm leading-relaxed break-words whitespace-pre-wrap transition-shadow',
+        isOutgoing
+          ? 'bg-gradient-to-br from-[#A2561B] to-[#914611] text-white rounded-2xl rounded-tr-xs shadow-[0_1px_3px_rgba(162,86,27,0.22)]'
+          : 'bg-[#FFFDFB] text-[#22293A] rounded-2xl rounded-tl-xs border border-[#E4DDD3] shadow-[0_1px_2px_rgba(0,0,0,0.06)]'
+      ]">
+        <!-- Incoming Sender Identity Header (WhatsApp group / counter-party style) -->
+        <div v-if="!isOutgoing" class="flex items-center gap-1.5 mb-1 pb-1 border-b border-[#EADBCE]/50">
           <template v-if="viewer === 'STAFF'">
-            <UserIcon class="size-3 text-[#A2561B]" />
-            <span>You (Investigator)</span>
-          </template>
-          <template v-else>
-            <ShieldIcon class="size-3 text-[#A2561B]" />
-            <span>You (Anonymous Reporter)</span>
-          </template>
-        </template>
-
-        <!-- If Incoming to Viewer -->
-        <template v-else>
-          <template v-if="viewer === 'STAFF'">
-            <ShieldIcon class="size-3 text-[#575E71]" />
-            <span class="text-[#22293A]">Case Reporter</span>
-            <span
-              class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B]">
+            <ShieldIcon class="size-3 text-[#A2561B] shrink-0" />
+            <span class="text-xs font-bold text-[#A2561B]">Case Reporter</span>
+            <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B]">
               Anonymous Relay
             </span>
           </template>
           <template v-else>
-            <UserIcon class="size-3 text-[#575E71]" />
-            <span class="text-[#22293A]">{{ departmentHeadName || 'Department Head' }}</span>
-            <span class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-[#F2F4F7] border border-[#E25EE] text-[#575E71]">
+            <UserIcon class="size-3 text-[#22293A] shrink-0" />
+            <span class="text-xs font-bold text-[#22293A]">{{ departmentHeadName || 'Department Head' }}</span>
+            <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded bg-[#F4EFE6] border border-[#E2D5C3] text-[#575E71]">
               Investigator
             </span>
           </template>
-        </template>
-      </div>
+        </div>
 
-      <!-- Bubble -->
-      <div :class="[
-        'px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs break-words whitespace-pre-wrap',
-        isOutgoing
-          ? 'bg-[#A2561B] text-white rounded-tr-xs border border-[#843F01]/30'
-          : 'bg-white text-[#22293A] rounded-tl-xs border border-[#E2E5EE]'
-      ]">
-        {{ message.content }}
-      </div>
+        <!-- Message Body Text -->
+        <p class="inline mr-2">{{ message.content }}</p>
 
-      <!-- Timestamp and Delivery Status Footer -->
-      <div class="flex items-center gap-1.5 mt-1 px-1 text-[10px] text-[#6B7280]">
-        <span>{{ formatTime(message.sentAt) }}</span>
-
-        <!-- Outgoing status tags -->
-        <template v-if="isOutgoing">
-          <span v-if="message.status === 'pending'" class="inline-flex items-center gap-1 text-[#A2561B]">
-            <Loader2Icon class="size-2.5 animate-spin" />
-            <span>Transmitting...</span>
+        <!-- Inline Embedded WhatsApp-Style Time & Status Anchor -->
+        <span class="inline-flex items-center gap-1 float-right translate-y-1 select-none pointer-events-auto">
+          <!-- Timestamp -->
+          <span :class="[
+            'text-[10px] font-medium tracking-tight',
+            isOutgoing ? 'text-white/80' : 'text-[#8A8F9E]'
+          ]">
+            {{ formatTime(message.sentAt) }}
           </span>
 
-          <span v-else-if="message.status === 'failed'" class="inline-flex items-center gap-1 text-red-600">
-            <AlertCircleIcon class="size-3 text-red-600" />
-            <span>Failed</span>
-            <button type="button"
-              class="underline font-semibold hover:text-red-800 ml-1 inline-flex items-center gap-0.5 cursor-pointer"
-              @click="emit('retry', message.tempId || message.id)">
-              <RotateCcwIcon class="size-2.5" />
-              <span>Retry</span>
-            </button>
-          </span>
+          <!-- Outgoing delivery telemetry indicators -->
+          <template v-if="isOutgoing">
+            <!-- Pending / In-flight -->
+            <span v-if="message.status === 'pending'" class="inline-flex items-center text-white/80" title="Transmitting...">
+              <Loader2Icon class="size-2.5 animate-spin" />
+            </span>
 
-          <span v-else class="inline-flex items-center text-emerald-600">
-            <CheckIcon class="size-3" />
-          </span>
-        </template>
+            <!-- Failed Delivery with Retry action -->
+            <span v-else-if="message.status === 'failed'" class="inline-flex items-center gap-1 bg-white/20 px-1.5 py-0.5 rounded text-[9.5px] font-bold text-red-100">
+              <AlertCircleIcon class="size-3 text-red-200" />
+              <span>Failed</span>
+              <button
+                type="button"
+                class="underline hover:text-white inline-flex items-center gap-0.5 cursor-pointer ml-0.5"
+                title="Retry message sending"
+                @click="emit('retry', message.tempId || message.id)"
+              >
+                <RotateCcwIcon class="size-2.5" />
+                <span>Retry</span>
+              </button>
+            </span>
+
+            <!-- Confirmed / Delivered (Double Check like WhatsApp) -->
+            <span v-else class="inline-flex items-center text-amber-200" title="Delivered via secure channel">
+              <CheckCheckIcon class="size-3.5" />
+            </span>
+          </template>
+        </span>
       </div>
     </div>
   </div>
 </template>
+

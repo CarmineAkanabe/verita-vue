@@ -62,20 +62,28 @@ function handleRetryMessage(tempId: string) {
   chatStore.retryMessage(tempId)
 }
 
+function handleReconnect() {
+  const token = caseToken.get()
+  if (token && authStore.caseId) {
+    chatStore.reconnectWebSocket()
+  }
+}
+
 onMounted(() => {
   if (!authStore.isCaseAuthenticated || !authStore.caseId) {
     router.push({ name: 'case-entry' })
     return
   }
 
-  // Connect to real-time Reverb WebSocket
+  // Load message history once on initial mount
+  chatStore.fetchMessages(false)
+
+  // Connect to real-time Reverb WebSocket (strictly drives live message push)
   const token = caseToken.get()
   if (token && authStore.caseId) {
     chatStore.connectWebSocket(authStore.caseId, token)
   }
 
-  // Heartbeat polling every 5 seconds for background metadata & presence sync
-  chatStore.startPolling(5000)
   scrollToBottom(false)
 })
 
@@ -86,26 +94,30 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-4rem)] bg-[#F6F7F9] text-[#22293A] py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-5xl h-[82vh] min-h-[580px] bg-[#FFFDF8] border border-[#EADBCE] rounded-2xl shadow-xs flex flex-col overflow-hidden">
-      <!-- Consultation Header -->
+  <div class="min-h-[calc(100vh-4rem)] bg-[#F4EFE6] text-[#22293A] py-3 sm:py-6 px-2 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl h-[84vh] min-h-[580px] bg-[#FFFDF8] border border-[#E2D5C3] rounded-2xl shadow-sm flex flex-col overflow-hidden">
+      <!-- Consultation Header with Live Socket Connection Status -->
       <ChatHeader
         :case-id="authStore.caseId || 'UNKNOWN'"
         :department-head="chatStore.departmentHead"
         :is-reconnecting="chatStore.isReconnecting"
+        :is-socket-connected="chatStore.isSocketConnected"
+        :socket-status="chatStore.socketStatus"
+        viewer="REPORTER"
+        @reconnect="handleReconnect"
       />
 
-      <!-- Message History Scroll Area -->
+      <!-- WhatsApp-Style Wallpaper Scroll Area -->
       <div
         ref="messageScrollRef"
-        class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#F8F9FA]/60"
+        class="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3 chat-wallpaper-whatsapp"
         @scroll="handleScroll"
       >
-        <!-- Security Notice -->
-        <div class="text-center my-2">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCF4EE] border border-[#A2561B]/20 text-[11px] font-medium text-[#A2561B]">
-            <LockIcon class="size-3 shrink-0" />
-            <span>Confidential Channel · Your identity is fully protected</span>
+        <!-- Security End-to-End Encryption Banner (WhatsApp Style) -->
+        <div class="text-center my-2 sm:my-3">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFF9EE]/90 backdrop-blur-xs border border-[#EADBCE] text-xs font-medium text-[#8C5D39] shadow-2xs max-w-lg mx-auto">
+            <LockIcon class="size-3.5 shrink-0 text-[#A2561B]" />
+            <span>Messages are end-to-end encrypted &amp; confidential. Nobody outside this case can read them.</span>
           </div>
         </div>
 
@@ -113,23 +125,23 @@ onUnmounted(() => {
         <div v-if="chatStore.isLoading && !chatStore.hasMessages" class="py-12 space-y-4 max-w-md mx-auto">
           <div class="flex items-center justify-center gap-2 text-xs text-[#6B7280]">
             <Loader2Icon class="size-4 animate-spin text-[#A2561B]" />
-            <span>Connecting to secure chat...</span>
+            <span>Connecting to confidential consultation stream...</span>
           </div>
         </div>
 
         <!-- Empty Conversation State -->
         <div
           v-else-if="!chatStore.hasMessages"
-          class="py-16 px-4 text-center max-w-md mx-auto space-y-3"
+          class="py-16 px-4 text-center max-w-md mx-auto space-y-3 bg-[#FFFDF9]/90 backdrop-blur-xs rounded-2xl border border-[#EADBCE] shadow-2xs my-6"
         >
           <div class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B] mx-auto">
             <MessageSquareIcon class="size-6" />
           </div>
           <h3 class="text-sm font-bold text-[#22293A]">
-            No Messages Exchanged Yet
+            Confidential Consultation Ready
           </h3>
           <p class="text-xs text-[#6B7280] leading-relaxed">
-            This confidential channel allows you to communicate directly with the assigned department head while staying completely anonymous. Type a message below to start.
+            This encrypted channel connects you with the assigned investigator while keeping your identity strictly anonymous. Messages travel exclusively across the secure real-time stream.
           </p>
         </div>
 
@@ -140,6 +152,7 @@ onUnmounted(() => {
             :key="msg.id || msg.tempId"
             :message="msg"
             :department-head-name="chatStore.departmentHeadName"
+            viewer="REPORTER"
             @retry="handleRetryMessage"
           />
         </template>
@@ -148,8 +161,11 @@ onUnmounted(() => {
       <!-- Message Composer Area -->
       <MessageComposer
         :is-sending="chatStore.isSending"
+        :is-socket-connected="chatStore.isSocketConnected"
         @send="handleSendMessage"
+        @reconnect="handleReconnect"
       />
     </div>
   </div>
 </template>
+

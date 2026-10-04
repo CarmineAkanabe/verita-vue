@@ -1,7 +1,9 @@
 // shared/realtime/socket-client.ts
+import { ref } from 'vue'
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
 import { staffToken, caseToken } from '@/shared/api/auth'
+import type { ChatMessage, SenderType } from '@/features/chat/types'
 
 declare global {
   interface Window {
@@ -10,15 +12,97 @@ declare global {
   }
 }
 
+// Enable Pusher diagnostic logging in console for real-time visibility
+Pusher.logToConsole = true
 window.Pusher = Pusher
 
 let echoInstance: Echo<any> | null = null
 let currentToken: string | null = null
 
+export type SocketStatus =
+  | 'initialized'
+  | 'connecting'
+  | 'connected'
+  | 'unavailable'
+  | 'failed'
+  | 'disconnected'
+
+export const globalSocketStatus = ref<SocketStatus>('connecting')
+
+/**
+ * Robustly normalizes incoming message payloads from various Laravel broadcast formats
+ * (e.g. { message: {...} }, { data: {...} }, camelCase or snake_case).
+ */
+export function extractIncomingMessage(payload: any): ChatMessage | null {
+  if (!payload) return null
+  const raw = payload.message || payload.data || payload
+  const id = raw.id || raw.messageId || raw.tempId
+  const content = raw.content || raw.text || raw.body
+  if (!id || !content) return null
+
+  const rawSender = raw.senderType || raw.sender_type
+  let senderType: SenderType = 'DEPARTMENT_HEAD'
+  if (rawSender === 'CASE_REPORTER' || rawSender === 'reporter' || raw.isReporter) {
+    senderType = 'CASE_REPORTER'
+  } else if (rawSender === 'SYSTEM' || rawSender === 'system') {
+    senderType = 'SYSTEM'
+  }
+
+  const sentAt =
+    raw.sentAt ||
+    raw.sent_at ||
+    raw.createdAt ||
+    raw.created_at ||
+    new Date().toISOString()
+
+  return {
+    id: String(id),
+    senderType,
+    content: String(content),
+    sentAt: String(sentAt),
+    status: 'sent',
+  }
+}
+
+function setupConnectionListeners(instance: Echo<any>) {
+  const conn = (instance as any).connector?.pusher?.connection
+  if (!conn) return
+
+  globalSocketStatus.value = (conn.state as SocketStatus) || 'connecting'
+
+  conn.bind('state_change', (states: { previous: string; current: string }) => {
+    globalSocketStatus.value = states.current as SocketStatus
+  })
+  conn.bind('connected', () => {
+    globalSocketStatus.value = 'connected'
+  })
+  conn.bind('unavailable', () => {
+    globalSocketStatus.value = 'unavailable'
+  })
+  conn.bind('failed', () => {
+    globalSocketStatus.value = 'failed'
+  })
+  conn.bind('disconnected', () => {
+    globalSocketStatus.value = 'disconnected'
+  })
+}
+
 export function getEcho(token?: string | null): Echo<any> {
-  const effectiveToken = token || staffToken.get() || caseToken.get() || null
+  const isStaffPath = typeof window !== 'undefined' && window.location.pathname.startsWith('/app')
+  const effectiveToken =
+    token ||
+    (isStaffPath ? (staffToken.get() || caseToken.get()) : (caseToken.get() || staffToken.get())) ||
+    null
 
   if (echoInstance && currentToken === effectiveToken) {
+    const conn = (echoInstance as any).connector?.pusher?.connection
+    if (conn && (conn.state === 'disconnected' || conn.state === 'unavailable' || conn.state === 'failed')) {
+      try {
+        conn.connect()
+      } catch {
+        // ignore
+      }
+    }
     return echoInstance
   }
 
@@ -34,7 +118,11 @@ export function getEcho(token?: string | null): Echo<any> {
   currentToken = effectiveToken
 
   const appKey = (import.meta.env.VITE_REVERB_APP_KEY as string) || 'eafnuy9gwxipsopxuepc'
-  const host = (import.meta.env.VITE_REVERB_HOST as string) || 'localhost'
+  let host = (import.meta.env.VITE_REVERB_HOST as string) || '127.0.0.1'
+  // On local dev, map 'localhost' to '127.0.0.1' to avoid Windows IPv6 (::1) socket failures
+  if (host === 'localhost') {
+    host = '127.0.0.1'
+  }
   const port = Number(import.meta.env.VITE_REVERB_PORT || 8080)
   const scheme = (import.meta.env.VITE_REVERB_SCHEME as string) || 'http'
   const isHttps = scheme === 'https'
@@ -48,7 +136,7 @@ export function getEcho(token?: string | null): Echo<any> {
     wssPort: port,
     forceTLS: isHttps,
     enabledTransports: ['ws', 'wss'],
-    client: Pusher,
+    Pusher: Pusher,
     authEndpoint: `${apiOrigin}/broadcasting/auth`,
     auth: {
       headers: {
@@ -56,10 +144,117 @@ export function getEcho(token?: string | null): Echo<any> {
         Accept: 'application/json',
       },
     },
+    authorizer: (channel: any) => {
+      return {
+        authorize: async (socketId: string, callback: (error: any, authData?: any) => void) => {
+          const isStaff = typeof window !== 'undefined' && window.location.pathname.startsWith('/app')
+          const authToken =
+            (isStaff ? (staffToken.get() || currentToken) : (caseToken.get() || currentToken)) ||
+            currentToken ||
+            staffToken.get() ||
+            caseToken.get() ||
+            ''
+
+          const headers: Record<string, string> = {
+            Accept: 'application/json',
+          }
+          if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`
+          }
+
+          console.log(`[Echo Authorizer] Authorizing channel '${channel.name}' (socketId: ${socketId}) using ${isStaff ? 'Staff' : 'Reporter'} auth`)
+
+          const endpoints = [
+            `${apiOrigin}/broadcasting/auth`,
+            `${apiOrigin}/api/v1/broadcasting/auth`,
+          ]
+
+          let lastErr: any = null
+
+          for (const endpoint of endpoints) {
+            // Attempt 1: JSON body
+            try {
+              const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                  ...headers,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  socket_id: socketId,
+                  channel_name: channel.name,
+                }),
+                credentials: 'include',
+              })
+
+              if (res.ok) {
+                const data = await res.json()
+                console.log(`[Echo Authorizer] Authorized '${channel.name}' via JSON at ${endpoint}`)
+                callback(null, data)
+                return
+              }
+
+              // If endpoint exists but rejected JSON, attempt urlencoded format
+              if (res.status !== 404) {
+                const formBody = new URLSearchParams({
+                  socket_id: socketId,
+                  channel_name: channel.name,
+                })
+                const formRes = await fetch(endpoint, {
+                  method: 'POST',
+                  headers: {
+                    ...headers,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+                  body: formBody.toString(),
+                  credentials: 'include',
+                })
+
+                if (formRes.ok) {
+                  const data = await formRes.json()
+                  console.log(`[Echo Authorizer] Authorized '${channel.name}' via Form at ${endpoint}`)
+                  callback(null, data)
+                  return
+                }
+
+                const errText = await formRes.text()
+                lastErr = new Error(`Broadcast auth failed with status ${formRes.status}: ${errText}`)
+                console.warn(`[Echo Authorizer] Failed at ${endpoint} (${formRes.status}):`, errText)
+              } else {
+                console.warn(`[Echo Authorizer] Endpoint ${endpoint} returned 404, falling back...`)
+              }
+            } catch (fetchErr: any) {
+              lastErr = fetchErr
+              console.warn(`[Echo Authorizer] Network/fetch error at ${endpoint}:`, fetchErr?.message || fetchErr)
+            }
+          }
+
+          console.error(`[Echo Authorizer] All authorization attempts failed for ${channel.name}:`, lastErr)
+          callback(lastErr || new Error(`Failed to authorize channel ${channel.name}`))
+        },
+      }
+    },
   })
+
+  setupConnectionListeners(echoInstance)
 
   window.Echo = echoInstance
   return echoInstance
+}
+
+export function getEchoConnectionState(): SocketStatus {
+  if (!echoInstance) return 'disconnected'
+  const state = (echoInstance as any).connector?.pusher?.connection?.state
+  return (state as SocketStatus) || globalSocketStatus.value || 'disconnected'
+}
+
+export function isEchoConnected(): boolean {
+  return getEchoConnectionState() === 'connected'
+}
+
+export function reconnectEcho(token?: string | null): Echo<any> {
+  disconnectEcho()
+  return getEcho(token)
 }
 
 export function disconnectEcho(): void {
@@ -72,4 +267,7 @@ export function disconnectEcho(): void {
     echoInstance = null
     currentToken = null
   }
+  globalSocketStatus.value = 'disconnected'
 }
+
+
