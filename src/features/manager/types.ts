@@ -60,8 +60,15 @@ export interface CategoryBreakdownItem {
   count: number
 }
 
+export interface ResolutionTrendItem {
+  month: string
+  resolved: number
+  dismissed: number
+}
+
 export interface EngagementReportData {
   caseVolumeByDepartment: DepartmentVolumeItem[]
   averageResolutionDays: number | null
   categoryBreakdownOverTime: CategoryBreakdownItem[]
+  resolutionTrends?: ResolutionTrendItem[]
 }

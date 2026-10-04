@@ -91,26 +91,26 @@ const isImage = () => {
 <template>
   <div
     v-if="isOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#22293A]/60 backdrop-blur-xs"
+    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-foreground/60 backdrop-blur-xs"
     role="dialog"
     aria-modal="true"
     aria-labelledby="preview-modal-title"
   >
     <div
-      class="w-full max-w-4xl bg-white border border-[#E2E5EE] rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+      class="w-full max-w-4xl bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
     >
       <!-- Header -->
-      <div class="px-5 py-3.5 border-b border-[#E2E5EE] flex items-center justify-between gap-4 bg-[#F8F9FA] shrink-0">
+      <div class="px-5 py-3.5 border-b border-border flex items-center justify-between gap-4 bg-[#FAF7F2] shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
-          <div class="h-8 w-8 rounded bg-white border border-[#E2E5EE] flex items-center justify-center text-[#A2561B] shrink-0">
+          <div class="h-8 w-8 rounded-lg bg-white border border-border flex items-center justify-center text-primary shrink-0">
             <ImageIcon v-if="isImage()" class="size-4" />
             <FileTextIcon v-else class="size-4" />
           </div>
           <div class="min-w-0">
-            <h3 id="preview-modal-title" class="text-sm font-bold text-[#22293A] truncate">
+            <h3 id="preview-modal-title" class="text-sm font-bold text-foreground truncate">
               {{ fileName || 'Evidence Document' }}
             </h3>
-            <p class="text-[11px] text-[#6B7280] truncate font-mono">
+            <p class="text-[11px] text-muted-foreground truncate font-mono">
               ID: {{ evidenceId }}
             </p>
           </div>
@@ -119,7 +119,7 @@ const isImage = () => {
         <div class="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-[#E2E5EE] bg-white hover:bg-[#F2F4F7] text-[#22293A] transition-colors cursor-pointer"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-border bg-white hover:bg-[#F4EFE6] text-foreground transition-colors cursor-pointer shadow-2xs"
             @click="handleDownload"
           >
             <DownloadIcon class="size-3.5" />
@@ -128,7 +128,7 @@ const isImage = () => {
 
           <button
             type="button"
-            class="p-1.5 text-[#6B7280] hover:text-[#22293A] rounded-md hover:bg-[#E2E5EE]/50 transition-colors cursor-pointer"
+            class="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-[#EADBCE]/50 transition-colors cursor-pointer"
             @click="emit('close')"
             aria-label="Close preview"
           >
@@ -140,8 +140,8 @@ const isImage = () => {
       <!-- Preview Body -->
       <div class="p-4 sm:p-6 flex-1 overflow-auto flex items-center justify-center bg-[#F2F4F7]">
         <!-- Loading State -->
-        <div v-if="isLoading" class="flex flex-col items-center justify-center py-16 gap-3 text-[#6B7280]">
-          <Loader2Icon class="size-8 animate-spin text-[#A2561B]" />
+        <div v-if="isLoading" class="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+          <Loader2Icon class="size-8 animate-spin text-primary" />
           <p class="text-xs font-medium">Decrypting and loading evidence stream...</p>
         </div>
 
@@ -150,11 +150,11 @@ const isImage = () => {
           <div class="h-12 w-12 rounded-full bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-center text-[#991B1B] mx-auto mb-3">
             <AlertCircleIcon class="size-6" />
           </div>
-          <p class="text-sm font-semibold text-[#22293A]">Preview Unavailable</p>
-          <p class="text-xs text-[#6B7280] mt-1">{{ errorMessage }}</p>
+          <p class="text-sm font-semibold text-foreground">Preview Unavailable</p>
+          <p class="text-xs text-muted-foreground mt-1">{{ errorMessage }}</p>
           <button
             type="button"
-            class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#A2561B] text-white text-xs font-medium cursor-pointer"
+            class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary text-white text-xs font-medium cursor-pointer"
             @click="handleDownload"
           >
             <DownloadIcon class="size-3.5" />
@@ -167,7 +167,7 @@ const isImage = () => {
           <img
             :src="previewUrl"
             :alt="fileName || 'Evidence preview'"
-            class="max-h-[68vh] max-w-full object-contain rounded border border-[#E2E5EE] shadow-xs bg-white"
+            class="max-h-[68vh] max-w-full object-contain rounded-xl border border-border shadow-xs bg-white"
           />
         </div>
 
@@ -175,18 +175,18 @@ const isImage = () => {
         <div v-else-if="previewUrl" class="w-full h-full min-h-[550px] flex flex-col">
           <iframe
             :src="previewUrl"
-            class="w-full h-full min-h-[550px] rounded border border-[#E2E5EE] bg-white shadow-xs"
+            class="w-full h-full min-h-[550px] rounded-xl border border-border bg-white shadow-xs"
             title="Evidence document preview"
           ></iframe>
         </div>
       </div>
 
       <!-- Footer Bar -->
-      <div class="px-5 py-2.5 border-t border-[#E2E5EE] bg-white flex items-center justify-between text-[11px] text-[#6B7280] shrink-0">
+      <div class="px-5 py-2.5 border-t border-border bg-[#FAF7F2] flex items-center justify-between text-[11px] text-muted-foreground shrink-0">
         <span>Confidential Case File</span>
         <button
           type="button"
-          class="text-[#22293A] font-medium hover:underline cursor-pointer"
+          class="text-foreground font-semibold hover:text-primary transition-colors cursor-pointer"
           @click="emit('close')"
         >
           Close

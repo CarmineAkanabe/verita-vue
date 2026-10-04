@@ -109,11 +109,11 @@ function autoResize() {
     >
       <div class="flex items-center gap-1.5 font-medium">
         <AlertTriangleIcon class="size-4 shrink-0 text-[#C05621]" />
-        <span>Real-time channel offline (Reverb is not running). Connect WebSocket to send.</span>
+        <span>Live connection lost. Reconnect to send messages.</span>
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#A2561B] hover:bg-[#8C430E] text-white text-[11px] font-semibold transition-colors cursor-pointer shrink-0 shadow-2xs"
+        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary hover:bg-[#8C430E] text-white text-[11px] font-semibold transition-colors cursor-pointer shrink-0 shadow-2xs"
         @click="emit('reconnect')"
       >
         <RefreshCwIcon class="size-3" />
@@ -124,7 +124,7 @@ function autoResize() {
     <!-- Emoji Quick Tray Popover -->
     <div
       v-if="isEmojiPickerOpen"
-      class="absolute bottom-full mb-2 left-4 z-20 bg-white border border-[#E2D5C3] rounded-2xl shadow-xl p-2.5 flex flex-wrap gap-1.5 max-w-xs animate-in fade-in zoom-in-95 duration-150"
+      class="absolute bottom-full mb-2 left-4 z-20 bg-white border border-border rounded-2xl shadow-xl p-2.5 flex flex-wrap gap-1.5 max-w-xs animate-in fade-in zoom-in-95 duration-150"
     >
       <button
         v-for="emoji in COMMON_EMOJIS"
@@ -147,13 +147,13 @@ function autoResize() {
             ? 'border-red-500 ring-1 ring-red-500'
             : !isSocketConnected
             ? 'border-[#E0D8CB] bg-[#FAF8F5]'
-            : 'border-[#D5CDC0] focus-within:border-[#A2561B] focus-within:ring-2 focus-within:ring-[#A2561B]/15'
+            : 'border-[#D5CDC0] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15'
         ]"
       >
         <!-- Emoji Toggle Button -->
         <button
           type="button"
-          class="p-1.5 text-[#6B7280] hover:text-[#A2561B] rounded-lg hover:bg-[#F8F5EE] transition-colors cursor-pointer shrink-0"
+          class="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-[#F8F5EE] transition-colors cursor-pointer shrink-0"
           title="Insert Emoji"
           :disabled="disabled || !isSocketConnected"
           @click="isEmojiPickerOpen = !isEmojiPickerOpen"
@@ -168,13 +168,13 @@ function autoResize() {
           rows="1"
           :placeholder="
             !isSocketConnected
-              ? 'WebSocket offline. Connect Reverb to transmit messages...'
+              ? 'You are offline. Reconnect to send messages...'
               : disabled
               ? 'Connecting...'
               : 'Type a message... (Shift+Enter for new line)'
           "
           :disabled="disabled || !isSocketConnected"
-          class="w-full resize-none bg-transparent py-1.5 px-1 text-xs sm:text-sm text-[#22293A] placeholder-[#8A8F9E] focus:outline-none min-h-[38px] max-h-[160px] leading-relaxed disabled:opacity-50"
+          class="w-full resize-none bg-transparent py-1.5 px-1 text-xs sm:text-sm text-foreground placeholder-[#8A8F9E] focus:outline-none min-h-[38px] max-h-[160px] leading-relaxed disabled:opacity-50"
           @input="autoResize"
           @keydown="handleKeyDown"
         ></textarea>
@@ -183,9 +183,9 @@ function autoResize() {
       <!-- Circular WhatsApp-Style Send Button -->
       <button
         type="button"
-        class="h-11 w-11 rounded-full bg-[#A2561B] hover:bg-[#8C430E] text-white flex items-center justify-center transition-all duration-150 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed cursor-pointer shrink-0 shadow-sm"
+        class="h-11 w-11 rounded-full bg-primary hover:bg-[#8C430E] text-white flex items-center justify-center transition-all duration-150 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed cursor-pointer shrink-0 shadow-sm"
         :disabled="!canSend"
-        :title="!isSocketConnected ? 'WebSocket offline' : 'Send Message (Enter)'"
+        :title="!isSocketConnected ? 'Offline' : 'Send Message (Enter)'"
         @click="handleSubmit"
       >
         <Loader2Icon v-if="isSending" class="size-5 animate-spin" />
@@ -196,7 +196,7 @@ function autoResize() {
     <!-- Footer Meta: Policy Notice & Character Counter -->
     <div class="flex items-center justify-between text-[11px] text-[#787D8A] px-1 pt-0.5">
       <div class="flex items-center gap-1">
-        <ShieldCheckIcon class="size-3 text-[#A2561B]" />
+        <ShieldCheckIcon class="size-3 text-primary" />
         <span>Text &amp; emojis only. Confidential documents must be added to Evidence Vault.</span>
       </div>
 

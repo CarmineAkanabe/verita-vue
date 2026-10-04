@@ -15,6 +15,7 @@ const props = withDefaults(
   defineProps<{
     message: ChatMessage
     departmentHeadName?: string
+    reporterLabel?: string
     viewer?: 'REPORTER' | 'STAFF'
   }>(),
   {
@@ -58,21 +59,21 @@ function formatTime(isoString: string): string {
         'relative px-3.5 py-2.5 sm:px-4 sm:py-2.5 text-[13.5px] sm:text-sm leading-relaxed break-words whitespace-pre-wrap transition-shadow',
         isOutgoing
           ? 'bg-gradient-to-br from-[#A2561B] to-[#914611] text-white rounded-2xl rounded-tr-xs shadow-[0_1px_3px_rgba(162,86,27,0.22)]'
-          : 'bg-[#FFFDFB] text-[#22293A] rounded-2xl rounded-tl-xs border border-[#E4DDD3] shadow-[0_1px_2px_rgba(0,0,0,0.06)]'
+          : 'bg-[#FFFDFB] text-foreground rounded-2xl rounded-tl-xs border border-[#E4DDD3] shadow-[0_1px_2px_rgba(0,0,0,0.06)]'
       ]">
         <!-- Incoming Sender Identity Header (WhatsApp group / counter-party style) -->
-        <div v-if="!isOutgoing" class="flex items-center gap-1.5 mb-1 pb-1 border-b border-[#EADBCE]/50">
+        <div v-if="!isOutgoing" class="flex items-center gap-1.5 mb-1 pb-1 border-b border-border/50">
           <template v-if="viewer === 'STAFF'">
-            <ShieldIcon class="size-3 text-[#A2561B] shrink-0" />
-            <span class="text-xs font-bold text-[#A2561B]">Case Reporter</span>
-            <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B]">
-              Anonymous Relay
+            <ShieldIcon class="size-3 text-primary shrink-0" />
+            <span class="text-xs font-bold text-primary">{{ reporterLabel || 'Case Reporter' }}</span>
+            <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded bg-[#FCF4EE] border border-primary/20 text-primary">
+              Anonymous
             </span>
           </template>
           <template v-else>
-            <UserIcon class="size-3 text-[#22293A] shrink-0" />
-            <span class="text-xs font-bold text-[#22293A]">{{ departmentHeadName || 'Department Head' }}</span>
-            <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded bg-[#F4EFE6] border border-[#E2D5C3] text-[#575E71]">
+            <UserIcon class="size-3 text-foreground shrink-0" />
+            <span class="text-xs font-bold text-foreground">{{ departmentHeadName || 'Department Head' }}</span>
+            <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded bg-[#F4EFE6] border border-border text-muted-foreground">
               Investigator
             </span>
           </template>

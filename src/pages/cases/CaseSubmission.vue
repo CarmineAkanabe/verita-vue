@@ -64,7 +64,7 @@ const pretentiousSteps = [
   },
   {
     title: 'Rendering secure dashboard & tracking credentials...',
-    detail: 'Generating 6-character cryptographic tracking PIN and air-gapped session keys',
+    detail: 'Generating 6-character cryptographic tracking PIN and your secure session',
   },
   {
     title: 'Case intake verified & ready!',
@@ -149,72 +149,62 @@ onMounted(async () => {
   }
 })
 
+import { caseSubmissionStep1Schema, caseSubmissionStep2Schema, caseSubmissionStep3Schema } from '@/features/cases/schema'
+
 // Step-specific validation
 function validateStep(step: number): boolean {
   errors.general = ''
 
   if (step === 1) {
     errors.departmentId = ''
-    if (!form.departmentId) {
-      errors.departmentId = 'Please select the affected department.'
+    const result = caseSubmissionStep1Schema.safeParse(form)
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        if (issue.path[0] in errors) {
+          (errors as any)[issue.path[0]] = issue.message
+        }
+      }
       return false
     }
     return true
   }
 
   if (step === 2) {
-    let valid = true
     errors.purposeOfTransaction = ''
     errors.amountInvolved = ''
     errors.transactionDate = ''
     errors.personInvolved = ''
 
-    if (!form.transactionDate) {
-      errors.transactionDate = 'Please select the date of the incident or transaction.'
-      valid = false
+    const result = caseSubmissionStep2Schema.safeParse(form)
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        if (issue.path[0] in errors) {
+          (errors as any)[issue.path[0]] = issue.message
+        }
+      }
+      return false
     }
-
-    if (!form.purposeOfTransaction.trim()) {
-      errors.purposeOfTransaction = 'Please enter the nature or purpose of the transaction.'
-      valid = false
-    } else if (form.purposeOfTransaction.length > 255) {
-      errors.purposeOfTransaction = 'Must not exceed 255 characters.'
-      valid = false
-    }
-
-    const numericAmount = parseFloat(form.amountInvolved)
-    if (form.amountInvolved === '' || isNaN(numericAmount) || numericAmount < 0) {
-      errors.amountInvolved = 'Please enter an amount in FCFA (enter 0 if non-financial).'
-      valid = false
-    }
-
-    if (!form.personInvolved.trim()) {
-      errors.personInvolved = 'Please specify the person or role involved.'
-      valid = false
-    }
-
-    return valid
+    return true
   }
 
   if (step === 3) {
-    let valid = true
     errors.description = ''
     errors.evidence = ''
 
-    if (!form.description.trim()) {
-      errors.description = 'Please provide details of what occurred.'
-      valid = false
-    } else if (form.description.trim().length < 10) {
-      errors.description = 'Please write at least 10 characters explaining what happened.'
-      valid = false
+    const result = caseSubmissionStep3Schema.safeParse({
+      description: form.description,
+      evidence: form.evidence
+    })
+    
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        if (issue.path[0] in errors) {
+          (errors as any)[issue.path[0]] = issue.message
+        }
+      }
+      return false
     }
-
-    if (!form.evidence || form.evidence.length === 0) {
-      errors.evidence = 'At least one supporting file (JPG, PNG, or PDF) is required.'
-      valid = false
-    }
-
-    return valid
+    return true
   }
 
   return true
@@ -473,43 +463,43 @@ async function proceedToDashboard() {
       <!-- PRETENTIOUS ANIMATED SUBMISSION LOADING VIEW                              -->
       <!-- ========================================================================= -->
       <template v-if="isPretentiousLoading">
-        <div class="p-6 sm:p-10 rounded-2xl bg-[#FFFDF8] border-2 border-[#EADBCE] shadow-lg space-y-8 animate-fade-in card-creamy">
+        <div class="p-6 sm:p-10 rounded-2xl bg-card border-2 border-border shadow-lg space-y-8 animate-fade-in card-creamy">
           <!-- Top Classification Tag -->
-          <div class="flex items-center justify-between border-b border-[#EADBCE] pb-4">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#A2561B]/10 border border-[#A2561B]/20 text-xs font-bold text-[#A2561B]">
+          <div class="flex items-center justify-between border-b border-border pb-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary">
               <LockIcon class="size-3.5" />
               <span>Zero-Knowledge Intake Ingestion</span>
             </div>
-            <span class="text-[11px] font-mono text-[#6B7280]">ISO 37002 Protocol Active</span>
+            <span class="text-[11px] font-mono text-muted-foreground">ISO 37002 Protocol Active</span>
           </div>
 
           <!-- Central Animated Hologram/Radar Area -->
           <div class="flex flex-col items-center text-center space-y-4 py-4">
             <div class="relative size-28 sm:size-32 flex items-center justify-center">
               <!-- Outer rotating radar ring -->
-              <div class="absolute inset-0 rounded-full border-2 border-dashed border-[#A2561B]/40 animate-radar"></div>
+              <div class="absolute inset-0 rounded-full border-2 border-dashed border-primary/40 animate-radar"></div>
               <!-- Glowing pulse circle -->
               <div class="absolute inset-2 rounded-full bg-gradient-to-tr from-[#A2561B]/15 to-[#22293A]/10 animate-pulse-glow"></div>
               <!-- Inner ring -->
-              <div class="absolute inset-4 rounded-full border border-[#22293A]/30"></div>
+              <div class="absolute inset-4 rounded-full border border-foreground/30"></div>
               <!-- Center Icon / percentage -->
               <div class="relative z-10 flex flex-col items-center justify-center">
-                <BotIcon v-if="currentPretentiousStepIndex === 1 || currentPretentiousStepIndex === 2" class="size-10 text-[#A2561B] animate-pulse" />
-                <SparklesIcon v-else-if="currentPretentiousStepIndex === 3 || currentPretentiousStepIndex === 4" class="size-10 text-[#22293A] animate-pulse" />
+                <BotIcon v-if="currentPretentiousStepIndex === 1 || currentPretentiousStepIndex === 2" class="size-10 text-primary animate-pulse" />
+                <SparklesIcon v-else-if="currentPretentiousStepIndex === 3 || currentPretentiousStepIndex === 4" class="size-10 text-foreground animate-pulse" />
                 <CheckCircle2Icon v-else-if="currentPretentiousStepIndex === 5" class="size-12 text-emerald-600 animate-in zoom-in" />
-                <ShieldCheckIcon v-else class="size-10 text-[#A2561B] animate-pulse" />
+                <ShieldCheckIcon v-else class="size-10 text-primary animate-pulse" />
               </div>
             </div>
 
             <!-- Percentage Readout -->
             <div class="space-y-1">
-              <div class="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-[#22293A]">
-                {{ pretentiousProgress }}<span class="text-2xl text-[#A2561B]">%</span>
+              <div class="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-foreground">
+                {{ pretentiousProgress }}<span class="text-2xl text-primary">%</span>
               </div>
-              <h2 class="text-base sm:text-lg font-bold text-[#22293A]">
+              <h2 class="text-base sm:text-lg font-bold text-foreground">
                 {{ pretentiousSteps[currentPretentiousStepIndex].title }}
               </h2>
-              <p class="text-xs text-[#6B7280] max-w-md mx-auto leading-relaxed">
+              <p class="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
                 {{ pretentiousSteps[currentPretentiousStepIndex].detail }}
               </p>
             </div>
@@ -517,7 +507,7 @@ async function proceedToDashboard() {
 
           <!-- High-tech Progress Bar -->
           <div class="space-y-2">
-            <div class="h-3 w-full bg-[#EADBCE]/50 rounded-full overflow-hidden p-0.5 border border-[#EADBCE]">
+            <div class="h-3 w-full bg-[#EADBCE]/50 rounded-full overflow-hidden p-0.5 border border-border">
               <div
                 class="h-full rounded-full bg-gradient-to-r from-[#22293A] via-[#A2561B] to-emerald-600 transition-all duration-150 ease-out shadow-xs"
                 :style="{ width: `${pretentiousProgress}%` }"
@@ -535,8 +525,8 @@ async function proceedToDashboard() {
                 idx < currentPretentiousStepIndex
                   ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
                   : idx === currentPretentiousStepIndex
-                  ? 'bg-white border-[#A2561B] shadow-xs text-[#22293A] font-semibold'
-                  : 'bg-transparent border-transparent text-[#6B7280]/60'
+                  ? 'bg-white border-primary shadow-xs text-foreground font-semibold'
+                  : 'bg-transparent border-transparent text-muted-foreground/60'
               "
             >
               <!-- Step Status Icon -->
@@ -546,8 +536,8 @@ async function proceedToDashboard() {
                   idx < currentPretentiousStepIndex
                     ? 'bg-emerald-600 text-white'
                     : idx === currentPretentiousStepIndex
-                    ? 'bg-[#A2561B] text-white animate-pulse'
-                    : 'bg-[#EADBCE]/60 text-[#6B7280]'
+                    ? 'bg-primary text-white animate-pulse'
+                    : 'bg-[#EADBCE]/60 text-muted-foreground'
                 "
               >
                 <CheckIcon v-if="idx < currentPretentiousStepIndex" class="size-3.5 stroke-[3]" />
@@ -567,8 +557,8 @@ async function proceedToDashboard() {
                   idx < currentPretentiousStepIndex
                     ? 'bg-emerald-100 text-emerald-800'
                     : idx === currentPretentiousStepIndex
-                    ? 'bg-[#A2561B]/15 text-[#A2561B]'
-                    : 'text-[#6B7280]/50'
+                    ? 'bg-primary/15 text-primary'
+                    : 'text-muted-foreground/50'
                 "
               >
                 {{ idx < currentPretentiousStepIndex ? 'VERIFIED' : idx === currentPretentiousStepIndex ? 'PROCESSING' : 'PENDING' }}
@@ -577,10 +567,10 @@ async function proceedToDashboard() {
           </div>
 
           <!-- Bottom Security Badge -->
-          <div class="pt-4 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#6B7280]">
+          <div class="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-muted-foreground">
             <span class="flex items-center gap-1.5">
               <ShieldCheckIcon class="size-3.5 text-emerald-600" />
-              End-to-End Cryptographic Air-Gap
+              Private and Anonymous Submission
             </span>
             <span class="font-mono">Do not close this window</span>
           </div>
@@ -591,24 +581,24 @@ async function proceedToDashboard() {
       <!-- POST-SUBMISSION CREDENTIALS VIEW                                          -->
       <!-- ========================================================================= -->
       <template v-else-if="isSubmitted && submittedResult">
-        <div class="p-6 sm:p-8 rounded-2xl bg-[#FFFDF8] border-2 border-[#EADBCE] shadow-sm space-y-6 animate-fade-in">
+        <div class="p-6 sm:p-8 rounded-2xl bg-card border-2 border-border shadow-sm space-y-6 animate-fade-in">
           <!-- Header Success Badge -->
           <div class="flex items-center gap-3">
             <div class="h-12 w-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
               <CheckCircle2Icon class="size-7" />
             </div>
             <div>
-              <h2 class="text-xl font-bold text-[#22293A]">
+              <h2 class="text-xl font-bold text-foreground">
                 Case Successfully Submitted
               </h2>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Save your Case ID and Tracking PIN below to view progress and message investigators.
               </p>
             </div>
           </div>
 
           <!-- Important Warning Callout -->
-          <div class="p-3.5 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/20 flex items-start gap-2.5 text-xs text-[#A2561B]">
+          <div class="p-3.5 rounded-xl bg-[#FCF4EE] border border-primary/20 flex items-start gap-2.5 text-xs text-primary">
             <LockIcon class="size-4 shrink-0 mt-0.5" />
             <div class="leading-relaxed">
               <span class="font-bold">Save your PIN now.</span> Because reports are anonymous, this PIN cannot be reset or emailed to you.
@@ -616,17 +606,17 @@ async function proceedToDashboard() {
           </div>
 
           <!-- Credentials Box -->
-          <div class="p-5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE] space-y-4">
+          <div class="p-5 rounded-xl bg-[#FAF7F2] border border-border space-y-4">
             <!-- Case ID -->
             <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">Case ID</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Case ID</span>
               <div class="flex items-center justify-between gap-2 mt-1">
-                <span class="font-mono font-bold text-sm sm:text-base text-[#22293A] select-all break-all">
+                <span class="font-mono font-bold text-sm sm:text-base text-foreground select-all break-all">
                   {{ submittedResult.caseId }}
                 </span>
                 <button
                   type="button"
-                  class="shrink-0 p-1.5 rounded-md border border-[#EADBCE] bg-white hover:bg-[#F6F7F9] text-[#22293A] cursor-pointer"
+                  class="shrink-0 p-1.5 rounded-md border border-border bg-white hover:bg-[#F6F7F9] text-foreground cursor-pointer"
                   title="Copy Case ID"
                   @click="copyToClipboard(submittedResult.caseId, 'Case ID')"
                 >
@@ -639,14 +629,14 @@ async function proceedToDashboard() {
 
             <!-- Tracking PIN -->
             <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">Tracking PIN</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Tracking PIN</span>
               <div class="flex items-center justify-between gap-2 mt-1">
-                <span class="font-mono font-extrabold text-2xl text-[#A2561B] tracking-wider select-all">
+                <span class="font-mono font-extrabold text-2xl text-primary tracking-wider select-all">
                   {{ submittedResult.trackingPin }}
                 </span>
                 <button
                   type="button"
-                  class="shrink-0 p-1.5 rounded-md border border-[#EADBCE] bg-white hover:bg-[#F6F7F9] text-[#22293A] cursor-pointer"
+                  class="shrink-0 p-1.5 rounded-md border border-border bg-white hover:bg-[#F6F7F9] text-foreground cursor-pointer"
                   title="Copy Tracking PIN"
                   @click="copyToClipboard(submittedResult.trackingPin, 'Tracking PIN')"
                 >
@@ -671,19 +661,19 @@ async function proceedToDashboard() {
 
             <button
               type="button"
-              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-[#EADBCE] bg-white hover:bg-[#FAF7F2] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer"
+              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-white hover:bg-[#FAF7F2] text-xs font-semibold text-foreground transition-colors cursor-pointer"
               @click="downloadCredentialsTxt"
             >
-              <DownloadIcon class="size-4 text-[#6B7280]" />
+              <DownloadIcon class="size-4 text-muted-foreground" />
               <span>Download Backup</span>
             </button>
 
             <button
               type="button"
-              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-[#EADBCE] bg-white hover:bg-[#FAF7F2] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer"
+              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-white hover:bg-[#FAF7F2] text-xs font-semibold text-foreground transition-colors cursor-pointer"
               @click="printReceipt"
             >
-              <PrinterIcon class="size-4 text-[#6B7280]" />
+              <PrinterIcon class="size-4 text-muted-foreground" />
               <span>Print</span>
             </button>
           </div>
@@ -696,27 +686,27 @@ async function proceedToDashboard() {
       <template v-else>
         <!-- Page Title & Reassurance Header -->
         <div class="space-y-1 text-center sm:text-left">
-          <h1 class="text-2xl sm:text-3xl font-bold text-[#22293A] tracking-tight">
+          <h1 class="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Submit a Case
           </h1>
-          <p class="text-xs sm:text-sm text-[#6B7280]">
+          <p class="text-xs sm:text-sm text-muted-foreground">
             Your submission is encrypted and anonymous. No personal information or IP address is logged.
           </p>
         </div>
 
         <!-- 4-Step Visual Stepper Bar -->
-        <div class="p-2.5 sm:p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
+        <div class="p-2.5 sm:p-4 rounded-xl bg-card border border-border shadow-xs">
           <div class="grid grid-cols-4 gap-1 sm:gap-2 text-center text-xs">
             <!-- Step 1 Indicator -->
             <button
               type="button"
               class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
-              :class="currentStep === 1 ? 'text-[#A2561B] font-bold' : currentStep > 1 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
+              :class="currentStep === 1 ? 'text-primary font-bold' : currentStep > 1 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
               @click="goToStep(1)"
             >
               <div
                 class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
-                :class="currentStep === 1 ? 'bg-[#A2561B] text-white shadow-xs' : currentStep > 1 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-[#6B7280]'"
+                :class="currentStep === 1 ? 'bg-primary text-white shadow-xs' : currentStep > 1 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-muted-foreground'"
               >
                 <CheckCircle2Icon v-if="currentStep > 1" class="size-3.5 sm:size-4" />
                 <span v-else>1</span>
@@ -729,12 +719,12 @@ async function proceedToDashboard() {
             <button
               type="button"
               class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
-              :class="currentStep === 2 ? 'text-[#A2561B] font-bold' : currentStep > 2 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
+              :class="currentStep === 2 ? 'text-primary font-bold' : currentStep > 2 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
               @click="goToStep(2)"
             >
               <div
                 class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
-                :class="currentStep === 2 ? 'bg-[#A2561B] text-white shadow-xs' : currentStep > 2 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-[#6B7280]'"
+                :class="currentStep === 2 ? 'bg-primary text-white shadow-xs' : currentStep > 2 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-muted-foreground'"
               >
                 <CheckCircle2Icon v-if="currentStep > 2" class="size-3.5 sm:size-4" />
                 <span v-else>2</span>
@@ -747,12 +737,12 @@ async function proceedToDashboard() {
             <button
               type="button"
               class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
-              :class="currentStep === 3 ? 'text-[#A2561B] font-bold' : currentStep > 3 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
+              :class="currentStep === 3 ? 'text-primary font-bold' : currentStep > 3 ? 'text-emerald-700 font-medium' : 'text-[#9CA3AF]'"
               @click="goToStep(3)"
             >
               <div
                 class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
-                :class="currentStep === 3 ? 'bg-[#A2561B] text-white shadow-xs' : currentStep > 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-[#6B7280]'"
+                :class="currentStep === 3 ? 'bg-primary text-white shadow-xs' : currentStep > 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-[#F2F4F7] text-muted-foreground'"
               >
                 <CheckCircle2Icon v-if="currentStep > 3" class="size-3.5 sm:size-4" />
                 <span v-else>3</span>
@@ -765,12 +755,12 @@ async function proceedToDashboard() {
             <button
               type="button"
               class="flex flex-col items-center gap-1 sm:gap-1.5 p-1 rounded-lg transition-colors cursor-pointer"
-              :class="currentStep === 4 ? 'text-[#A2561B] font-bold' : 'text-[#9CA3AF]'"
+              :class="currentStep === 4 ? 'text-primary font-bold' : 'text-[#9CA3AF]'"
               @click="goToStep(4)"
             >
               <div
                 class="size-6 sm:size-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all"
-                :class="currentStep === 4 ? 'bg-[#A2561B] text-white shadow-xs' : 'bg-[#F2F4F7] text-[#6B7280]'"
+                :class="currentStep === 4 ? 'bg-primary text-white shadow-xs' : 'bg-[#F2F4F7] text-muted-foreground'"
               >
                 <span>4</span>
               </div>
@@ -787,28 +777,28 @@ async function proceedToDashboard() {
         </div>
 
         <!-- Main Wizard Card Container -->
-        <div class="p-4 sm:p-8 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-6">
+        <div class="p-4 sm:p-8 rounded-2xl bg-card border border-border shadow-xs space-y-6">
 
           <!-- ========================================================================= -->
           <!-- STEP 1: Department Selection                                              -->
           <!-- ========================================================================= -->
           <div v-if="currentStep === 1" class="space-y-6 animate-fade-in">
             <div class="space-y-1">
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#A2561B] uppercase tracking-wider">
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider">
                 <BuildingIcon class="size-3.5" />
                 <span>Step 1 of 4: Organization</span>
               </div>
-              <h2 class="text-lg font-bold text-[#22293A]">
+              <h2 class="text-lg font-bold text-foreground">
                 Which department is affected?
               </h2>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Select the unit where this incident occurred so it can be assigned to the proper reviewer.
               </p>
             </div>
 
             <!-- Department Select -->
             <div class="space-y-2">
-              <label for="dept-select" class="block text-xs font-bold text-[#22293A]">
+              <label for="dept-select" class="block text-xs font-bold text-foreground">
                 Affected Department <span class="text-destructive">*</span>
               </label>
               <AppSelect
@@ -830,7 +820,7 @@ async function proceedToDashboard() {
 
             <div
               v-if="form.concernsDepartmentHead"
-              class="p-2.5 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 text-[11px] text-[#A2561B] flex items-center gap-2 font-medium"
+              class="p-2.5 rounded-lg bg-[#FCF4EE] border border-primary/30 text-[11px] text-primary flex items-center gap-2 font-medium"
             >
               <ShieldCheckIcon class="size-4 shrink-0" />
               <span>Manager Bypass Active: The Department Head will not see this case.</span>
@@ -842,14 +832,14 @@ async function proceedToDashboard() {
           <!-- ========================================================================= -->
           <div v-else-if="currentStep === 2" class="space-y-6 animate-fade-in">
             <div class="space-y-1">
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#A2561B] uppercase tracking-wider">
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider">
                 <CalendarIcon class="size-3.5" />
                 <span>Step 2 of 4: Details</span>
               </div>
-              <h2 class="text-lg font-bold text-[#22293A]">
+              <h2 class="text-lg font-bold text-foreground">
                 When and who was involved?
               </h2>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Provide basic context about the transaction or incident.
               </p>
             </div>
@@ -857,7 +847,7 @@ async function proceedToDashboard() {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Transaction Date -->
               <div>
-                <label for="txn-date" class="block text-xs font-bold text-[#22293A] mb-1.5">
+                <label for="txn-date" class="block text-xs font-bold text-foreground mb-1.5">
                   Date of Incident <span class="text-destructive">*</span>
                 </label>
                 <AppInput
@@ -871,7 +861,7 @@ async function proceedToDashboard() {
 
               <!-- Amount Involved -->
               <div>
-                <label for="amount-inv" class="block text-xs font-bold text-[#22293A] mb-1.5">
+                <label for="amount-inv" class="block text-xs font-bold text-foreground mb-1.5">
                   Amount Involved (FCFA) <span class="text-destructive">*</span>
                 </label>
                 <AppInput
@@ -887,7 +877,7 @@ async function proceedToDashboard() {
 
             <!-- Person Involved -->
             <div>
-              <label for="person-inv" class="block text-xs font-bold text-[#22293A] mb-1.5">
+              <label for="person-inv" class="block text-xs font-bold text-foreground mb-1.5">
                 Person or Unit Involved <span class="text-destructive">*</span>
               </label>
               <AppInput
@@ -901,7 +891,7 @@ async function proceedToDashboard() {
 
             <!-- Purpose of Transaction -->
             <div>
-              <label for="purpose-txn" class="block text-xs font-bold text-[#22293A] mb-1.5">
+              <label for="purpose-txn" class="block text-xs font-bold text-foreground mb-1.5">
                 Nature / Purpose of Transaction <span class="text-destructive">*</span>
               </label>
               <AppInput
@@ -919,14 +909,14 @@ async function proceedToDashboard() {
           <!-- ========================================================================= -->
           <div v-else-if="currentStep === 3" class="space-y-6 animate-fade-in">
             <div class="space-y-1">
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#A2561B] uppercase tracking-wider">
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider">
                 <FileTextIcon class="size-3.5" />
                 <span>Step 3 of 4: Evidence</span>
               </div>
-              <h2 class="text-lg font-bold text-[#22293A]">
+              <h2 class="text-lg font-bold text-foreground">
                 What happened?
               </h2>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Describe the event clearly and attach relevant receipts, memos, or images.
               </p>
             </div>
@@ -934,10 +924,10 @@ async function proceedToDashboard() {
             <!-- Description Textarea -->
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label for="case-desc" class="block text-xs font-bold text-[#22293A]">
+                <label for="case-desc" class="block text-xs font-bold text-foreground">
                   Detailed Description <span class="text-destructive">*</span>
                 </label>
-                <span class="text-[11px] text-[#6B7280]">
+                <span class="text-[11px] text-muted-foreground">
                   {{ form.description.length }} characters
                 </span>
               </div>
@@ -952,10 +942,10 @@ async function proceedToDashboard() {
 
             <!-- Evidence Uploader -->
             <div class="space-y-2">
-              <label class="block text-xs font-bold text-[#22293A]">
+              <label class="block text-xs font-bold text-foreground">
                 Attach Files &amp; Proof <span class="text-destructive">*</span>
               </label>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Upload documents, images, or PDF invoices (up to 10 files, 10MB each). Metadata is automatically scrubbed.
               </p>
               <EvidenceUploader
@@ -970,62 +960,62 @@ async function proceedToDashboard() {
           <!-- ========================================================================= -->
           <div v-else-if="currentStep === 4" class="space-y-6 animate-fade-in">
             <div class="space-y-1">
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#A2561B] uppercase tracking-wider">
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider">
                 <FileCheck2Icon class="size-3.5" />
                 <span>Step 4 of 4: Review</span>
               </div>
-              <h2 class="text-lg font-bold text-[#22293A]">
+              <h2 class="text-lg font-bold text-foreground">
                 Review your report
               </h2>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Confirm that the information below is accurate before submitting.
               </p>
             </div>
 
             <!-- Summary Card -->
-            <div class="p-5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE] space-y-4">
+            <div class="p-5 rounded-xl bg-[#FAF7F2] border border-border space-y-4">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <span class="text-[11px] font-bold uppercase text-[#6B7280]">Department</span>
-                  <p class="font-bold text-[#22293A] mt-0.5">{{ selectedDepartmentName }}</p>
+                  <span class="text-[11px] font-bold uppercase text-muted-foreground">Department</span>
+                  <p class="font-bold text-foreground mt-0.5">{{ selectedDepartmentName }}</p>
                   <span
                     v-if="form.concernsDepartmentHead"
-                    class="inline-block mt-1 text-[10px] font-bold text-[#A2561B] bg-[#FCF4EE] px-1.5 py-0.5 rounded border border-[#A2561B]/20"
+                    class="inline-block mt-1 text-[10px] font-bold text-primary bg-[#FCF4EE] px-1.5 py-0.5 rounded border border-primary/20"
                   >
                     Department Head Bypassed
                   </span>
                 </div>
 
                 <div>
-                  <span class="text-[11px] font-bold uppercase text-[#6B7280]">Date of Incident</span>
-                  <p class="font-bold text-[#22293A] mt-0.5">{{ form.transactionDate }}</p>
+                  <span class="text-[11px] font-bold uppercase text-muted-foreground">Date of Incident</span>
+                  <p class="font-bold text-foreground mt-0.5">{{ form.transactionDate }}</p>
                 </div>
 
                 <div>
-                  <span class="text-[11px] font-bold uppercase text-[#6B7280]">Amount Involved</span>
-                  <p class="font-bold text-[#22293A] mt-0.5 font-mono">{{ formatAmountDisplay(form.amountInvolved) }}</p>
+                  <span class="text-[11px] font-bold uppercase text-muted-foreground">Amount Involved</span>
+                  <p class="font-bold text-foreground mt-0.5 font-mono">{{ formatAmountDisplay(form.amountInvolved) }}</p>
                 </div>
 
                 <div>
-                  <span class="text-[11px] font-bold uppercase text-[#6B7280]">Person / Role Involved</span>
-                  <p class="font-bold text-[#22293A] mt-0.5">{{ form.personInvolved }}</p>
+                  <span class="text-[11px] font-bold uppercase text-muted-foreground">Person / Role Involved</span>
+                  <p class="font-bold text-foreground mt-0.5">{{ form.personInvolved }}</p>
                 </div>
 
                 <div class="sm:col-span-2">
-                  <span class="text-[11px] font-bold uppercase text-[#6B7280]">Transaction Purpose</span>
-                  <p class="font-bold text-[#22293A] mt-0.5">{{ form.purposeOfTransaction }}</p>
+                  <span class="text-[11px] font-bold uppercase text-muted-foreground">Transaction Purpose</span>
+                  <p class="font-bold text-foreground mt-0.5">{{ form.purposeOfTransaction }}</p>
                 </div>
 
                 <div class="sm:col-span-2">
-                  <span class="text-[11px] font-bold uppercase text-[#6B7280]">Description Summary</span>
-                  <p class="text-[#22293A] mt-0.5 line-clamp-3 leading-relaxed bg-white p-2.5 rounded border border-[#EADBCE]">
+                  <span class="text-[11px] font-bold uppercase text-muted-foreground">Description Summary</span>
+                  <p class="text-foreground mt-0.5 line-clamp-3 leading-relaxed bg-white p-2.5 rounded border border-border">
                     {{ form.description }}
                   </p>
                 </div>
 
                 <div class="sm:col-span-2">
-                  <span class="text-[11px] font-bold uppercase text-[#6B7280]">Attached Files</span>
-                  <p class="font-bold text-[#22293A] mt-0.5">
+                  <span class="text-[11px] font-bold uppercase text-muted-foreground">Attached Files</span>
+                  <p class="font-bold text-foreground mt-0.5">
                     {{ form.evidence.length }} {{ form.evidence.length === 1 ? 'file attached' : 'files attached' }}
                   </p>
                 </div>
@@ -1033,26 +1023,26 @@ async function proceedToDashboard() {
             </div>
 
             <!-- Terms of Service & Assurance Note -->
-            <div class="p-3.5 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/20 text-xs text-[#6B7280] leading-relaxed space-y-1.5">
-              <div class="flex items-center gap-2 font-bold text-[#A2561B]">
+            <div class="p-3.5 rounded-xl bg-[#FCF4EE] border border-primary/20 text-xs text-muted-foreground leading-relaxed space-y-1.5">
+              <div class="flex items-center gap-2 font-bold text-primary">
                 <ShieldCheckIcon class="size-4 shrink-0" />
                 <span>Zero-Retaliation Protection &amp; Terms Agreement</span>
               </div>
               <p>
                 By submitting this confidential report, you confirm the information provided is truthful to the best of your recollection.
                 Your intake is governed by Verita's
-                <router-link to="/terms" target="_blank" class="font-semibold text-[#A2561B] hover:underline">Terms of Service</router-link>
+                <router-link to="/terms" target="_blank" class="font-semibold text-primary hover:underline">Terms of Service</router-link>
                 and protected under ISO 37002 anonymity standards.
               </p>
             </div>
           </div>
 
           <!-- Wizard Navigation Bar -->
-          <div class="pt-4 border-t border-[#EADBCE] flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
+          <div class="pt-4 border-t border-border flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
             <button
               v-if="currentStep > 1"
               type="button"
-              class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-lg border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer w-full sm:w-auto"
+              class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-lg border border-border bg-[#FAF7F2] hover:bg-[#F4EFE6] text-xs font-semibold text-foreground transition-colors cursor-pointer w-full sm:w-auto"
               @click="prevStep"
             >
               <ArrowLeftIcon class="size-3.5" />
@@ -1061,7 +1051,7 @@ async function proceedToDashboard() {
             <button
               v-else
               type="button"
-              class="text-xs text-[#6B7280] hover:text-[#22293A] transition-colors cursor-pointer py-1.5 text-center sm:text-left"
+              class="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer py-1.5 text-center sm:text-left"
               @click="handleReset"
             >
               Reset Form

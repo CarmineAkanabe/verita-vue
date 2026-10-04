@@ -3,9 +3,11 @@
 import { ref, computed, onMounted } from 'vue'
 import type { EngagementReportData } from '@/features/manager/types'
 import { getEngagementReport } from '@/features/manager/api'
+import { getStaffCasesQueue } from '@/features/cases/api'
 import AppButton from '@/components/common/AppButton.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import ResolutionTrendChart from '@/components/complex/manager/ResolutionTrendChart.vue'
 import {
   PrinterIcon,
   RefreshCwIcon,
@@ -22,6 +24,7 @@ const report = ref<EngagementReportData>({
   caseVolumeByDepartment: [],
   averageResolutionDays: null,
   categoryBreakdownOverTime: [],
+  resolutionTrends: [],
 })
 
 const isLoading = ref(true)
@@ -31,7 +34,37 @@ async function fetchReport() {
   isLoading.value = true
   error.value = null
   try {
-    report.value = await getEngagementReport()
+    const [reportData, casesData] = await Promise.all([
+      getEngagementReport(),
+      getStaffCasesQueue()
+    ])
+
+    const trendMap = new Map<string, { resolved: number; dismissed: number }>()
+
+    for (const c of casesData) {
+      if (c.status === 'RESOLVED' || c.status === 'DISMISSED') {
+        const dateStr = c.resolvedAt || c.createdAt
+        if (!dateStr) continue
+
+        const dateObj = new Date(dateStr)
+        const month = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`
+
+        if (!trendMap.has(month)) {
+          trendMap.set(month, { resolved: 0, dismissed: 0 })
+        }
+
+        const entry = trendMap.get(month)!
+        if (c.status === 'RESOLVED') entry.resolved++
+        if (c.status === 'DISMISSED') entry.dismissed++
+      }
+    }
+
+    const computedTrends = Array.from(trendMap.entries())
+      .map(([month, counts]) => ({ month, ...counts }))
+      .sort((a, b) => a.month.localeCompare(b.month))
+
+    reportData.resolutionTrends = computedTrends
+    report.value = reportData
   } catch (err: any) {
     error.value = err?.message || 'Failed to load engagement report. Please verify connection.'
   } finally {
@@ -317,9 +350,28 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- Visualization 3: Resolution vs Dismissed Trend (Full Width) -->
+      <div class="bg-card border border-border rounded-lg p-5 space-y-4 card-creamy mt-6 print:mt-4">
+        <div class="flex items-center justify-between border-b border-border pb-3">
+          <div>
+            <h2 class="text-sm font-bold text-foreground flex items-center gap-2">
+              <RefreshCwIcon class="size-4 text-primary" />
+              Resolution to Dismissed Ratio Trends
+            </h2>
+            <p class="text-xs text-muted-foreground mt-0.5">
+              Historical ratio of fully resolved disclosures versus dismissed or unverified reports
+            </p>
+          </div>
+        </div>
+        
+        <div class="pt-2 pb-1">
+          <ResolutionTrendChart :data="report.resolutionTrends || []" />
+        </div>
+      </div>
+
       <!-- Institutional Assurance & Governance Notice -->
       <div
-        class="bg-card border border-border rounded-lg p-4 card-creamy flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        class="bg-card border border-border rounded-lg p-4 card-creamy flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6 print:mt-4">
         <div class="flex items-start gap-3">
           <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-700 shrink-0 mt-0.5">
             <ShieldCheckIcon class="size-5" />
@@ -329,7 +381,7 @@ onMounted(() => {
               ISO 37002 Case Reporting Management Standard Verification
             </h3>
             <p class="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-              All reporting metrics are collected through air-gapped intake channels. No IP addresses, device headers,
+              All reporting metrics are collected through anonymous intake channels. No IP addresses, device headers,
               or
               location data are stored or linked to engagement telemetry.
             </p>

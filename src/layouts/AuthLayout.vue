@@ -1,6 +1,7 @@
 <!-- layouts/AuthLayout.vue -->
 <script setup lang="ts">
 import { ShieldCheckIcon } from '@lucide/vue'
+import RouteTransition from '@/components/common/RouteTransition.vue'
 </script>
 
 <template>
@@ -13,17 +14,17 @@ import { ShieldCheckIcon } from '@lucide/vue'
     </div>
 
     <!-- Minimal Header with Verita Logo -->
-    <header class="relative z-10 w-full border-b border-[#D8C7B0] bg-[#EFE6D8] shadow-xs">
+    <header class="relative z-10 w-full border-b border-border bg-[#EFE6D8] shadow-xs">
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <router-link to="/" class="flex items-center gap-2.5 group">
-          <div class="h-8 w-8 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-[#D8C7B0] shadow-xs group-hover:scale-105 group-hover:border-primary/60 transition-all duration-300">
+          <div class="h-8 w-8 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-border shadow-xs group-hover:scale-105 group-hover:border-primary/60 transition-all duration-300">
             <img src="/verita.png" alt="Verita Logo" class="h-full w-full object-contain p-0.5" />
           </div>
           <div class="flex flex-col">
-            <span class="text-sm font-bold tracking-tight text-[#22293A] group-hover:text-primary transition-colors">
+            <span class="text-sm font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
               Verita
             </span>
-            <span class="text-[9px] font-semibold text-[#6A5A48] uppercase tracking-wider">
+            <span class="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">
               Enterprise Trust Platform
             </span>
           </div>
@@ -31,7 +32,7 @@ import { ShieldCheckIcon } from '@lucide/vue'
 
         <router-link
           to="/"
-          class="text-xs font-semibold text-[#6A5A48] hover:text-[#22293A] transition-colors flex items-center gap-1"
+          class="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
         >
           Return to platform &rarr;
         </router-link>
@@ -41,7 +42,7 @@ import { ShieldCheckIcon } from '@lucide/vue'
     <!-- Centered Card Container -->
     <main class="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div class="w-full max-w-md">
-        <router-view />
+        <RouteTransition />
       </div>
     </main>
 
@@ -50,7 +51,7 @@ import { ShieldCheckIcon } from '@lucide/vue'
       <div class="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
         <div class="flex items-center gap-1.5">
           <ShieldCheckIcon class="size-3.5 text-primary" />
-          <span>Air-Gapped Authentication · Zero IP Tracking · TLS 1.3</span>
+          <span>Anonymous Authentication · Zero IP Tracking</span>
         </div>
         <p>© {{ new Date().getFullYear() }} Verita Technologies Inc.</p>
       </div>

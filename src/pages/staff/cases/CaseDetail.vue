@@ -178,7 +178,7 @@ function formatAuditAction(action: string): string {
 function getActorBadge(actorType: string) {
   switch (actorType) {
     case 'DEPARTMENT_HEAD':
-      return { label: 'Department Head', class: 'bg-[#22293A] text-white border-[#22293A]', icon: UserCheckIcon }
+      return { label: 'Department Head', class: 'bg-foreground text-white border-foreground', icon: UserCheckIcon }
     case 'AI':
       return { label: 'AI Intelligence Engine', class: 'bg-purple-100 text-purple-800 border-purple-300', icon: BotIcon }
     default:
@@ -589,12 +589,12 @@ onMounted(() => {
     <!-- ========================================================================= -->
     <!-- DEDICATED CASE DASHBOARD LOADING SCREEN                                   -->
     <!-- ========================================================================= -->
-    <div v-if="isLoading" class="p-6 sm:p-10 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-lg space-y-8 animate-fade-in card-creamy">
+    <div v-if="isLoading" class="p-6 sm:p-10 rounded-2xl bg-card border border-border shadow-lg space-y-8 animate-fade-in card-creamy">
       <!-- Top Classification Tag & Back Link -->
-      <div class="flex items-center justify-between border-b border-[#EADBCE] pb-4">
+      <div class="flex items-center justify-between border-b border-border pb-4">
         <router-link
           to="/app/cases"
-          class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeftIcon class="size-4" />
           <span>Back to Cases</span>
@@ -603,11 +603,11 @@ onMounted(() => {
         <div class="flex items-center gap-2">
           <span
             class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
-            :class="isManager ? 'bg-[#A2561B]/10 text-[#A2561B] border border-[#A2561B]/20' : 'bg-[#22293A] text-white border border-[#22293A]'"
+            :class="isManager ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-foreground text-white border border-foreground'"
           >
             {{ isManager ? 'Manager Secure View' : 'Department Head Casework' }}
           </span>
-          <span class="text-[11px] font-mono text-[#6B7280] hidden sm:inline">ISO 37002 Audited</span>
+          <span class="text-[11px] font-mono text-muted-foreground hidden sm:inline">ISO 37002 Audited</span>
         </div>
       </div>
 
@@ -615,30 +615,30 @@ onMounted(() => {
       <div class="flex flex-col items-center text-center space-y-4 py-4">
         <div class="relative size-28 sm:size-32 flex items-center justify-center">
           <!-- Outer rotating radar ring -->
-          <div class="absolute inset-0 rounded-full border-2 border-dashed border-[#22293A]/30 animate-radar"></div>
+          <div class="absolute inset-0 rounded-full border-2 border-dashed border-foreground/30 animate-radar"></div>
           <!-- Glowing pulse circle -->
           <div class="absolute inset-2 rounded-full bg-gradient-to-tr from-[#22293A]/10 to-[#A2561B]/15 animate-pulse-glow"></div>
           <!-- Inner ring -->
-          <div class="absolute inset-4 rounded-full border border-[#A2561B]/40"></div>
+          <div class="absolute inset-4 rounded-full border border-primary/40"></div>
           <!-- Center Icon -->
           <div class="relative z-10 flex flex-col items-center justify-center">
-            <LockIcon v-if="loadingStageIndex === 0" class="size-10 text-[#22293A] animate-pulse" />
-            <ShieldIcon v-else-if="loadingStageIndex === 1" class="size-10 text-[#A2561B] animate-pulse" />
+            <LockIcon v-if="loadingStageIndex === 0" class="size-10 text-foreground animate-pulse" />
+            <ShieldIcon v-else-if="loadingStageIndex === 1" class="size-10 text-primary animate-pulse" />
             <BotIcon v-else-if="loadingStageIndex === 2" class="size-10 text-purple-700 animate-pulse" />
-            <HistoryIcon v-else-if="loadingStageIndex === 3" class="size-10 text-[#22293A] animate-pulse" />
+            <HistoryIcon v-else-if="loadingStageIndex === 3" class="size-10 text-foreground animate-pulse" />
             <CheckCircle2Icon v-else class="size-12 text-emerald-600 animate-in zoom-in" />
           </div>
         </div>
 
         <!-- Readout & Status -->
         <div class="space-y-1.5">
-          <div class="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-[#22293A]">
-            {{ loadingProgress }}<span class="text-2xl text-[#A2561B]">%</span>
+          <div class="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-foreground">
+            {{ loadingProgress }}<span class="text-2xl text-primary">%</span>
           </div>
-          <h2 class="text-base sm:text-lg font-bold text-[#22293A]">
+          <h2 class="text-base sm:text-lg font-bold text-foreground">
             {{ departmentHeadLoadingStages[loadingStageIndex].title }}
           </h2>
-          <p class="text-xs text-[#6B7280] max-w-md mx-auto leading-relaxed">
+          <p class="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
             {{ departmentHeadLoadingStages[loadingStageIndex].detail }}
           </p>
         </div>
@@ -646,7 +646,7 @@ onMounted(() => {
 
       <!-- High-tech Progress Bar -->
       <div class="space-y-2">
-        <div class="h-3 w-full bg-[#EADBCE]/50 rounded-full overflow-hidden p-0.5 border border-[#EADBCE]">
+        <div class="h-3 w-full bg-[#EADBCE]/50 rounded-full overflow-hidden p-0.5 border border-border">
           <div
             class="h-full rounded-full bg-gradient-to-r from-[#22293A] via-[#A2561B] to-emerald-600 transition-all duration-150 ease-out shadow-xs"
             :style="{ width: `${loadingProgress}%` }"
@@ -664,8 +664,8 @@ onMounted(() => {
             idx < loadingStageIndex
               ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
               : idx === loadingStageIndex
-              ? 'bg-white border-[#22293A] shadow-xs text-[#22293A] font-semibold'
-              : 'bg-transparent border-transparent text-[#6B7280]/60'
+              ? 'bg-white border-foreground shadow-xs text-foreground font-semibold'
+              : 'bg-transparent border-transparent text-muted-foreground/60'
           "
         >
           <div
@@ -674,8 +674,8 @@ onMounted(() => {
               idx < loadingStageIndex
                 ? 'bg-emerald-600 text-white'
                 : idx === loadingStageIndex
-                ? 'bg-[#22293A] text-white animate-pulse'
-                : 'bg-[#EADBCE]/60 text-[#6B7280]'
+                ? 'bg-foreground text-white animate-pulse'
+                : 'bg-[#EADBCE]/60 text-muted-foreground'
             "
           >
             <CheckIcon v-if="idx < loadingStageIndex" class="size-3.5 stroke-[3]" />
@@ -693,8 +693,8 @@ onMounted(() => {
               idx < loadingStageIndex
                 ? 'bg-emerald-100 text-emerald-800'
                 : idx === loadingStageIndex
-                ? 'bg-[#22293A]/10 text-[#22293A]'
-                : 'text-[#6B7280]/50'
+                ? 'bg-foreground/10 text-foreground'
+                : 'text-muted-foreground/50'
             "
           >
             {{ idx < loadingStageIndex ? 'VERIFIED' : idx === loadingStageIndex ? 'INSPECTING' : 'QUEUED' }}
@@ -703,7 +703,7 @@ onMounted(() => {
       </div>
 
       <!-- Security Notice Footer -->
-      <div class="pt-4 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#6B7280]">
+      <div class="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-muted-foreground">
         <span class="flex items-center gap-1.5">
           <ShieldAlertIcon class="size-3.5 text-primary" />
           Investigator Non-Disclosure Protocols Active
@@ -716,7 +716,7 @@ onMounted(() => {
     <div v-else-if="error && !caseData" class="space-y-4">
       <router-link
         to="/app/cases"
-        class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors"
+        class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeftIcon class="size-4" />
         <span>Back to Cases</span>
@@ -727,17 +727,17 @@ onMounted(() => {
     <!-- Loaded Case Details View -->
     <div v-else-if="caseData" class="space-y-6">
       <!-- Back & Header Bar -->
-      <div class="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-3">
+      <div class="p-4 sm:p-5 rounded-2xl bg-card border border-border shadow-xs space-y-3">
         <div class="flex items-center justify-between">
           <router-link to="/app/cases"
-            class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#22293A] transition-colors">
+            class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeftIcon class="size-4" />
             <span>Back to Cases</span>
           </router-link>
 
           <div class="flex items-center gap-2 flex-wrap">
             <span v-if="isManager"
-              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A2561B]/10 text-[#A2561B] border border-[#A2561B]/20">
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
               Manager View · Case Summary
             </span>
             <span v-if="caseData?.concernsDepartmentHead"
@@ -750,21 +750,21 @@ onMounted(() => {
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div class="flex items-center gap-3">
-              <h1 class="text-xl sm:text-2xl font-bold text-[#22293A] font-mono tracking-tight">
+              <h1 class="text-xl sm:text-2xl font-bold text-foreground font-mono tracking-tight">
                 Case #{{ caseId.slice(0, 14) }}...
               </h1>
               <button type="button"
-                class="p-1 rounded hover:bg-[#FAF7F2] text-[#6B7280] hover:text-[#22293A] cursor-pointer"
+                class="p-1 rounded hover:bg-[#FAF7F2] text-muted-foreground hover:text-foreground cursor-pointer"
                 title="Copy Full Case ID" @click="copyCaseId">
                 <CheckIcon v-if="copiedId" class="size-4 text-emerald-600" />
                 <CopyIcon v-else class="size-4" />
               </button>
               <StatusPill v-if="caseData" :status="caseData.status" />
             </div>
-            <p class="text-xs text-[#6B7280] mt-1">
-              Submitted on <strong class="text-[#22293A]">{{ formatDate(caseData?.createdAt || caseData?.transactionDate)
+            <p class="text-xs text-muted-foreground mt-1">
+              Submitted on <strong class="text-foreground">{{ formatDate(caseData?.createdAt || caseData?.transactionDate)
               }}</strong>
-              · Category: <span class="font-bold text-[#A2561B]">{{ caseData?.category }}</span>
+              · Category: <span class="font-bold text-primary">{{ caseData?.category }}</span>
             </p>
           </div>
 
@@ -790,7 +790,7 @@ onMounted(() => {
 
             <!-- Consultation Channel Link (Department Head only - strictly hidden for Manager) -->
             <router-link v-if="!isManager" :to="`/app/cases/${caseData?.id}/chat`"
-              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs">
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-primary text-white hover:bg-[#854310] transition-colors shadow-xs">
               <MessageSquareIcon class="size-3.5" />
               <span>Open Case Chat</span>
             </router-link>
@@ -806,11 +806,11 @@ onMounted(() => {
       <!-- ========================================================================= -->
       <template v-if="isManager">
         <!-- Privacy Safeguard Notice -->
-        <div class="p-4 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/20 text-xs text-[#A2561B] flex items-start gap-3 shadow-xs">
+        <div class="p-4 rounded-xl bg-[#FCF4EE] border border-primary/20 text-xs text-primary flex items-start gap-3 shadow-xs">
           <ShieldAlertIcon class="size-4 shrink-0 mt-0.5" />
           <div class="space-y-1">
             <p class="font-bold">Manager Privacy Safeguard Active</p>
-            <p class="text-[11px] text-[#6B7280] leading-relaxed">
+            <p class="text-[11px] text-muted-foreground leading-relaxed">
               To protect the Case Reporter's privacy, Managers view case overview details and assigned staff only. Full statements, evidence files, and case chat are handled directly by the Department Head.
             </p>
           </div>
@@ -822,84 +822,84 @@ onMounted(() => {
           <div class="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider text-[10px]">
             <CheckCircle2Icon class="size-3.5" />
             <span>Case Resolution Summary</span>
-            <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt) }})</span>
+            <span v-if="caseData.resolvedAt" class="font-mono text-muted-foreground">({{ formatDate(caseData.resolvedAt) }})</span>
           </div>
-          <p class="text-xs text-[#22293A] font-medium leading-relaxed">
+          <p class="text-xs text-foreground font-medium leading-relaxed">
             {{ caseData.resolutionSummary }}
           </p>
         </div>
 
         <!-- Case Details Card (Creamy Card) -->
-        <div class="p-6 rounded-2xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs space-y-5">
-          <div class="flex items-center justify-between border-b border-[#EADBCE] pb-3">
+        <div class="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-5">
+          <div class="flex items-center justify-between border-b border-border pb-3">
             <div class="flex items-center gap-2">
-              <BriefcaseIcon class="size-4 text-[#A2561B]" />
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#22293A]">
+              <BriefcaseIcon class="size-4 text-primary" />
+              <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">
                 Case Details
               </h2>
             </div>
-            <span class="text-[11px] font-mono text-[#6B7280]">
+            <span class="text-[11px] font-mono text-muted-foreground">
               Case Record
             </span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
             <!-- Reference ID -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Case Reference</span>
-              <p class="font-mono font-bold text-[#22293A] text-sm mt-1 truncate" :title="caseData.id">
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Case Reference</span>
+              <p class="font-mono font-bold text-foreground text-sm mt-1 truncate" :title="caseData.id">
                 {{ caseData.id }}
               </p>
             </div>
 
             <!-- Date -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Incident Date</span>
-              <p class="font-mono font-bold text-[#22293A] text-sm mt-1">
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Incident Date</span>
+              <p class="font-mono font-bold text-foreground text-sm mt-1">
                 {{ formatDate(caseData.transactionDate || caseData.createdAt) }}
               </p>
             </div>
 
             <!-- Category -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Category &amp; Scope</span>
-              <p class="font-bold text-[#A2561B] text-sm mt-1">
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category &amp; Scope</span>
+              <p class="font-bold text-primary text-sm mt-1">
                 {{ caseData.category }}
               </p>
             </div>
 
             <!-- Disputed Amount -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Disputed Amount</span>
-              <p class="font-mono font-extrabold text-[#A2561B] text-base mt-1">
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Disputed Amount</span>
+              <p class="font-mono font-extrabold text-primary text-base mt-1">
                 {{ formatAmount(caseData.amountInvolved) }}
               </p>
             </div>
 
             <!-- Person Involved -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Person / Unit Cited</span>
-              <p class="font-bold text-[#22293A] text-sm mt-1 truncate" :title="caseData.personInvolved">
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Person / Unit Cited</span>
+              <p class="font-bold text-foreground text-sm mt-1 truncate" :title="caseData.personInvolved">
                 {{ caseData.personInvolved || 'Unspecified' }}
               </p>
             </div>
 
             <!-- Purpose of Transaction -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Report Purpose / Label</span>
-              <p class="font-bold text-[#22293A] text-sm mt-1 truncate" :title="caseData.purposeOfTransaction">
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Report Purpose / Label</span>
+              <p class="font-bold text-foreground text-sm mt-1 truncate" :title="caseData.purposeOfTransaction">
                 {{ caseData.purposeOfTransaction || 'General Incident Disclosure' }}
               </p>
             </div>
 
             <!-- Working Officer -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE] sm:col-span-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Assigned Working Officer</span>
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border sm:col-span-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Assigned Working Officer</span>
               <div class="flex items-center justify-between gap-2 mt-1">
                 <div class="flex items-center gap-2">
                   <UserCheckIcon v-if="caseData.assignedTo" class="size-4 text-emerald-600 shrink-0" />
                   <ClockIcon v-else class="size-4 text-amber-500 shrink-0" />
-                  <span class="font-bold text-[#22293A] text-sm">
+                  <span class="font-bold text-foreground text-sm">
                     {{ assignedOfficerName }}
                   </span>
                 </div>
@@ -915,8 +915,8 @@ onMounted(() => {
             </div>
 
             <!-- Status & Flags -->
-            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Status &amp; Flags</span>
+            <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Status &amp; Flags</span>
               <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <StatusPill :status="caseData.status" />
                 <span v-if="caseData.concernsDepartmentHead"
@@ -946,10 +946,10 @@ onMounted(() => {
           <div class="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider text-[10px]">
             <CheckCircle2Icon class="size-3.5" />
             <span>Case Resolution Summary</span>
-            <span v-if="caseData.resolvedAt" class="font-mono text-[#6B7280]">({{ formatDate(caseData.resolvedAt)
+            <span v-if="caseData.resolvedAt" class="font-mono text-muted-foreground">({{ formatDate(caseData.resolvedAt)
             }})</span>
           </div>
-          <p class="text-xs text-[#22293A] font-medium leading-relaxed">
+          <p class="text-xs text-foreground font-medium leading-relaxed">
             {{ caseData.resolutionSummary }}
           </p>
         </div>
@@ -957,41 +957,41 @@ onMounted(() => {
         <!-- Quick Metrics Grid (Creamy Cards) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Amount Involved -->
-          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+          <div class="p-4 rounded-xl bg-card border border-border shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Amount Involved
             </span>
-            <p class="text-xl font-extrabold text-[#A2561B] font-mono mt-1">
+            <p class="text-xl font-extrabold text-primary font-mono mt-1">
               {{ formatAmount(caseData.amountInvolved) }}
             </p>
           </div>
 
           <!-- Person / Unit Involved -->
-          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+          <div class="p-4 rounded-xl bg-card border border-border shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Person / Unit Involved
             </span>
-            <p class="text-sm font-bold text-[#22293A] truncate mt-1" :title="caseData.personInvolved">
+            <p class="text-sm font-bold text-foreground truncate mt-1" :title="caseData.personInvolved">
               {{ caseData.personInvolved || 'Unspecified' }}
             </p>
           </div>
 
           <!-- Date of Incident -->
-          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+          <div class="p-4 rounded-xl bg-card border border-border shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Date of Incident
             </span>
-            <p class="text-sm font-bold text-[#22293A] font-mono mt-1">
+            <p class="text-sm font-bold text-foreground font-mono mt-1">
               {{ caseData.transactionDate || 'Not specified' }}
             </p>
           </div>
 
           <!-- Assigned Officer -->
-          <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-xs">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+          <div class="p-4 rounded-xl bg-card border border-border shadow-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Assigned Officer
             </span>
-            <p class="text-sm font-bold text-[#22293A] mt-1">
+            <p class="text-sm font-bold text-foreground mt-1">
               {{ isAssignedToMe ? 'Assigned to You' : caseData.assignedTo ? 'Assigned to Staff' : 'Unclaimed' }}
             </p>
           </div>
@@ -1000,16 +1000,16 @@ onMounted(() => {
       <!-- PREMIER HERO SECTION: AI Case Analysis -->
       <div
         class="p-6 rounded-2xl bg-gradient-to-br from-[#FAF6FF] via-[#F8F3EA] to-[#F8F3EA] border-2 border-[#DDD6FE] shadow-xs space-y-6">
-        <div class="flex items-center justify-between border-b border-[#E2D5C3] pb-3">
+        <div class="flex items-center justify-between border-b border-border pb-3">
           <div class="flex items-center gap-2.5">
             <div class="p-2 rounded-lg bg-[#8B5CF6]/15 text-[#7C3AED]">
               <SparklesIcon class="size-5" />
             </div>
             <div>
-              <h2 class="text-base font-bold text-[#22293A]">
+              <h2 class="text-base font-bold text-foreground">
                 AI Case Analysis &amp; Findings
               </h2>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Automated summary, verified risk indicators, and incident chronology
               </p>
             </div>
@@ -1026,11 +1026,11 @@ onMounted(() => {
             Incident Summary
           </h3>
           <p
-            class="text-xs text-[#22293A] leading-relaxed bg-[#F8F3EA] p-4 rounded-xl border border-[#E2D5C3] shadow-xs">
+            class="text-xs text-foreground leading-relaxed bg-card p-4 rounded-xl border border-border shadow-xs">
             {{ caseData.aiSummary }}
           </p>
         </div>
-        <div v-else class="text-xs text-[#6B7280] italic py-2">
+        <div v-else class="text-xs text-muted-foreground italic py-2">
           AI analysis is pending or processing for this case.
         </div>
 
@@ -1074,7 +1074,7 @@ onMounted(() => {
               <span class="text-[11px] font-bold text-[#4338CA] uppercase tracking-wider">
                 Recommended Inquiries for Case Reporter ({{ structuredFindings.clarifications.length }})
               </span>
-              <span class="text-[10px] text-[#6B7280]">Click icon to copy question</span>
+              <span class="text-[10px] text-muted-foreground">Click icon to copy question</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div v-for="(item, idx) in structuredFindings.clarifications" :key="'clar-' + idx"
@@ -1094,37 +1094,37 @@ onMounted(() => {
         </div>
 
         <!-- Comprehensive Incident Timeline Component -->
-        <div v-if="parsedTimeline.length > 0" class="space-y-3 pt-3 border-t border-[#E2D5C3]">
+        <div v-if="parsedTimeline.length > 0" class="space-y-3 pt-3 border-t border-border">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <ClockIcon class="size-4 text-[#A2561B]" />
-              <h3 class="text-xs font-bold text-[#22293A] uppercase tracking-wider">
+              <ClockIcon class="size-4 text-primary" />
+              <h3 class="text-xs font-bold text-foreground uppercase tracking-wider">
                 Incident Chronology &amp; Timeline ({{ parsedTimeline.length }} Milestones)
               </h3>
             </div>
-            <span class="text-[10px] text-[#6B7280] font-medium">Reconstructed from statements and evidence</span>
+            <span class="text-[10px] text-muted-foreground font-medium">Reconstructed from statements and evidence</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div v-for="(event, eIdx) in parsedTimeline" :key="eIdx"
-              class="p-3.5 rounded-xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs flex flex-col justify-between space-y-2 hover:border-[#A2561B]/60 transition-colors">
+              class="p-3.5 rounded-xl bg-card border border-border shadow-xs flex flex-col justify-between space-y-2 hover:border-primary/60 transition-colors">
               <div>
                 <div class="flex items-center justify-between gap-1 mb-1.5">
                   <span
-                    class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FAF7F2] border border-[#E2D5C3] text-[#A2561B]">
+                    class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FAF7F2] border border-border text-primary">
                     <CalendarIcon class="size-3" />
                     {{ event.date }}
                   </span>
-                  <span v-if="event.time" class="font-mono text-[10px] text-[#6B7280]">
+                  <span v-if="event.time" class="font-mono text-[10px] text-muted-foreground">
                     {{ event.time }}
                   </span>
                 </div>
-                <h4 class="font-bold text-[#22293A] text-xs leading-snug">
+                <h4 class="font-bold text-foreground text-xs leading-snug">
                   {{ event.event }}
                 </h4>
               </div>
               <p v-if="event.description"
-                class="text-[11px] text-[#6B7280] leading-relaxed pt-1.5 border-t border-[#E2D5C3]/70">
+                class="text-[11px] text-muted-foreground leading-relaxed pt-1.5 border-t border-border/70">
                 {{ event.description }}
               </p>
             </div>
@@ -1136,27 +1136,27 @@ onMounted(() => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left: Incident Narrative Details (2 cols) -->
         <div class="lg:col-span-2 space-y-6">
-          <div class="p-6 rounded-2xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs space-y-4">
-            <h2 class="text-sm font-bold text-[#22293A] uppercase tracking-wider border-b border-[#E2D5C3] pb-3">
+          <div class="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-4">
+            <h2 class="text-sm font-bold text-foreground uppercase tracking-wider border-b border-border pb-3">
               Report Details &amp; Narrative
             </h2>
 
             <div class="space-y-4 text-xs">
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Transaction Nature / Purpose
                 </span>
-                <p class="font-bold text-[#22293A] text-sm mt-0.5">
+                <p class="font-bold text-foreground text-sm mt-0.5">
                   {{ caseData.purposeOfTransaction || 'Not specified' }}
                 </p>
               </div>
 
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Full Description
                 </span>
                 <div
-                  class="p-3.5 rounded-xl bg-[#F2EAE0] border border-[#E2D5C3] mt-1 whitespace-pre-wrap leading-relaxed text-[#22293A] font-sans text-xs">
+                  class="p-3.5 rounded-xl bg-[#F2EAE0] border border-border mt-1 whitespace-pre-wrap leading-relaxed text-foreground font-sans text-xs">
                   {{ caseData.description }}
                 </div>
               </div>
@@ -1166,44 +1166,44 @@ onMounted(() => {
 
         <!-- Right: Attached Files (1 col) -->
         <div class="space-y-6">
-          <div class="p-6 rounded-2xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-[#E2D5C3] pb-3">
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#22293A] flex items-center gap-2">
-                <FileTextIcon class="size-4 text-[#A2561B]" />
+          <div class="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-border pb-3">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+                <FileTextIcon class="size-4 text-primary" />
                 Attached Files ({{ caseData.evidence?.length || 0 }})
               </h2>
             </div>
 
             <div v-if="!caseData.evidence || caseData.evidence.length === 0"
-              class="text-xs text-[#6B7280] py-6 text-center">
+              class="text-xs text-muted-foreground py-6 text-center">
               No files were attached with this case.
             </div>
 
             <div v-else class="space-y-2.5">
               <div v-for="(item, idx) in caseData.evidence" :key="item.id"
-                class="p-3 rounded-xl border border-[#E2D5C3] bg-[#F2EAE0] text-xs space-y-2">
+                class="p-3 rounded-xl border border-border bg-[#F2EAE0] text-xs space-y-2">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-[#A2561B]/10 text-[#A2561B]">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-primary/10 text-primary">
                       {{ item.fileType }}
                     </span>
-                    <span class="font-bold text-[#22293A]">File #{{ idx + 1 }}</span>
+                    <span class="font-bold text-foreground">File #{{ idx + 1 }}</span>
                   </div>
-                  <span class="text-[10px] font-mono text-[#6B7280]">
+                  <span class="text-[10px] font-mono text-muted-foreground">
                     {{ formatDate(item.uploadedAt) }}
                   </span>
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-1">
                   <button type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border border-[#EADBCE] bg-white hover:bg-[#F6F7F9] text-[#22293A] transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border border-border bg-white hover:bg-[#F6F7F9] text-foreground transition-colors cursor-pointer"
                     @click="handlePreviewEvidence(item, idx)">
                     <EyeIcon class="size-3" />
                     <span>Preview</span>
                   </button>
 
                   <button type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-[#A2561B] text-white hover:bg-[#854310] transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-primary text-white hover:bg-[#854310] transition-colors cursor-pointer"
                     @click="handleDownloadEvidence(item, idx)">
                     <DownloadIcon class="size-3" />
                     <span>Download</span>
@@ -1217,28 +1217,28 @@ onMounted(() => {
       </template>
 
       <!-- CASE HISTORY & IMMUTABLE AUDIT TRAIL -->
-      <div class="p-6 rounded-2xl bg-[#F8F3EA] border border-[#E2D5C3] shadow-xs space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2D5C3] pb-4">
+      <div class="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4">
           <div class="flex items-center gap-2.5">
-            <div class="p-2 rounded-lg bg-[#A2561B]/15 text-[#A2561B]">
+            <div class="p-2 rounded-lg bg-primary/15 text-primary">
               <HistoryIcon class="size-5" />
             </div>
             <div>
-              <h2 class="text-base font-bold text-[#22293A]">
+              <h2 class="text-base font-bold text-foreground">
                 Case History &amp; Immutable Audit Trail
               </h2>
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Chronological record of status updates, forensic notes, AI evaluations, and evidence interactions
               </p>
             </div>
           </div>
           <div class="flex items-center gap-2">
             <span
-              class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-white border border-[#E2D5C3] text-[#6B7280]">
+              class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-white border border-border text-muted-foreground">
               ISO 37002 Compliant Ledger
             </span>
             <button type="button"
-              class="p-1.5 rounded-lg border border-[#E2D5C3] bg-white text-[#22293A] hover:bg-[#F2EAE0] transition-colors cursor-pointer text-xs flex items-center gap-1"
+              class="p-1.5 rounded-lg border border-border bg-white text-foreground hover:bg-[#F2EAE0] transition-colors cursor-pointer text-xs flex items-center gap-1"
               :disabled="isLoadingAudit" @click="fetchAuditLogs">
               <RefreshCwIcon class="size-3.5" :class="{ 'animate-spin': isLoadingAudit }" />
               <span class="hidden sm:inline font-semibold">Refresh Trail</span>
@@ -1266,7 +1266,7 @@ onMounted(() => {
 
         <!-- Audit Empty State -->
         <div v-else-if="auditLogs.length === 0"
-          class="text-xs text-[#6B7280] py-8 text-center bg-white/50 rounded-xl border border-dashed border-[#E2D5C3]">
+          class="text-xs text-muted-foreground py-8 text-center bg-white/50 rounded-xl border border-dashed border-border">
           No audit entries recorded yet for this case.
         </div>
 
@@ -1276,15 +1276,15 @@ onMounted(() => {
           <div v-for="(log, idx) in auditLogs" :key="log.id || idx" class="relative group">
             <!-- Timeline dot -->
             <div
-              class="absolute -left-6 sm:-left-8 top-1.5 size-6 rounded-full bg-white border-2 border-[#A2561B] flex items-center justify-center text-[#A2561B] shadow-2xs group-hover:scale-110 transition-transform">
+              class="absolute -left-6 sm:-left-8 top-1.5 size-6 rounded-full bg-white border-2 border-primary flex items-center justify-center text-primary shadow-2xs group-hover:scale-110 transition-transform">
               <GitCommitIcon class="size-3" />
             </div>
 
-            <div class="p-4 rounded-xl bg-[#FFFDF8] border border-[#EADBCE] shadow-2xs space-y-2 card-hover-lift">
+            <div class="p-4 rounded-xl bg-card border border-border shadow-2xs space-y-2 card-hover-lift">
               <div
                 class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#F2EAE0] pb-2">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-xs font-bold text-[#22293A]">
+                  <span class="text-xs font-bold text-foreground">
                     {{ formatAuditAction(log.action) }}
                   </span>
                   <!-- Actor Pill -->
@@ -1294,7 +1294,7 @@ onMounted(() => {
                     {{ getActorBadge(log.actorType).label }}
                   </span>
                 </div>
-                <span class="text-[10px] font-mono text-[#6B7280] flex items-center gap-1">
+                <span class="text-[10px] font-mono text-muted-foreground flex items-center gap-1">
                   <ClockIcon class="size-3" />
                   {{ formatDate(log.loggedAt) }}
                 </span>
@@ -1316,13 +1316,13 @@ onMounted(() => {
 
               <!-- Forensic note -->
               <div v-if="log.note"
-                class="p-3 rounded-lg bg-[#F8F3EA] border border-[#E2D5C3] text-xs text-[#22293A] italic leading-relaxed">
+                class="p-3 rounded-lg bg-card border border-border text-xs text-foreground italic leading-relaxed">
                 &ldquo;{{ log.note }}&rdquo;
               </div>
 
               <!-- File ref or other metadata -->
               <div v-else-if="log.newValue && log.action !== 'STATUS_CHANGED'"
-                class="text-[11px] font-mono text-[#6B7280]">
+                class="text-[11px] font-mono text-muted-foreground">
                 Reference Identifier: {{ log.newValue }}
               </div>
             </div>

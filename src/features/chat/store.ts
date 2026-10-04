@@ -1,347 +1,185 @@
+// features/chat/store.ts
+// One chat store for both viewers. Call start('REPORTER' | 'STAFF', caseId) on page mount, stop() on unmount.
 import { defineStore } from 'pinia'
-import { getReporterMessages, sendReporterMessage } from './api'
+import {
+  getReporterMessages,
+  sendReporterMessage,
+  getStaffCaseMessages,
+  sendStaffCaseMessage,
+} from './api'
 import type { ChatMessage, DepartmentHeadInfo } from './types'
-import { getEcho, disconnectEcho, extractIncomingMessage, type SocketStatus } from '@/shared/realtime/socket-client'
+import { openChatSocket, type ChatSocketHandle } from './chat-socket'
+import {
+  mergeServerMessages,
+  applyIncomingMessage,
+  replaceByTempId,
+  setStatusByTempId,
+} from './service'
+import { globalSocketStatus } from '@/shared/realtime/socket-client'
 import { toast } from '@/plugins/toast'
+
+export type ChatViewer = 'REPORTER' | 'STAFF'
+
+// Kept outside reactive state: a socket handle is not data.
+let socketHandle: ChatSocketHandle | null = null
+
+function newTempId() {
+  return `temp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+}
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
+    viewer: null as ChatViewer | null,
+    caseId: null as string | null,
+    token: null as string | null,
     messages: [] as ChatMessage[],
     departmentHead: null as DepartmentHeadInfo | null,
     isLoading: false,
     isSending: false,
-    isReconnecting: false,
-    socketStatus: 'connecting' as SocketStatus,
-    pollTimer: null as any | null,
-    pollErrorCount: 0,
-    isPollingActive: false,
-    currentChannelName: null as string | null,
-    lastConnectedCaseId: null as string | null,
-    lastConnectedToken: null as string | null,
+    error: null as string | null,
+    syncErrorCount: 0,
   }),
 
   getters: {
     hasMessages: (state) => state.messages.length > 0,
-    isAssigned: (state) => state.departmentHead !== null,
     departmentHeadName: (state) => state.departmentHead?.name ?? 'Awaiting Department Head Assignment',
-    presenceStatus: (state) => state.departmentHead?.presenceStatus ?? 'OFFLINE',
-    isOfficerOnline: (state) => state.departmentHead?.presenceStatus === 'ONLINE',
-    isSocketConnected: (state) => state.socketStatus === 'connected',
+    socketStatus: () => globalSocketStatus.value,
+    isSocketConnected: () => globalSocketStatus.value === 'connected',
+    isReconnecting: (state) =>
+      globalSocketStatus.value === 'unavailable' ||
+      globalSocketStatus.value === 'failed' ||
+      state.syncErrorCount >= 2,
   },
 
   actions: {
-    async fetchMessages(silent = false) {
-      if (!silent) {
-        this.isLoading = true
+    /** Begin a chat session: reset if the case/viewer changed, load history, open the socket. */
+    async start(viewer: ChatViewer, caseId: string, token: string) {
+      this.stop()
+      this.viewer = viewer
+      this.caseId = caseId
+      this.token = token
+      this.messages = []
+      this.departmentHead = null
+      this.error = null
+      this.syncErrorCount = 0
+
+      await this.fetchMessages(false)
+      this.openSocket()
+    },
+
+    /** End the session and close the socket. */
+    stop() {
+      socketHandle?.close()
+      socketHandle = null
+    },
+
+    openSocket() {
+      if (!this.caseId || !this.token) return
+      socketHandle?.close()
+      try {
+        socketHandle = openChatSocket(this.caseId, this.token, {
+          onMessage: (msg) => this.receive(msg),
+          onPresence: (status) => {
+            if (this.departmentHead) this.departmentHead.presenceStatus = status as any
+          },
+          onConnected: () => {
+            this.fetchMessages(true)
+          },
+        })
+      } catch (err) {
+        console.warn('Live connection could not be opened:', err)
+        socketHandle = null
       }
+    },
+
+    /** Manual reconnect (header/composer buttons). */
+    reconnect() {
+      this.openSocket()
+    },
+
+    async fetchMessages(silent = false) {
+      if (!this.viewer || !this.caseId) return
+      if (!silent) this.isLoading = true
 
       try {
-        const response = await getReporterMessages()
-        this.departmentHead = response.departmentHead
-
-        const incomingList: ChatMessage[] = Array.isArray(response.messages)
-          ? response.messages
-          : response.messages && Array.isArray((response.messages as any).data)
-          ? (response.messages as any).data
-          : []
-
-        // Preserve local pending and failed messages during sync
-        const localUnconfirmed = this.messages.filter(
-          (m) => m.status === 'pending' || m.status === 'failed'
-        )
-
-        // Incoming server messages are confirmed ('sent')
-        const confirmedList = incomingList.map((m) => ({
-          ...m,
-          status: 'sent' as const,
-        }))
-
-        // Merge: take server messages, plus any local pending that hasn't been confirmed yet
-        const incomingIds = new Set(confirmedList.map((m) => m.id))
-        const pendingToKeep = localUnconfirmed.filter(
-          (m) => !incomingIds.has(m.id) && (!m.tempId || !incomingIds.has(m.tempId))
-        )
-
-        const merged = [...confirmedList, ...pendingToKeep]
-        // Sort chronologically by sentAt
-        merged.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
-
-        this.messages = merged
-        this.pollErrorCount = 0
-        this.isReconnecting = false
-      } catch (err) {
-        this.pollErrorCount++
-        if (this.pollErrorCount >= 2) {
-          this.isReconnecting = true
+        let incoming: ChatMessage[]
+        if (this.viewer === 'REPORTER') {
+          const res = await getReporterMessages()
+          this.departmentHead = res.departmentHead
+          incoming = Array.isArray(res.messages)
+            ? res.messages
+            : res.messages && Array.isArray((res.messages as any).data)
+            ? (res.messages as any).data
+            : []
+        } else {
+          incoming = await getStaffCaseMessages(this.caseId)
         }
+
+        this.messages = mergeServerMessages(this.messages, incoming)
+        this.syncErrorCount = 0
+        this.error = null
+      } catch (err: any) {
+        this.syncErrorCount++
+        if (!silent) this.error = err?.message || 'Unable to load messages.'
       } finally {
-        if (!silent) {
-          this.isLoading = false
-        }
-      }
-    },
-
-    startPolling(baseIntervalMs = 3000) {
-      this.stopPolling()
-      this.isPollingActive = true
-
-      // Initial fetch
-      this.fetchMessages(false)
-
-      const scheduleNextPoll = () => {
-        if (!this.isPollingActive) return
-
-        // Exponential backoff if consecutive errors occur
-        const backoffMultiplier = Math.min(Math.pow(1.5, this.pollErrorCount), 5)
-        const nextDelay = Math.round(baseIntervalMs * backoffMultiplier)
-
-        this.pollTimer = setTimeout(async () => {
-          if (!this.isPollingActive) return
-          await this.fetchMessages(true)
-          scheduleNextPoll()
-        }, nextDelay)
-      }
-
-      scheduleNextPoll()
-    },
-
-    stopPolling() {
-      this.isPollingActive = false
-      if (this.pollTimer) {
-        clearTimeout(this.pollTimer)
-        this.pollTimer = null
+        if (!silent) this.isLoading = false
       }
     },
 
     async sendMessage(rawContent: string) {
       const content = rawContent.trim()
-      if (!content) return
+      if (!content || !this.viewer) return
 
-      const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
-      const optimisticMessage: ChatMessage = {
+      const tempId = newTempId()
+      this.messages.push({
         id: tempId,
         tempId,
-        senderType: 'CASE_REPORTER',
+        senderType: this.viewer === 'REPORTER' ? 'CASE_REPORTER' : 'DEPARTMENT_HEAD',
         content,
         sentAt: new Date().toISOString(),
         status: 'pending',
-      }
+      })
 
-      // Optimistically append locally
-      this.messages.push(optimisticMessage)
-
-      // Strict WebSocket enforcement: Fail immediately if Reverb is offline
-      if (this.socketStatus !== 'connected') {
-        const index = this.messages.findIndex((m) => m.id === tempId || m.tempId === tempId)
-        if (index !== -1) {
-          this.messages[index].status = 'failed'
-        }
-        toast.error('Real-time WebSocket offline (Reverb is not running). Connect WebSocket to send.')
+      // Product rule: no live connection, no message.
+      if (globalSocketStatus.value !== 'connected') {
+        this.messages = setStatusByTempId(this.messages, tempId, 'failed')
+        toast.error('Live connection is offline. Reconnect to send your message.')
         return
       }
-
-      this.isSending = true
-      try {
-        const confirmed = await sendReporterMessage(content)
-
-        // Replace optimistic placeholder with confirmed server object
-        const index = this.messages.findIndex((m) => m.id === tempId || m.tempId === tempId)
-        if (index !== -1) {
-          this.messages[index] = {
-            ...confirmed,
-            status: 'sent',
-          }
-        }
-      } catch (err: any) {
-        // Tag as failed to permit user retry
-        const index = this.messages.findIndex((m) => m.id === tempId || m.tempId === tempId)
-        if (index !== -1) {
-          this.messages[index] = {
-            ...this.messages[index],
-            status: 'failed',
-          }
-        }
-        toast.error(err?.response?.data?.message || err?.message || 'Failed to dispatch message.')
-      } finally {
-        this.isSending = false
-      }
+      await this.dispatch(tempId, content)
     },
 
     async retryMessage(tempId: string) {
       const target = this.messages.find((m) => m.id === tempId || m.tempId === tempId)
       if (!target) return
 
-      if (this.socketStatus !== 'connected') {
-        target.status = 'failed'
-        toast.error('Real-time WebSocket offline. Cannot retry until Reverb connects.')
+      if (globalSocketStatus.value !== 'connected') {
+        toast.error('Live connection is offline. Reconnect before retrying.')
         return
       }
+      this.messages = setStatusByTempId(this.messages, tempId, 'pending')
+      await this.dispatch(tempId, target.content)
+    },
 
-      target.status = 'pending'
+    async dispatch(tempId: string, content: string) {
+      if (!this.viewer || !this.caseId) return
+      this.isSending = true
       try {
-        const confirmed = await sendReporterMessage(target.content)
-        const index = this.messages.findIndex((m) => m.id === tempId || m.tempId === tempId)
-        if (index !== -1) {
-          this.messages[index] = {
-            ...confirmed,
-            status: 'sent',
-          }
-        }
-      } catch {
-        target.status = 'failed'
+        const confirmed =
+          this.viewer === 'REPORTER'
+            ? await sendReporterMessage(content)
+            : await sendStaffCaseMessage(this.caseId, content)
+        this.messages = replaceByTempId(this.messages, tempId, { ...confirmed, status: 'sent' })
+      } catch (err: any) {
+        this.messages = setStatusByTempId(this.messages, tempId, 'failed')
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to send message.')
+      } finally {
+        this.isSending = false
       }
     },
 
-    connectWebSocket(caseId: string, token: string) {
-      this.lastConnectedCaseId = caseId
-      this.lastConnectedToken = token
-
-      try {
-        const echo = getEcho(token)
-        const channelName = `case.${caseId}`
-
-        if (this.currentChannelName === channelName) {
-          return
-        }
-
-        if (this.currentChannelName) {
-          try {
-            echo.leave(this.currentChannelName)
-          } catch {
-            // ignore
-          }
-        }
-
-        this.currentChannelName = channelName
-        const channel = echo.private(channelName)
-
-        const onMessage = (data: any) => {
-          console.log('[Reporter Socket Event Received]:', data)
-          const parsed = extractIncomingMessage(data)
-          if (parsed) {
-            this.receiveSocketMessage(parsed)
-            if (parsed.senderType === 'DEPARTMENT_HEAD') {
-              if (this.departmentHead) {
-                this.departmentHead.presenceStatus = 'ONLINE'
-              }
-            }
-          }
-          if (data?.presenceStatus && this.departmentHead) {
-            this.departmentHead.presenceStatus = data.presenceStatus
-          }
-        }
-
-        channel.listen('.message.sent', onMessage)
-        channel.listen('MessageSent', onMessage)
-        channel.listen('.MessageSent', onMessage)
-        channel.listen('message.sent', onMessage)
-        channel.listen('.department-head.presence', (data: any) => {
-          if (this.departmentHead && data?.presenceStatus) {
-            this.departmentHead.presenceStatus = data.presenceStatus
-          }
-        })
-
-        if (typeof (channel as any).listenToAll === 'function') {
-          ;(channel as any).listenToAll((eventName: string, data: any) => {
-            console.log(`[Reporter Socket Channel Event] ${eventName}:`, data)
-            if (eventName.toLowerCase().includes('message')) {
-              onMessage(data)
-            }
-          })
-        }
-
-        if (typeof (channel as any).error === 'function') {
-          ;(channel as any).error((err: any) => {
-            console.error(`[Reporter Channel Error] on '${channelName}':`, err)
-          })
-        }
-
-        if ((channel as any).subscription) {
-          ;(channel as any).subscription.bind('pusher:subscription_succeeded', () => {
-            console.log(`[Reporter Channel Subscribed] Successfully joined '${channelName}'`)
-          })
-          ;(channel as any).subscription.bind('pusher:subscription_error', (status: any) => {
-            console.error(`[Reporter Channel Subscription Error] on '${channelName}':`, status)
-          })
-        }
-
-        if ((echo as any).connector?.pusher?.connection) {
-          const conn = (echo as any).connector.pusher.connection
-          this.socketStatus = (conn.state as SocketStatus) || 'connecting'
-
-          if (conn.state !== 'connected') {
-            try {
-              conn.connect()
-            } catch {
-              // ignore
-            }
-          }
-
-          conn.bind('state_change', (states: { previous: string; current: string }) => {
-            this.socketStatus = states.current as SocketStatus
-            if (states.current === 'connected') {
-              this.isReconnecting = false
-              this.fetchMessages(true)
-            } else if (states.current === 'unavailable' || states.current === 'failed') {
-              this.isReconnecting = true
-            }
-          })
-          conn.bind('connected', () => {
-            this.socketStatus = 'connected'
-            this.isReconnecting = false
-          })
-          conn.bind('unavailable', () => {
-            this.socketStatus = 'unavailable'
-            this.isReconnecting = true
-          })
-          conn.bind('failed', () => {
-            this.socketStatus = 'failed'
-            this.isReconnecting = true
-          })
-          conn.bind('disconnected', () => {
-            this.socketStatus = 'disconnected'
-          })
-        }
-      } catch (err) {
-        console.warn('Reverb socket connection warning:', err)
-        this.socketStatus = 'failed'
-      }
-    },
-
-    reconnectWebSocket() {
-      if (this.lastConnectedCaseId && this.lastConnectedToken) {
-        this.disconnectWebSocket()
-        this.connectWebSocket(this.lastConnectedCaseId, this.lastConnectedToken)
-      }
-    },
-
-    disconnectWebSocket() {
-      if (this.currentChannelName) {
-        try {
-          const echo = getEcho()
-          echo.leave(this.currentChannelName)
-        } catch {
-          // ignore
-        }
-        this.currentChannelName = null
-      }
-      disconnectEcho()
-    },
-
-    receiveSocketMessage(msg: ChatMessage) {
-      const exists = this.messages.some((m) => m.id === msg.id)
-      if (exists) return
-
-      const pendingIdx = this.messages.findIndex(
-        (m) => m.status === 'pending' && m.content === msg.content && m.senderType === msg.senderType
-      )
-      if (pendingIdx !== -1) {
-        this.messages[pendingIdx] = msg
-        return
-      }
-
-      this.messages.push(msg)
-      this.messages.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
+    receive(msg: ChatMessage) {
+      this.messages = applyIncomingMessage(this.messages, msg)
     },
   },
 })

@@ -32,7 +32,7 @@ function handleRetry(): void {
       <div class="absolute -inset-2 rounded-2xl bg-orange-500/20 blur-md animate-pulse-glow"></div>
 
       <!-- Logo Container -->
-      <div class="relative h-24 w-24 sm:h-28 sm:w-28 mx-auto rounded-2xl bg-[#F8F3EA] p-2.5 shadow-xl border-2 border-[#A2561B]/40 overflow-hidden group">
+      <div class="relative h-24 w-24 sm:h-28 sm:w-28 mx-auto rounded-2xl bg-card p-2.5 shadow-xl border-2 border-primary/40 overflow-hidden group">
         <img
           src="/verita.png"
           alt="Verita Owl Emblem"
@@ -43,7 +43,7 @@ function handleRetry(): void {
 
       <!-- Floating Badge -->
       <div class="absolute -bottom-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap">
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-md px-3 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider text-orange-800 border border-[#E2D5C3] shadow-xs">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-md px-3 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider text-orange-800 border border-border shadow-xs">
           <span class="relative flex h-1.5 w-1.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-600 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-orange-600"></span>
@@ -64,9 +64,9 @@ function handleRetry(): void {
     </div>
 
     <!-- Resilience Note -->
-    <div class="rounded-xl border border-[#E2D5C3] bg-[#F8F3EA] p-3.5 shadow-xs text-left card-hover-lift">
+    <div class="rounded-xl border border-border bg-card p-3.5 shadow-xs text-left card-hover-lift">
       <div class="flex items-start gap-2.5">
-        <ServerCrashIcon class="size-4 text-[#A2561B] shrink-0 mt-0.5" />
+        <ServerCrashIcon class="size-4 text-primary shrink-0 mt-0.5" />
         <div class="space-y-0.5">
           <p class="text-xs font-bold text-foreground">Data Integrity Guaranteed</p>
           <p class="text-[11px] text-muted-foreground leading-normal">
@@ -81,7 +81,7 @@ function handleRetry(): void {
       <button
         type="button"
         :disabled="isRetrying"
-        class="inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium bg-[#A2561B] text-white hover:bg-[#8D4814] shadow-xs transition-all duration-300 w-full sm:w-auto cursor-pointer disabled:opacity-60"
+        class="inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium bg-primary text-white hover:bg-[#8D4814] shadow-xs transition-all duration-300 w-full sm:w-auto cursor-pointer disabled:opacity-60"
         @click="handleRetry"
       >
         <RefreshCwIcon class="size-4 mr-1.5" :class="{ 'animate-spin': isRetrying }" />

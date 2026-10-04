@@ -25,7 +25,7 @@ const auth = useAuthStore()
       <div class="absolute -inset-2 rounded-2xl bg-rose-500/20 blur-md animate-pulse-glow"></div>
 
       <!-- Logo Container -->
-      <div class="relative h-24 w-24 sm:h-28 sm:w-28 mx-auto rounded-2xl bg-[#F8F3EA] p-2.5 shadow-xl border-2 border-rose-500/40 overflow-hidden group">
+      <div class="relative h-24 w-24 sm:h-28 sm:w-28 mx-auto rounded-2xl bg-card p-2.5 shadow-xl border-2 border-rose-500/40 overflow-hidden group">
         <img
           src="/verita.png"
           alt="Verita Owl Emblem"
@@ -56,14 +56,13 @@ const auth = useAuthStore()
       </p>
     </div>
 
-    <!-- Air-gap Partitioning Notice -->
-    <div class="rounded-xl border border-[#E2D5C3] bg-[#F8F3EA] p-3.5 shadow-xs text-left card-hover-lift">
+    <div class="rounded-xl border border-border bg-card p-3.5 shadow-xs text-left card-hover-lift">
       <div class="flex items-start gap-2.5">
-        <ShieldCheckIcon class="size-4 text-[#A2561B] shrink-0 mt-0.5" />
+        <ShieldCheckIcon class="size-4 text-primary shrink-0 mt-0.5" />
         <div class="space-y-0.5">
           <p class="text-xs font-bold text-foreground">Strict Need-to-Know Isolation</p>
           <p class="text-[11px] text-muted-foreground leading-normal">
-            Under ISO 37002 compliance, investigation files, personnel records, and directorate controls are air-gapped strictly by authorized clearance.
+            Under ISO 37002 compliance, investigation files, personnel records, and directorate controls are restricted strictly by authorized access level.
           </p>
         </div>
       </div>

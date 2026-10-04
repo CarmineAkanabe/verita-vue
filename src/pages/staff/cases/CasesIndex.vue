@@ -300,7 +300,7 @@ onMounted(() => {
             <span class="size-2 rounded-full bg-emerald-500"></span>
             <span class="text-xs font-bold text-foreground">ISO 37002 Active</span>
           </div>
-          <span class="text-[11px] text-muted-foreground">Air-gapped case reporter safety</span>
+          <span class="text-[11px] text-muted-foreground">Case reporter identity protected</span>
         </div>
         <div class="p-2.5 rounded bg-emerald-500/10 text-emerald-700">
           <ShieldAlertIcon class="size-5" />
@@ -409,8 +409,8 @@ onMounted(() => {
       </div>
 
       <!-- Loading Skeleton -->
-      <div v-if="isLoadingAudit" class="space-y-3 animate-pulse">
-        <div v-for="i in 4" :key="i" class="h-14 bg-muted/40 rounded-lg border border-border"></div>
+      <div v-if="isLoadingAudit" class="space-y-3" aria-busy="true">
+        <div v-for="i in 4" :key="i" class="h-14 skeleton-shimmer rounded-lg border border-border"></div>
       </div>
 
       <!-- Error State -->
@@ -457,7 +457,7 @@ onMounted(() => {
               </td>
               <td class="p-3">
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold border"
-                  :class="log.actorType === 'DEPARTMENT_HEAD' ? 'bg-[#22293A] text-white border-[#22293A]' : log.actorType === 'AI' ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-slate-100 text-slate-700 border-slate-300'">
+                  :class="log.actorType === 'DEPARTMENT_HEAD' ? 'bg-foreground text-white border-foreground' : log.actorType === 'AI' ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-slate-100 text-slate-700 border-slate-300'">
                   {{ log.actorType }}
                 </span>
               </td>
@@ -486,8 +486,8 @@ onMounted(() => {
     <!-- CASES TABLE (AWAITING_ASSIGNMENT, ALL_CASES, QUEUE, CLAIMED) -->
     <div v-else>
       <!-- Loading Skeleton -->
-      <div v-if="isLoading" class="space-y-3 animate-pulse">
-        <div v-for="i in 4" :key="i" class="h-16 bg-muted/40 rounded-lg border border-border"></div>
+      <div v-if="isLoading" class="space-y-3" aria-busy="true">
+        <div v-for="i in 4" :key="i" class="h-16 skeleton-shimmer rounded-lg border border-border"></div>
       </div>
 
       <!-- Empty State -->

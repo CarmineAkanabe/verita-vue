@@ -287,18 +287,18 @@ const hasAiReviewData = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F2F4F7] text-[#22293A] pb-16">
+  <div class="min-h-screen bg-[#F2F4F7] text-foreground pb-16">
     <!-- Top Session Ribbon -->
-    <div class="w-full bg-[#22293A] text-white py-2 px-4 sm:px-6 lg:px-8 border-b border-[#333C4D]">
+    <div class="w-full bg-foreground text-white py-2 px-4 sm:px-6 lg:px-8 border-b border-[#333C4D]">
       <div class="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#A2561B] text-white font-medium text-[11px]">
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-primary text-white font-medium text-[11px]">
             <ShieldCheckIcon class="size-3" />
             Anonymous Reporter Session
           </span>
           <span class="text-[#9CA3AF] hidden sm:inline">|</span>
           <span class="text-[#D1D5DB] text-[11px]">
-            Air-Gapped Identity · Zero IP Logging · Cameroon Enterprise Vault
+            Anonymous Identity · Zero IP Logging · Cameroon Enterprise Vault
           </span>
         </div>
 
@@ -329,19 +329,19 @@ const hasAiReviewData = computed(() => {
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <!-- Loading Skeleton State -->
       <div v-if="isLoading" class="space-y-6">
-        <div class="p-6 bg-white rounded-xl border border-[#E2E5EE] shadow-xs animate-pulse space-y-4">
-          <div class="h-6 w-48 bg-[#E2E5EE] rounded"></div>
-          <div class="h-4 w-96 bg-[#E2E5EE]/60 rounded"></div>
+        <div class="p-6 bg-card rounded-2xl border border-border shadow-xs animate-pulse space-y-4">
+          <div class="h-6 w-48 bg-[#EADBCE] rounded"></div>
+          <div class="h-4 w-96 bg-[#EADBCE]/60 rounded"></div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="lg:col-span-2 p-6 bg-white rounded-xl border border-[#E2E5EE] shadow-xs animate-pulse space-y-4">
-            <div class="h-5 w-36 bg-[#E2E5EE] rounded"></div>
-            <div class="h-20 bg-[#E2E5EE]/40 rounded"></div>
-            <div class="h-20 bg-[#E2E5EE]/40 rounded"></div>
+          <div class="lg:col-span-2 p-6 bg-card rounded-2xl border border-border shadow-xs animate-pulse space-y-4">
+            <div class="h-5 w-36 bg-[#EADBCE] rounded"></div>
+            <div class="h-20 bg-[#EADBCE]/40 rounded"></div>
+            <div class="h-20 bg-[#EADBCE]/40 rounded"></div>
           </div>
-          <div class="p-6 bg-white rounded-xl border border-[#E2E5EE] shadow-xs animate-pulse space-y-4">
-            <div class="h-5 w-28 bg-[#E2E5EE] rounded"></div>
-            <div class="h-32 bg-[#E2E5EE]/40 rounded"></div>
+          <div class="p-6 bg-card rounded-2xl border border-border shadow-xs animate-pulse space-y-4">
+            <div class="h-5 w-28 bg-[#EADBCE] rounded"></div>
+            <div class="h-32 bg-[#EADBCE]/40 rounded"></div>
           </div>
         </div>
       </div>
@@ -349,13 +349,13 @@ const hasAiReviewData = computed(() => {
       <!-- Error State -->
       <div
         v-else-if="errorMessage && !caseData"
-        class="p-8 bg-white border border-[#E2E5EE] rounded-xl text-center max-w-lg mx-auto space-y-4"
+        class="p-8 bg-card border border-border rounded-2xl text-center max-w-lg mx-auto space-y-4"
       >
         <div class="h-12 w-12 rounded-full bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-center text-[#991B1B] mx-auto">
           <AlertTriangleIcon class="size-6" />
         </div>
-        <h3 class="text-base font-bold text-[#22293A]">Unable to Load Case</h3>
-        <p class="text-xs text-[#6B7280]">{{ errorMessage }}</p>
+        <h3 class="text-base font-bold text-foreground">Unable to Load Case</h3>
+        <p class="text-xs text-muted-foreground">{{ errorMessage }}</p>
         <AppButton variant="default" size="sm" @click="loadDashboard()">
           Try Again
         </AppButton>
@@ -366,12 +366,12 @@ const hasAiReviewData = computed(() => {
         <!-- ========================================================================= -->
         <!-- HEADER / ACTION BAR                                                       -->
         <!-- ========================================================================= -->
-        <div class="bg-white border border-[#E2E5EE] rounded-xl p-5 sm:p-6 shadow-xs">
+        <div class="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-xs">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
             <!-- Left Info: Case ID & Status -->
             <div class="space-y-2">
               <div class="flex flex-wrap items-center gap-2.5">
-                <span class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Case Summary
                 </span>
                 <StatusPill :status="caseData.status" />
@@ -387,12 +387,12 @@ const hasAiReviewData = computed(() => {
               </div>
 
               <div class="flex flex-wrap items-center gap-2">
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#22293A] font-mono">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-mono">
                   {{ caseData.caseId }}
                 </h1>
                 <button
                   type="button"
-                  class="p-1.5 rounded-md hover:bg-[#F2F4F7] text-[#6B7280] hover:text-[#22293A] transition-colors cursor-pointer"
+                  class="p-1.5 rounded-md hover:bg-[#F2F4F7] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   title="Copy Case ID"
                   @click="copyCaseId"
                 >
@@ -400,7 +400,7 @@ const hasAiReviewData = computed(() => {
                 </button>
               </div>
 
-              <p class="text-xs text-[#6B7280]">
+              <p class="text-xs text-muted-foreground">
                 Submitted for investigation under corporate governance & compliance protocols · Enterprise Case Review
               </p>
             </div>
@@ -420,7 +420,7 @@ const hasAiReviewData = computed(() => {
               <button
                 v-if="!caseData.escalatedAt"
                 type="button"
-                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-[#A2561B] hover:bg-[#843F01] transition-colors cursor-pointer"
+                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-[#843F01] transition-colors cursor-pointer"
                 @click="openEscalateModal"
               >
                 <ShieldAlertIcon class="size-4" />
@@ -429,7 +429,7 @@ const hasAiReviewData = computed(() => {
 
               <div
                 v-else
-                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-[#F2F4F7] text-[#6B7280] border border-[#E2E5EE]"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-[#FAF7F2] text-muted-foreground border border-border"
               >
                 <CheckCircle2Icon class="size-4 text-emerald-600" />
                 <span>Escalated to Manager</span>
@@ -440,18 +440,18 @@ const hasAiReviewData = computed(() => {
           <!-- Inline Add Evidence Box (Collapsible) -->
           <div
             v-if="isUploadBoxOpen"
-            class="mt-6 pt-6 border-t border-[#E2E5EE] space-y-4 animate-in fade-in slide-in-from-top-2 duration-200"
+            class="mt-6 pt-6 border-t border-border space-y-4 animate-in fade-in slide-in-from-top-2 duration-200"
           >
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-sm font-bold text-[#22293A]">Add Supplemental Evidence</h4>
-                <p class="text-xs text-[#6B7280]">
+                <h4 class="text-sm font-bold text-foreground">Add Supplemental Evidence</h4>
+                <p class="text-xs text-muted-foreground">
                   Upload additional receipts, invoices, screenshots, or official communications (JPG, PNG, PDF up to 10MB).
                 </p>
               </div>
               <button
                 type="button"
-                class="text-[#6B7280] hover:text-[#22293A] p-1 cursor-pointer"
+                class="text-muted-foreground hover:text-foreground p-1 cursor-pointer"
                 @click="isUploadBoxOpen = false"
               >
                 <XIcon class="size-4" />
@@ -469,7 +469,7 @@ const hasAiReviewData = computed(() => {
               />
               <button
                 type="button"
-                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-dashed border-[#A2561B] text-[#A2561B] hover:bg-[#FCF4EE] text-xs font-semibold cursor-pointer transition-colors"
+                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-dashed border-primary text-primary hover:bg-[#FCF4EE] text-xs font-semibold cursor-pointer transition-colors"
                 :disabled="isUploadingEvidence"
                 @click="fileInputRef?.click()"
               >
@@ -477,7 +477,7 @@ const hasAiReviewData = computed(() => {
                 <span>Choose Files...</span>
               </button>
 
-              <span class="text-xs text-[#6B7280]">
+              <span class="text-xs text-muted-foreground">
                 {{ uploadFiles.length === 0 ? 'No files selected yet.' : `${uploadFiles.length} file(s) selected.` }}
               </span>
             </div>
@@ -487,14 +487,14 @@ const hasAiReviewData = computed(() => {
               <div
                 v-for="(f, idx) in uploadFiles"
                 :key="idx"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#F2F4F7] border border-[#E2E5EE] text-xs text-[#22293A]"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FAF7F2] border border-border text-xs text-foreground"
               >
-                <FileTextIcon class="size-3.5 text-[#A2561B]" />
+                <FileTextIcon class="size-3.5 text-primary" />
                 <span class="max-w-[180px] truncate font-medium">{{ f.name }}</span>
-                <span class="text-[10px] text-[#6B7280]">({{ (f.size / 1024).toFixed(0) }} KB)</span>
+                <span class="text-[10px] text-muted-foreground">({{ (f.size / 1024).toFixed(0) }} KB)</span>
                 <button
                   type="button"
-                  class="text-[#6B7280] hover:text-red-600 ml-1 cursor-pointer"
+                  class="text-muted-foreground hover:text-red-600 ml-1 cursor-pointer"
                   @click="removeSelectedFile(idx)"
                 >
                   <XIcon class="size-3" />
@@ -517,7 +517,7 @@ const hasAiReviewData = computed(() => {
               </AppButton>
               <button
                 type="button"
-                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#A2561B] hover:bg-[#843F01] transition-colors disabled:opacity-50 cursor-pointer"
+                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-[#843F01] transition-colors disabled:opacity-50 cursor-pointer"
                 :disabled="isUploadingEvidence"
                 @click="handleUploadEvidence"
               >
@@ -535,32 +535,32 @@ const hasAiReviewData = computed(() => {
         <!-- Case 1: Pending Automated Intake Synthesis -->
         <div
           v-if="isPendingAiProcessing"
-          class="bg-white border border-[#E2E5EE] rounded-xl p-6 shadow-xs relative overflow-hidden"
+          class="bg-card border border-border rounded-2xl p-6 shadow-xs relative overflow-hidden"
         >
           <div class="flex items-start gap-4">
-            <div class="h-10 w-10 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B] shrink-0">
-              <SparklesIcon class="size-5 animate-pulse text-[#A2561B]" />
+            <div class="h-10 w-10 rounded-xl bg-[#FCF4EE] border border-primary/30 flex items-center justify-center text-primary shrink-0">
+              <SparklesIcon class="size-5 animate-pulse text-primary" />
             </div>
 
             <div class="space-y-2 flex-1">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-sm sm:text-base font-bold text-[#22293A]">
+                <h3 class="text-sm sm:text-base font-bold text-foreground">
                   Automated Intake Review in Progress
                 </h3>
-                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-[#A2561B] bg-[#FCF4EE] px-2 py-0.5 rounded border border-[#A2561B]/20">
+                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-primary bg-[#FCF4EE] px-2.5 py-1 rounded-full border border-primary/20">
                   <ClockIcon class="size-3" />
                   Analyzing Case
                 </span>
               </div>
 
-              <p class="text-xs sm:text-sm text-[#6B7280] leading-relaxed">
+              <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 We are reviewing your report and organizing key details. A clear summary and timeline will appear here once ready.
               </p>
 
               <div class="pt-2 flex items-center gap-3 text-xs">
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 font-semibold text-[#A2561B] hover:text-[#843F01] transition-colors cursor-pointer"
+                  class="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-[#843F01] transition-transform active:scale-[0.98] cursor-pointer"
                   :disabled="isRefreshing"
                   @click="loadDashboard(true)"
                 >
@@ -579,7 +579,7 @@ const hasAiReviewData = computed(() => {
         <!-- Case 2: AI Processing Failed Alert -->
         <div
           v-else-if="caseData.aiProcessingFailed"
-          class="bg-[#FEF2F2] border border-[#FCA5A5] rounded-xl p-5 text-[#991B1B] flex items-start gap-3.5"
+          class="bg-[#FEF2F2] border border-[#FCA5A5] rounded-2xl p-5 text-[#991B1B] flex items-start gap-3.5"
         >
           <AlertTriangleIcon class="size-5 text-[#DC2626] shrink-0 mt-0.5" />
           <div class="text-xs space-y-1">
@@ -593,48 +593,48 @@ const hasAiReviewData = computed(() => {
         <!-- Case 3: Populated AI Review Section -->
         <div
           v-else-if="hasAiReviewData"
-          class="bg-white border border-[#E2E5EE] rounded-xl p-6 shadow-xs space-y-6"
+          class="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-6"
         >
-          <div class="flex items-center justify-between border-b border-[#E2E5EE] pb-4">
+          <div class="flex items-center justify-between border-b border-border pb-4">
             <div class="flex items-center gap-2.5">
-              <div class="h-8 w-8 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
+              <div class="h-8 w-8 rounded-xl bg-[#FCF4EE] border border-primary/30 flex items-center justify-center text-primary">
                 <SparklesIcon class="size-4" />
               </div>
               <div>
-                <h3 class="text-base font-bold text-[#22293A]">
+                <h3 class="text-base font-bold text-foreground">
                   Case Summary &amp; Key Details
                 </h3>
-                <p class="text-xs text-[#6B7280]">
+                <p class="text-xs text-muted-foreground">
                   Key facts organized from your report to assist review
                 </p>
               </div>
             </div>
 
-            <span class="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider hidden sm:inline">
+            <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider hidden sm:inline">
               Verified Summary
             </span>
           </div>
 
           <!-- Incident Summary -->
           <div v-if="caseData.aiSummary" class="space-y-2">
-            <h4 class="text-xs font-bold text-[#22293A] uppercase tracking-wider">
+            <h4 class="text-xs font-bold text-foreground uppercase tracking-wider">
               Summary of Incident
             </h4>
-            <div class="p-4 rounded-lg bg-[#F8F9FA] border border-[#E2E5EE] text-xs sm:text-sm text-[#22293A] leading-relaxed">
+            <div class="p-4 rounded-xl bg-[#FAF7F2] border border-border text-xs sm:text-sm text-foreground leading-relaxed">
               {{ caseData.aiSummary }}
             </div>
           </div>
 
           <!-- Key Findings Tags -->
           <div v-if="normalizedFindings.length > 0" class="space-y-2">
-            <h4 class="text-xs font-bold text-[#22293A] uppercase tracking-wider">
+            <h4 class="text-xs font-bold text-foreground uppercase tracking-wider">
               Key Incident Findings &amp; Risk Flags
             </h4>
             <div class="flex flex-wrap gap-2">
               <div
                 v-for="(finding, idx) in normalizedFindings"
                 :key="idx"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/20 text-[#A2561B] text-xs font-medium"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FCF4EE] border border-primary/20 text-primary text-xs font-medium"
               >
                 <CheckCircle2Icon class="size-3.5 shrink-0" />
                 <span>{{ finding }}</span>
@@ -644,24 +644,24 @@ const hasAiReviewData = computed(() => {
 
           <!-- Structured Chronological Timeline -->
           <div v-if="normalizedTimeline.length > 0" class="space-y-3">
-            <h4 class="text-xs font-bold text-[#22293A] uppercase tracking-wider">
+            <h4 class="text-xs font-bold text-foreground uppercase tracking-wider">
               Chronological Incident Timeline
             </h4>
 
-            <div class="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E2E5EE]">
+            <div class="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#EADBCE]">
               <div
                 v-for="event in normalizedTimeline"
                 :key="event.id"
                 class="relative space-y-1"
               >
-                <div class="absolute -left-6 top-1.5 h-4 w-4 rounded-full bg-white border-2 border-[#A2561B]"></div>
+                <div class="absolute -left-6 top-1.5 h-4 w-4 rounded-full bg-white border-2 border-primary"></div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-xs font-bold text-[#22293A]">
+                  <span class="text-xs font-bold text-foreground">
                     {{ formatDate(event.eventDate) }}
                   </span>
                   <span
                     v-if="event.source"
-                    class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-[#F2F4F7] text-[#6B7280] border border-[#E2E5EE]"
+                    class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-[#FAF7F2] text-muted-foreground border border-border"
                   >
                     {{ event.source.replaceAll('_', ' ') }}
                   </span>
@@ -681,12 +681,12 @@ const hasAiReviewData = computed(() => {
           <!-- LEFT 2 COLS: Case Particulars -->
           <div class="lg:col-span-2 space-y-8">
             <!-- Incident Details Card -->
-            <div class="bg-white border border-[#E2E5EE] rounded-xl p-6 shadow-xs space-y-6">
-              <div class="border-b border-[#E2E5EE] pb-4 flex items-center justify-between">
-                <h3 class="text-base font-bold text-[#22293A]">
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-6">
+              <div class="border-b border-border pb-4 flex items-center justify-between">
+                <h3 class="text-base font-bold text-foreground">
                   Submitted Incident Particulars
                 </h3>
-                <span class="text-xs text-[#6B7280]">
+                <span class="text-xs text-muted-foreground">
                   Confidential Submission
                 </span>
               </div>
@@ -694,45 +694,45 @@ const hasAiReviewData = computed(() => {
               <!-- Metadata Grid -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Purpose / Nature -->
-                <div class="p-3.5 rounded-lg bg-[#F8F9FA] border border-[#E2E5EE] space-y-1">
-                  <div class="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                    <Building2Icon class="size-3.5 text-[#A2561B]" />
+                <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border space-y-1">
+                  <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Building2Icon class="size-3.5 text-primary" />
                     <span>Transaction Nature / Purpose</span>
                   </div>
-                  <p class="text-xs sm:text-sm font-semibold text-[#22293A]">
+                  <p class="text-xs sm:text-sm font-semibold text-foreground">
                     {{ caseData.purposeOfTransaction || '—' }}
                   </p>
                 </div>
 
                 <!-- Financial Amount -->
-                <div class="p-3.5 rounded-lg bg-[#F8F9FA] border border-[#E2E5EE] space-y-1">
-                  <div class="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                    <DollarSignIcon class="size-3.5 text-[#A2561B]" />
+                <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border space-y-1">
+                  <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <DollarSignIcon class="size-3.5 text-primary" />
                     <span>Amount Involved</span>
                   </div>
-                  <p class="text-xs sm:text-sm font-semibold text-[#22293A]">
+                  <p class="text-xs sm:text-sm font-semibold text-foreground">
                     {{ formatCurrency(caseData.amountInvolved) }}
                   </p>
                 </div>
 
                 <!-- Transaction Date -->
-                <div class="p-3.5 rounded-lg bg-[#F8F9FA] border border-[#E2E5EE] space-y-1">
-                  <div class="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                    <CalendarIcon class="size-3.5 text-[#A2561B]" />
+                <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border space-y-1">
+                  <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <CalendarIcon class="size-3.5 text-primary" />
                     <span>Date of Incident / Transaction</span>
                   </div>
-                  <p class="text-xs sm:text-sm font-semibold text-[#22293A]">
+                  <p class="text-xs sm:text-sm font-semibold text-foreground">
                     {{ formatDate(caseData.transactionDate) }}
                   </p>
                 </div>
 
                 <!-- Person(s) Involved -->
-                <div class="p-3.5 rounded-lg bg-[#F8F9FA] border border-[#E2E5EE] space-y-1">
-                  <div class="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                    <UserIcon class="size-3.5 text-[#A2561B]" />
+                <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-border space-y-1">
+                  <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <UserIcon class="size-3.5 text-primary" />
                     <span>Person(s) Implicated</span>
                   </div>
-                  <p class="text-xs sm:text-sm font-semibold text-[#22293A]">
+                  <p class="text-xs sm:text-sm font-semibold text-foreground">
                     {{ caseData.personInvolved || 'None explicitly specified' }}
                   </p>
                 </div>
@@ -740,28 +740,28 @@ const hasAiReviewData = computed(() => {
 
               <!-- Full Narrative Statement -->
               <div class="space-y-2">
-                <h4 class="text-xs font-bold text-[#22293A] uppercase tracking-wider">
+                <h4 class="text-xs font-bold text-foreground uppercase tracking-wider">
                   Detailed Incident Narrative
                 </h4>
-                <div class="p-4 rounded-lg bg-[#F8F9FA] border border-[#E2E5EE] text-xs sm:text-sm text-[#22293A] leading-relaxed whitespace-pre-wrap">
+                <div class="p-4 rounded-xl bg-[#FAF7F2] border border-border text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-wrap">
                   {{ caseData.description }}
                 </div>
               </div>
             </div>
 
             <!-- Consultation Channel Link (Phase 6) -->
-            <div class="bg-white border border-[#E2E5EE] rounded-xl p-6 shadow-xs space-y-4">
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4">
               <div class="flex items-start justify-between gap-4">
                 <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B] shrink-0">
+                  <div class="h-10 w-10 rounded-xl bg-[#FCF4EE] border border-primary/30 flex items-center justify-center text-primary shrink-0">
                     <MessageSquareIcon class="size-5" />
                   </div>
                   <div>
-                    <h3 class="text-base font-bold text-[#22293A]">
+                    <h3 class="text-base font-bold text-foreground">
                       Investigative Consultation Channel
                     </h3>
-                    <p class="text-xs text-[#6B7280]">
-                      End-to-end encrypted dialogue with assigned supervisor
+                    <p class="text-xs text-muted-foreground">
+                      Private conversation with the assigned investigator
                     </p>
                   </div>
                 </div>
@@ -772,17 +772,17 @@ const hasAiReviewData = computed(() => {
                 </span>
               </div>
 
-              <p class="text-xs sm:text-sm text-[#6B7280] leading-relaxed">
+              <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 Connect directly with the investigation supervisor handling this report. Exchange encrypted inquiries and provide supplemental details while retaining absolute anonymity.
               </p>
 
-              <div class="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs border-t border-[#E2E5EE]">
-                <span class="text-[#6B7280] text-[11px]">
-                  Text &amp; emojis only · Submitter identity cryptographically sealed.
+              <div class="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs border-t border-border">
+                <span class="text-muted-foreground text-[11px]">
+                  Text &amp; emojis only · Your identity is never shown.
                 </span>
                 <router-link
                   :to="{ name: 'case-chat' }"
-                  class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#A2561B] hover:bg-[#843F01] text-white font-semibold transition-colors cursor-pointer"
+                  class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-[#843F01] text-white font-semibold transition-all active:scale-[0.98] shadow-sm cursor-pointer"
                 >
                   <MessageSquareIcon class="size-3.5" />
                   <span>Open Consultation Channel</span>
@@ -794,13 +794,13 @@ const hasAiReviewData = computed(() => {
 
           <!-- RIGHT 1 COL: Evidence Vault -->
           <div class="space-y-6">
-            <div class="bg-white border border-[#E2E5EE] rounded-xl p-6 shadow-xs space-y-4">
-              <div class="flex items-center justify-between border-b border-[#E2E5EE] pb-3">
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="flex items-center justify-between border-b border-border pb-3">
                 <div class="flex items-center gap-2">
-                  <FileTextIcon class="size-4 text-[#A2561B]" />
-                  <h3 class="text-sm font-bold text-[#22293A]">Evidence Exhibits</h3>
+                  <FileTextIcon class="size-4 text-primary" />
+                  <h3 class="text-sm font-bold text-foreground">Evidence Exhibits</h3>
                 </div>
-                <span class="text-xs font-semibold text-[#6B7280] px-2 py-0.5 rounded bg-[#F2F4F7]">
+                <span class="text-xs font-semibold text-muted-foreground px-2.5 py-0.5 rounded-full bg-[#FAF7F2] border border-border">
                   {{ caseData.evidence?.length || 0 }} file(s)
                 </span>
               </div>
@@ -808,23 +808,23 @@ const hasAiReviewData = computed(() => {
               <!-- Evidence List -->
               <div
                 v-if="caseData.evidence && caseData.evidence.length > 0"
-                class="divide-y divide-[#E2E5EE] max-h-[480px] overflow-y-auto"
+                class="divide-y divide-[#EADBCE] max-h-[480px] overflow-y-auto"
               >
                 <div
                   v-for="(item, index) in caseData.evidence"
                   :key="item.id"
-                  class="py-3 flex items-center justify-between gap-3 group"
+                  class="py-3 flex items-center justify-between gap-3 group transition-colors hover:bg-[#FAF7F2]/50 px-1 rounded-lg"
                 >
                   <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="h-8 w-8 rounded bg-[#F8F9FA] border border-[#E2E5EE] flex items-center justify-center text-[#A2561B] shrink-0">
+                    <div class="h-8 w-8 rounded-lg bg-[#FAF7F2] border border-border flex items-center justify-center text-primary shrink-0">
                       <ImageIcon v-if="item.fileType === 'IMAGE'" class="size-4" />
                       <FileTextIcon v-else class="size-4" />
                     </div>
                     <div class="min-w-0">
-                      <p class="text-xs font-bold text-[#22293A] truncate">
+                      <p class="text-xs font-bold text-foreground truncate">
                         Exhibit {{ index + 1 }} · {{ item.fileType }}
                       </p>
-                      <p class="text-[10px] text-[#6B7280] font-mono truncate">
+                      <p class="text-[10px] text-muted-foreground font-mono truncate">
                         {{ item.id.slice(0, 12) }}... · {{ formatDate(item.uploadedAt) }}
                       </p>
                     </div>
@@ -833,7 +833,7 @@ const hasAiReviewData = computed(() => {
                   <div class="flex items-center gap-1 shrink-0">
                     <button
                       type="button"
-                      class="p-1.5 text-[#6B7280] hover:text-[#A2561B] rounded hover:bg-[#F2F4F7] transition-colors cursor-pointer"
+                      class="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-[#FCF4EE] transition-all active:scale-95 cursor-pointer"
                       title="Preview Document"
                       @click="openPreview(item)"
                     >
@@ -841,7 +841,7 @@ const hasAiReviewData = computed(() => {
                     </button>
                     <button
                       type="button"
-                      class="p-1.5 text-[#6B7280] hover:text-[#22293A] rounded hover:bg-[#F2F4F7] transition-colors cursor-pointer"
+                      class="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-[#FAF7F2] transition-all active:scale-95 cursor-pointer"
                       title="Download Document"
                       @click="handleDownloadItem(item)"
                     >
@@ -854,11 +854,11 @@ const hasAiReviewData = computed(() => {
               <!-- Empty state -->
               <div
                 v-else
-                class="text-center py-8 px-4 border border-dashed border-[#E2E5EE] rounded-lg"
+                class="text-center py-8 px-4 border border-dashed border-border bg-[#FAF7F2]/50 rounded-xl"
               >
                 <FileTextIcon class="size-8 text-[#9CA3AF] mx-auto mb-2" />
-                <p class="text-xs font-medium text-[#22293A]">No exhibits uploaded yet</p>
-                <p class="text-[11px] text-[#6B7280] mt-0.5">
+                <p class="text-xs font-medium text-foreground">No exhibits uploaded yet</p>
+                <p class="text-[11px] text-muted-foreground mt-0.5">
                   You can attach documentation at any time using the button below.
                 </p>
               </div>
@@ -866,21 +866,21 @@ const hasAiReviewData = computed(() => {
               <!-- Add Evidence quick button -->
               <button
                 type="button"
-                class="w-full py-2 px-3 rounded-lg border border-[#E2E5EE] bg-[#F8F9FA] hover:bg-[#F2F4F7] text-xs font-semibold text-[#22293A] flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                class="w-full py-2.5 px-3 rounded-xl border border-border bg-[#FAF7F2] hover:bg-[#F4ECE1] text-xs font-semibold text-foreground flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
                 @click="isUploadBoxOpen = true"
               >
-                <PlusIcon class="size-3.5 text-[#A2561B]" />
+                <PlusIcon class="size-3.5 text-primary" />
                 <span>Upload New Exhibit</span>
               </button>
             </div>
 
             <!-- Chain of Custody Security Badge -->
-            <div class="bg-white border border-[#E2E5EE] rounded-xl p-5 shadow-xs text-xs space-y-3">
-              <div class="flex items-center gap-2 text-[#22293A] font-bold">
-                <ShieldCheckIcon class="size-4 text-[#A2561B]" />
+            <div class="bg-card border border-border rounded-2xl p-5 shadow-xs text-xs space-y-3">
+              <div class="flex items-center gap-2 text-foreground font-bold">
+                <ShieldCheckIcon class="size-4 text-primary" />
                 <span>Cameroon Enterprise Assurance</span>
               </div>
-              <p class="text-[11px] text-[#6B7280] leading-relaxed">
+              <p class="text-[11px] text-muted-foreground leading-relaxed">
                 All evidence files are cryptographically stamped with SHA-256 integrity hashes upon receipt. Metadata stripping removes EXIF data, IP origins, and hardware markers before storage.
               </p>
               <div class="text-[10px] text-[#9CA3AF] font-mono">

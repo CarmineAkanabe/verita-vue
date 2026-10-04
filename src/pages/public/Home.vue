@@ -337,7 +337,7 @@ import {
             </p>
 
             <p class="text-sm text-muted-foreground leading-relaxed">
-              By implementing Verita, Digimark deployed an air-gapped intake portal where employees submit
+              By implementing Verita, Digimark deployed an anonymous intake portal where employees submit
               disclosures without corporate logins. Structured AI assistance ensures allegations are organized
               chronologically,
               while leadership conducts objective, conflict-screened investigations under ISO 37002:2021.

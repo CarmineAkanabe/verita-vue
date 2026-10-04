@@ -3,6 +3,7 @@
 import { useRouter } from 'vue-router'
 import type { DepartmentHeadInfo } from '@/features/chat/types'
 import { toast } from '@/plugins/toast'
+import { getReporterLabel } from '@/features/chat/labels'
 import {
   ArrowLeftIcon,
   ShieldCheckIcon,
@@ -58,7 +59,7 @@ async function copyCaseId() {
 </script>
 
 <template>
-  <div class="border-b border-[#EADBCE] bg-[#FFFDF8]">
+  <div class="border-b border-border bg-card">
     <!-- Offline WebSocket Alert Bar -->
     <div
       v-if="!isSocketConnected"
@@ -66,11 +67,11 @@ async function copyCaseId() {
     >
       <div class="flex items-center gap-2 font-medium">
         <WifiOffIcon class="size-4 shrink-0 text-[#C05621]" />
-        <span>Real-time channel offline (Reverb is not running). Connect WebSocket to transmit or view incoming messages.</span>
+        <span>Live connection lost. Reconnect to send or receive messages.</span>
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#A2561B] hover:bg-[#8C430E] text-white text-[11px] font-semibold transition-colors cursor-pointer shrink-0 shadow-2xs"
+        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary hover:bg-[#8C430E] text-white text-[11px] font-semibold transition-colors cursor-pointer shrink-0 shadow-2xs"
         @click="emit('reconnect')"
       >
         <RefreshCwIcon class="size-3" />
@@ -93,7 +94,7 @@ async function copyCaseId() {
       <div class="flex items-center gap-3">
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#EADBCE] bg-[#FAF7F2] hover:bg-[#F4EFE6] text-xs font-semibold text-[#22293A] transition-colors cursor-pointer shadow-2xs"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-[#FAF7F2] hover:bg-[#F4EFE6] text-xs font-semibold text-foreground transition-colors cursor-pointer shadow-2xs"
           @click="handleBack"
         >
           <ArrowLeftIcon class="size-3.5" />
@@ -104,22 +105,22 @@ async function copyCaseId() {
 
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-[#A2561B] uppercase tracking-wider">
+            <span class="text-xs font-bold text-primary uppercase tracking-wider">
               Case
             </span>
-            <span class="text-xs sm:text-sm font-bold font-mono text-[#22293A]">
+            <span class="text-xs sm:text-sm font-bold font-mono text-foreground">
               {{ caseId.slice(0, 18) }}...
             </span>
             <button
               type="button"
-              class="p-1 text-[#6B7280] hover:text-[#22293A] cursor-pointer rounded"
+              class="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded"
               title="Copy full Case ID"
               @click="copyCaseId"
             >
               <CopyIcon class="size-3.5" />
             </button>
           </div>
-          <p class="text-[11px] text-[#6B7280]">
+          <p class="text-[11px] text-muted-foreground">
             {{ viewer === 'STAFF' ? 'Direct Consultation Stream' : 'Confidential Case Consultation' }}
           </p>
         </div>
@@ -131,7 +132,7 @@ async function copyCaseId() {
         <div
           v-if="isSocketConnected"
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium shadow-2xs"
-          title="Reverb WebSocket connected"
+          title="Live connection active"
         >
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -143,31 +144,31 @@ async function copyCaseId() {
           v-else
           type="button"
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-[11px] font-semibold transition-colors cursor-pointer shadow-2xs"
-          title="Click to reconnect WebSocket"
+          title="Click to reconnect"
           @click="emit('reconnect')"
         >
           <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-          <span>Reverb Offline</span>
+          <span>Offline</span>
         </button>
 
         <!-- If Viewer is STAFF: Counterpart is Anonymous Case Reporter -->
         <div
           v-if="viewer === 'STAFF'"
-          class="flex items-center gap-2.5 bg-[#FAF7F2] border border-[#EADBCE] rounded-xl px-3 py-1.5 shadow-2xs"
+          class="flex items-center gap-2.5 bg-[#FAF7F2] border border-border rounded-xl px-3 py-1.5 shadow-2xs"
         >
-          <div class="h-8 w-8 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
+          <div class="h-8 w-8 rounded-lg bg-[#FCF4EE] border border-primary/30 flex items-center justify-center text-primary">
             <ShieldCheckIcon class="size-4" />
           </div>
           <div>
             <div class="flex items-center gap-1.5">
-              <span class="text-xs font-bold text-[#22293A]">
-                Reporter #{{ caseId.slice(0, 6) }}
+              <span class="text-xs font-bold text-foreground">
+                {{ getReporterLabel(caseId) }}
               </span>
-              <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded bg-[#FCF4EE] text-[#A2561B] border border-[#A2561B]/20">
+              <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded bg-[#FCF4EE] text-primary border border-primary/20">
                 Anonymous
               </span>
             </div>
-            <p class="text-[10px] text-[#6B7280]">
+            <p class="text-[10px] text-muted-foreground">
               Protected &amp; Confidential
             </p>
           </div>
@@ -177,19 +178,19 @@ async function copyCaseId() {
         <!-- Rule 2.D Privacy Compliance: Do not leak investigator online/offline telemetry to the reporter -->
         <div
           v-else
-          class="flex items-center gap-2.5 bg-[#FAF7F2] border border-[#EADBCE] rounded-xl px-3 py-1.5 shadow-2xs"
+          class="flex items-center gap-2.5 bg-[#FAF7F2] border border-border rounded-xl px-3 py-1.5 shadow-2xs"
         >
-          <div class="h-8 w-8 rounded-lg bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B]">
+          <div class="h-8 w-8 rounded-lg bg-[#FCF4EE] border border-primary/30 flex items-center justify-center text-primary">
             <UserIcon class="size-4" />
           </div>
           <div>
             <div class="flex items-center gap-1.5">
-              <span class="text-xs font-bold text-[#22293A]">
+              <span class="text-xs font-bold text-foreground">
                 {{ departmentHead?.name || 'Awaiting Assignment' }}
               </span>
               <span
                 v-if="departmentHead"
-                class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded bg-[#F4EFE6] text-[#575E71] border border-[#E2D5C3]"
+                class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded bg-[#F4EFE6] text-muted-foreground border border-border"
               >
                 Investigator
               </span>
@@ -200,7 +201,7 @@ async function copyCaseId() {
                 Unassigned
               </span>
             </div>
-            <p class="text-[10px] text-[#6B7280]">
+            <p class="text-[10px] text-muted-foreground">
               {{ departmentHead ? 'Assigned Department Head' : 'Pending Review' }}
             </p>
           </div>
@@ -209,13 +210,13 @@ async function copyCaseId() {
     </div>
 
     <!-- Security Assurance Ribbon -->
-    <div class="px-4 sm:px-6 py-1.5 bg-[#FAF7F2] border-t border-[#EADBCE] flex items-center justify-between text-[11px] text-[#6B7280]">
+    <div class="px-4 sm:px-6 py-1.5 bg-[#FAF7F2] border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
       <div class="flex items-center gap-1.5">
-        <ShieldCheckIcon class="size-3.5 text-[#A2561B]" />
-        <span>End-to-End Secure &amp; Confidential Channel</span>
+        <ShieldCheckIcon class="size-3.5 text-primary" />
+        <span>Private &amp; Confidential Channel</span>
       </div>
       <span class="hidden md:inline text-[10px] text-[#8C8F9A]">
-        Messages are encrypted and confidential
+        Messages are private to this case
       </span>
     </div>
   </div>

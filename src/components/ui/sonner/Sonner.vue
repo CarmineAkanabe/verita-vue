@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<ToasterProps>(), {
     </template>
     <template #loading-icon>
       <div>
-        <Loader2Icon class="size-4 animate-spin text-[#A2561B]" />
+        <Loader2Icon class="size-4 animate-spin text-primary" />
       </div>
     </template>
     <template #close-icon>

@@ -241,3 +241,64 @@
   background-repeat: repeat;
   background-size: 340px 340px;
 }
+
+/* Mobbin-Grade Page Transitions */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active {
+    transition: opacity 0.01s linear;
+  }
+  .page-enter-from,
+  .page-leave-to {
+    transform: none;
+  }
+  .skeleton-shimmer {
+    animation: none;
+  }
+}
+
+/* Chat container smooth scrollbar */
+.chat-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(162, 86, 27, 0.2);
+  border-radius: 9999px;
+}
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(162, 86, 27, 0.4);
+}
+
+/* Skeleton Shimmer Sweep */
+@keyframes shimmerSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #F3ECE2 25%, #FAF5EE 50%, #F3ECE2 75%);
+  background-size: 200% 100%;
+  animation: shimmerSweep 1.8s ease-in-out infinite;
+}

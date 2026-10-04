@@ -156,7 +156,7 @@ function scrollToSection(id: string) {
         <!-- Section 4: Staff Roles & Governance -->
         <section id="roles" class="p-6 sm:p-8 rounded-2xl bg-card border border-border card-creamy shadow-xs space-y-4">
           <div class="flex items-center gap-3 border-b border-border/80 pb-3">
-            <div class="p-2 rounded-lg bg-[#22293A]/10 text-[#22293A]">
+            <div class="p-2 rounded-lg bg-foreground/10 text-foreground">
               <LockIcon class="size-5" />
             </div>
             <h2 class="text-xl font-bold text-foreground">4. Staff Roles (Managers &amp; Department Heads)</h2>
@@ -175,7 +175,7 @@ function scrollToSection(id: string) {
                 </p>
               </div>
               <div class="p-4 rounded-xl bg-background border border-border space-y-2">
-                <span class="text-xs font-bold text-[#22293A] uppercase tracking-wider">Department Head</span>
+                <span class="text-xs font-bold text-foreground uppercase tracking-wider">Department Head</span>
                 <p class="text-xs text-muted-foreground leading-relaxed">
                   Authorized investigation officer who claims departmental cases, reviews forensic evidence, conducts confidential
                   two-way consultation with the Case Reporter, updates case progression, and submits formal resolutions.
@@ -289,7 +289,7 @@ function scrollToSection(id: string) {
         <div class="flex items-center gap-3 shrink-0 flex-wrap">
           <router-link
             to="/cases/submit"
-            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold bg-[#A2561B] text-white hover:bg-[#854310] transition-colors shadow-xs"
+            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold bg-primary text-white hover:bg-[#854310] transition-colors shadow-xs"
           >
             <span>Submit a Report</span>
             <ArrowRightIcon class="size-3.5" />

@@ -63,39 +63,29 @@ function handleRetryMessage(tempId: string) {
 }
 
 function handleReconnect() {
-  const token = caseToken.get()
-  if (token && authStore.caseId) {
-    chatStore.reconnectWebSocket()
-  }
+  chatStore.reconnect()
 }
 
 onMounted(() => {
-  if (!authStore.isCaseAuthenticated || !authStore.caseId) {
+  const token = caseToken.get()
+  if (!authStore.isCaseAuthenticated || !authStore.caseId || !token) {
     router.push({ name: 'case-entry' })
     return
   }
 
-  // Load message history once on initial mount
-  chatStore.fetchMessages(false)
-
-  // Connect to real-time Reverb WebSocket (strictly drives live message push)
-  const token = caseToken.get()
-  if (token && authStore.caseId) {
-    chatStore.connectWebSocket(authStore.caseId, token)
-  }
-
+  // Loads history, then opens the live connection
+  chatStore.start('REPORTER', authStore.caseId, token)
   scrollToBottom(false)
 })
 
 onUnmounted(() => {
-  chatStore.disconnectWebSocket()
-  chatStore.stopPolling()
+  chatStore.stop()
 })
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-4rem)] bg-[#F4EFE6] text-[#22293A] py-3 sm:py-6 px-2 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-5xl h-[84vh] min-h-[580px] bg-[#FFFDF8] border border-[#E2D5C3] rounded-2xl shadow-sm flex flex-col overflow-hidden">
+  <div class="min-h-[calc(100vh-4rem)] bg-[#F4EFE6] text-foreground py-3 sm:py-6 px-2 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl h-[84vh] min-h-[580px] bg-card border border-border rounded-2xl shadow-sm flex flex-col overflow-hidden">
       <!-- Consultation Header with Live Socket Connection Status -->
       <ChatHeader
         :case-id="authStore.caseId || 'UNKNOWN'"
@@ -110,21 +100,24 @@ onUnmounted(() => {
       <!-- WhatsApp-Style Wallpaper Scroll Area -->
       <div
         ref="messageScrollRef"
-        class="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3 chat-wallpaper-whatsapp"
+        class="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3 chat-wallpaper-whatsapp chat-scrollbar"
+        role="log"
+        aria-live="polite"
+        aria-label="Conversation messages"
         @scroll="handleScroll"
       >
-        <!-- Security End-to-End Encryption Banner (WhatsApp Style) -->
+        <!-- Privacy notice banner -->
         <div class="text-center my-2 sm:my-3">
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFF9EE]/90 backdrop-blur-xs border border-[#EADBCE] text-xs font-medium text-[#8C5D39] shadow-2xs max-w-lg mx-auto">
-            <LockIcon class="size-3.5 shrink-0 text-[#A2561B]" />
-            <span>Messages are end-to-end encrypted &amp; confidential. Nobody outside this case can read them.</span>
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFF9EE]/90 backdrop-blur-xs border border-border text-xs font-medium text-[#8C5D39] shadow-2xs max-w-lg mx-auto">
+            <LockIcon class="size-3.5 shrink-0 text-primary" />
+            <span>Your messages are private and stay inside this case. Your identity is never shown.</span>
           </div>
         </div>
 
         <!-- Loading State Skeleton -->
         <div v-if="chatStore.isLoading && !chatStore.hasMessages" class="py-12 space-y-4 max-w-md mx-auto">
-          <div class="flex items-center justify-center gap-2 text-xs text-[#6B7280]">
-            <Loader2Icon class="size-4 animate-spin text-[#A2561B]" />
+          <div class="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2Icon class="size-4 animate-spin text-primary" />
             <span>Connecting to confidential consultation stream...</span>
           </div>
         </div>
@@ -132,15 +125,15 @@ onUnmounted(() => {
         <!-- Empty Conversation State -->
         <div
           v-else-if="!chatStore.hasMessages"
-          class="py-16 px-4 text-center max-w-md mx-auto space-y-3 bg-[#FFFDF9]/90 backdrop-blur-xs rounded-2xl border border-[#EADBCE] shadow-2xs my-6"
+          class="py-16 px-4 text-center max-w-md mx-auto space-y-3 bg-[#FFFDF9]/90 backdrop-blur-xs rounded-2xl border border-border shadow-2xs my-6"
         >
-          <div class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-[#A2561B]/30 flex items-center justify-center text-[#A2561B] mx-auto">
+          <div class="h-12 w-12 rounded-xl bg-[#FCF4EE] border border-primary/30 flex items-center justify-center text-primary mx-auto">
             <MessageSquareIcon class="size-6" />
           </div>
-          <h3 class="text-sm font-bold text-[#22293A]">
+          <h3 class="text-sm font-bold text-foreground">
             Confidential Consultation Ready
           </h3>
-          <p class="text-xs text-[#6B7280] leading-relaxed">
+          <p class="text-xs text-muted-foreground leading-relaxed">
             This encrypted channel connects you with the assigned investigator while keeping your identity strictly anonymous. Messages travel exclusively across the secure real-time stream.
           </p>
         </div>

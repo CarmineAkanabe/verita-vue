@@ -12,8 +12,8 @@ declare global {
   }
 }
 
-// Enable Pusher diagnostic logging in console for real-time visibility
-Pusher.logToConsole = true
+// Pusher diagnostic logging is development-only
+Pusher.logToConsole = import.meta.env.DEV
 window.Pusher = Pusher
 
 let echoInstance: Echo<any> | null = null
@@ -27,7 +27,14 @@ export type SocketStatus =
   | 'failed'
   | 'disconnected'
 
-export const globalSocketStatus = ref<SocketStatus>('connecting')
+// Starts 'disconnected': no Echo instance exists until a page that needs live
+// updates (chat) creates one. 'connecting' here caused false "reconnecting" alerts.
+export const globalSocketStatus = ref<SocketStatus>('disconnected')
+
+/** Development-only logger. Never logs in production (payloads contain private message text). */
+export const rtLog: (...args: unknown[]) => void = import.meta.env.DEV
+  ? (...args) => console.log(...args)
+  : () => {}
 
 /**
  * Robustly normalizes incoming message payloads from various Laravel broadcast formats
@@ -117,7 +124,7 @@ export function getEcho(token?: string | null): Echo<any> {
 
   currentToken = effectiveToken
 
-  const appKey = (import.meta.env.VITE_REVERB_APP_KEY as string) || 'eafnuy9gwxipsopxuepc'
+  const appKey = (import.meta.env.VITE_REVERB_APP_KEY as string) || ''
   let host = (import.meta.env.VITE_REVERB_HOST as string) || '127.0.0.1'
   // On local dev, map 'localhost' to '127.0.0.1' to avoid Windows IPv6 (::1) socket failures
   if (host === 'localhost') {
@@ -162,7 +169,7 @@ export function getEcho(token?: string | null): Echo<any> {
             headers['Authorization'] = `Bearer ${authToken}`
           }
 
-          console.log(`[Echo Authorizer] Authorizing channel '${channel.name}' (socketId: ${socketId}) using ${isStaff ? 'Staff' : 'Reporter'} auth`)
+          rtLog(`[Echo Authorizer] Authorizing channel '${channel.name}' using ${isStaff ? 'Staff' : 'Reporter'} auth`)
 
           const endpoints = [
             `${apiOrigin}/broadcasting/auth`,
@@ -189,7 +196,7 @@ export function getEcho(token?: string | null): Echo<any> {
 
               if (res.ok) {
                 const data = await res.json()
-                console.log(`[Echo Authorizer] Authorized '${channel.name}' via JSON at ${endpoint}`)
+                rtLog(`[Echo Authorizer] Authorized '${channel.name}' via JSON at ${endpoint}`)
                 callback(null, data)
                 return
               }
@@ -212,7 +219,7 @@ export function getEcho(token?: string | null): Echo<any> {
 
                 if (formRes.ok) {
                   const data = await formRes.json()
-                  console.log(`[Echo Authorizer] Authorized '${channel.name}' via Form at ${endpoint}`)
+                  rtLog(`[Echo Authorizer] Authorized '${channel.name}' via Form at ${endpoint}`)
                   callback(null, data)
                   return
                 }
@@ -248,13 +255,21 @@ export function getEchoConnectionState(): SocketStatus {
   return (state as SocketStatus) || globalSocketStatus.value || 'disconnected'
 }
 
-export function isEchoConnected(): boolean {
-  return getEchoConnectionState() === 'connected'
-}
-
-export function reconnectEcho(token?: string | null): Echo<any> {
-  disconnectEcho()
-  return getEcho(token)
+/**
+ * Re-attempt the connection of the EXISTING socket without replacing it,
+ * so channel subscriptions made by the chat stay valid. No-op when no
+ * page is using live updates (public pages, signed out, etc.).
+ */
+export function reconnectExisting(): void {
+  if (!echoInstance) return
+  const conn = (echoInstance as any).connector?.pusher?.connection
+  if (!conn) return
+  if (conn.state === 'connected' || conn.state === 'connecting') return
+  try {
+    conn.connect()
+  } catch {
+    // ignore
+  }
 }
 
 export function disconnectEcho(): void {

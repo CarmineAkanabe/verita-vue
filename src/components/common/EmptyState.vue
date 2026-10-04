@@ -14,7 +14,7 @@ defineProps<{
   <div
     class="flex flex-col items-center justify-center text-center py-12 px-6 rounded-xl transition-all"
     :class="[
-      creamy ? 'bg-[#F8F3EA] border border-[#E2D5C3]' : bordered ? 'bg-card border border-border' : '',
+      creamy ? 'bg-card border border-border' : bordered ? 'bg-card border border-border' : '',
     ]"
   >
     <div class="size-12 rounded-xl bg-white/80 border border-border flex items-center justify-center text-muted-foreground shadow-2xs mb-3">

@@ -7,6 +7,7 @@ import MobileNavigationShell from '@/shells/MobileNavigationShell.vue'
 import { useAuthStore } from '@/shared/stores/auth'
 import { logoutStaffApi } from '@/features/auth/api'
 import { toast } from '@/plugins/toast'
+import RouteTransition from '@/components/common/RouteTransition.vue'
 import { LogOutIcon, MenuIcon, XIcon } from '@lucide/vue'
 
 const router = useRouter()
@@ -105,7 +106,7 @@ async function handleLogout() {
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-w-0 lg:pl-64">
       <main class="flex-1 p-4 sm:p-6 lg:p-8">
-        <router-view />
+        <RouteTransition />
       </main>
       <MobileNavigationShell class="lg:hidden" @open-menu="isMobileDrawerOpen = true" />
     </div>

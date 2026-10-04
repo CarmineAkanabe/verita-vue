@@ -1,6 +1,7 @@
 // shared/realtime/useNetworkStatus.ts
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { globalSocketStatus, getEcho, disconnectEcho } from './socket-client'
+import { globalSocketStatus, reconnectExisting } from './socket-client'
+import { staffToken, caseToken } from '@/shared/api/auth'
 
 export type ConnectionState = 'connected' | 'connecting' | 'unavailable' | 'failed' | 'disconnected'
 
@@ -35,12 +36,9 @@ export function useNetworkStatus() {
   }
 
   function retryConnection() {
-    try {
-      disconnectEcho()
-      getEcho()
-    } catch {
-      // ignore
-    }
+    // Keep the existing socket (and its channel subscriptions) alive;
+    // only nudge it to reconnect. Does nothing when no page uses live updates.
+    reconnectExisting()
   }
 
   watch(globalSocketStatus, (newStatus, oldStatus) => {
@@ -59,14 +57,18 @@ export function useNetworkStatus() {
     window.removeEventListener('offline', handleOffline)
   })
 
+  function hasAuthToken(): boolean {
+    return Boolean(staffToken.get() || caseToken.get())
+  }
+
   const wsState = computed<ConnectionState>(() => globalSocketStatus.value as ConnectionState)
 
   const isWsReconnecting = computed(() => {
-    return isOnline.value && (globalSocketStatus.value === 'connecting' || globalSocketStatus.value === 'unavailable')
+    return hasAuthToken() && isOnline.value && (globalSocketStatus.value === 'connecting' || globalSocketStatus.value === 'unavailable')
   })
 
   const isWsFailed = computed(() => {
-    return isOnline.value && (globalSocketStatus.value === 'failed' || globalSocketStatus.value === 'disconnected')
+    return hasAuthToken() && isOnline.value && globalSocketStatus.value === 'failed'
   })
 
   return {

@@ -193,7 +193,7 @@ onMounted(async () => {
           </span>
           <div class="flex items-center gap-1.5 mt-1">
             <span class="size-2 rounded-full bg-emerald-500"></span>
-            <span class="text-xs font-bold text-foreground">Air-Gapped Active</span>
+            <span class="text-xs font-bold text-foreground">Anonymity Protected</span>
           </div>
           <span class="text-[11px] text-muted-foreground">ISO 37002 compliant dispatch</span>
         </div>

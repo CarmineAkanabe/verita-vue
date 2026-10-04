@@ -143,7 +143,7 @@ async function handleSubmit() {
       <p class="text-xs text-muted-foreground leading-relaxed">
         Session established for Case <span class="font-mono font-bold text-foreground">#{{ form.caseId.slice(0, 8)
           }}...</span>.
-        Your session is air-gapped and will expire upon window closure.
+        Your session is private and ends when you close this window.
       </p>
       <div class="pt-2">
         <AppButton to="/" variant="outline" size="sm">
@@ -153,18 +153,22 @@ async function handleSubmit() {
     </div>
 
     <!-- Main Card Form -->
-    <AppCard v-else cardClass="border-border bg-card shadow-lg" contentClass="space-y-5">
+    <AppCard v-else 
+      cardClass="border border-border/80 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-sm card-creamy overflow-hidden relative" 
+      contentClass="space-y-6 relative z-10 p-2 sm:p-4"
+    >
       <template #header>
-        <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-            <KeyIcon class="size-5" />
+        <div class="flex items-center gap-4 border-b border-border/60 pb-5">
+          <div class="relative h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary shadow-inner border border-primary/20">
+            <KeyIcon class="size-6 relative z-10" />
+            <div class="absolute inset-0 bg-primary/10 blur-md rounded-xl"></div>
           </div>
           <div>
-            <h1 class="text-xl font-bold tracking-tight text-foreground">
-              Track Case with PIN
+            <h1 class="text-2xl font-extrabold tracking-tight text-foreground">
+              Track Case
             </h1>
-            <p class="text-xs text-muted-foreground">
-              Air-gapped verification for anonymous case reporters
+            <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">
+              Private PIN Verification
             </p>
           </div>
         </div>
