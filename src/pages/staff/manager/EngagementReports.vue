@@ -30,6 +30,54 @@ const report = ref<EngagementReportData>({
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
+const rawCases = ref<any[]>([])
+const trendTimeframe = ref<'7D' | '6M'>('7D')
+
+const computedResolutionTrends = computed(() => {
+  const trendMap = new Map<string, { resolved: number; dismissed: number }>()
+  const today = new Date()
+
+  if (trendTimeframe.value === '7D') {
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today)
+      d.setDate(d.getDate() - i)
+      const dayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      trendMap.set(dayStr, { resolved: 0, dismissed: 0 })
+    }
+  } else {
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1)
+      const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      trendMap.set(monthStr, { resolved: 0, dismissed: 0 })
+    }
+  }
+
+  for (const c of rawCases.value) {
+    if (c.status === 'RESOLVED' || c.status === 'DISMISSED' || c.status === 'CLOSED') {
+      const dateStr = c.resolvedAt || c.createdAt
+      if (!dateStr) continue
+      const dateObj = new Date(dateStr)
+      let keyStr = ''
+
+      if (trendTimeframe.value === '7D') {
+        keyStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`
+      } else {
+        keyStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`
+      }
+
+      if (trendMap.has(keyStr)) {
+        const entry = trendMap.get(keyStr)!
+        if (c.status === 'RESOLVED' || c.status === 'CLOSED') entry.resolved++
+        if (c.status === 'DISMISSED') entry.dismissed++
+      }
+    }
+  }
+
+  return Array.from(trendMap.entries())
+    .map(([month, counts]) => ({ month, ...counts }))
+    .sort((a, b) => a.month.localeCompare(b.month))
+})
+
 async function fetchReport() {
   isLoading.value = true
   error.value = null
@@ -39,31 +87,7 @@ async function fetchReport() {
       getStaffCasesQueue()
     ])
 
-    const trendMap = new Map<string, { resolved: number; dismissed: number }>()
-
-    for (const c of casesData) {
-      if (c.status === 'RESOLVED' || c.status === 'DISMISSED') {
-        const dateStr = c.resolvedAt || c.createdAt
-        if (!dateStr) continue
-
-        const dateObj = new Date(dateStr)
-        const month = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`
-
-        if (!trendMap.has(month)) {
-          trendMap.set(month, { resolved: 0, dismissed: 0 })
-        }
-
-        const entry = trendMap.get(month)!
-        if (c.status === 'RESOLVED') entry.resolved++
-        if (c.status === 'DISMISSED') entry.dismissed++
-      }
-    }
-
-    const computedTrends = Array.from(trendMap.entries())
-      .map(([month, counts]) => ({ month, ...counts }))
-      .sort((a, b) => a.month.localeCompare(b.month))
-
-    reportData.resolutionTrends = computedTrends
+    rawCases.value = casesData
     report.value = reportData
   } catch (err: any) {
     error.value = err?.message || 'Failed to load engagement report. Please verify connection.'
@@ -362,10 +386,20 @@ onMounted(() => {
               Historical ratio of fully resolved disclosures versus dismissed or unverified reports
             </p>
           </div>
+          <div class="flex items-center gap-1 bg-[#FAF7F2] p-1 rounded-lg border border-border">
+            <button type="button" @click="trendTimeframe = '7D'"
+              :class="['px-2.5 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer', trendTimeframe === '7D' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground']">
+              7 Days
+            </button>
+            <button type="button" @click="trendTimeframe = '6M'"
+              :class="['px-2.5 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer', trendTimeframe === '6M' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground']">
+              6 Months
+            </button>
+          </div>
         </div>
         
         <div class="pt-2 pb-1">
-          <ResolutionTrendChart :data="report.resolutionTrends || []" />
+          <ResolutionTrendChart :data="computedResolutionTrends" />
         </div>
       </div>
 

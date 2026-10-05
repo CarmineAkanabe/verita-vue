@@ -13,9 +13,16 @@ const padding = { top: 25, right: 20, bottom: 35, left: 40 }
 const chartWidth = width - padding.left - padding.right
 const chartHeight = height - padding.top - padding.bottom
 
+const rawMax = computed(() => {
+  if (!props.data || props.data.length === 0) return 0
+  return Math.max(...props.data.flatMap(d => [d.resolved, d.dismissed]))
+})
+
 const maxValue = computed(() => {
-  if (!props.data || props.data.length === 0) return 10
-  return Math.max(...props.data.flatMap(d => [d.resolved, d.dismissed])) * 1.2
+  const m = rawMax.value
+  if (m <= 2) return 4
+  const ceiling = Math.ceil(m * 1.2)
+  return ceiling % 2 === 0 ? ceiling : ceiling + 1
 })
 
 const points = computed(() => {
@@ -48,16 +55,22 @@ const dismissedPath = computed(() => {
   return points.value.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.dismissedY}`).join(' ')
 })
 
-function formatMonth(ym: string): string {
-  if (!ym) return ''
-  const parts = ym.split('-')
-  if (parts.length >= 2) {
+function formatDate(dateStr: string): string {
+  if (!dateStr) return ''
+  const parts = dateStr.split('-')
+  if (parts.length >= 3) {
+    const year = parseInt(parts[0], 10)
+    const month = parseInt(parts[1], 10) - 1
+    const day = parseInt(parts[2], 10)
+    const d = new Date(year, month, day)
+    return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })
+  } else if (parts.length === 2) {
     const year = parseInt(parts[0], 10)
     const month = parseInt(parts[1], 10) - 1
     const d = new Date(year, month, 1)
     return d.toLocaleDateString('en-GB', { month: 'short' })
   }
-  return ym
+  return dateStr
 }
 </script>
 
@@ -85,7 +98,7 @@ function formatMonth(ym: string): string {
       <!-- X Axis Labels -->
       <g class="text-[10px] text-muted-foreground fill-current" text-anchor="middle">
         <text v-for="(p, i) in points" :key="`x-${i}`" :x="p.x" :y="height - 15">
-          {{ formatMonth(p.month) }}
+          {{ formatDate(p.month) }}
         </text>
       </g>
 
@@ -98,11 +111,11 @@ function formatMonth(ym: string): string {
       <g v-for="(p, i) in points" :key="`pt-${i}`">
         <!-- Resolved point -->
         <circle :cx="p.x" :cy="p.resolvedY" r="4.5" class="fill-white stroke-emerald-500" stroke-width="2.5" />
-        <text :x="p.x" :y="p.resolvedY - 12" text-anchor="middle" class="text-[10px] font-bold fill-emerald-600">{{ p.resolved }}</text>
+        <text v-if="p.resolved > 0" :x="p.x" :y="p.resolvedY - 12" text-anchor="middle" class="text-[10px] font-bold fill-emerald-600">{{ p.resolved }}</text>
         
-        <!-- Dismissed point -->
-        <circle :cx="p.x" :cy="p.dismissedY" r="4.5" class="fill-white stroke-rose-500" stroke-width="2.5" />
-        <text :x="p.x" :y="p.dismissedY + 18" text-anchor="middle" class="text-[10px] font-bold fill-rose-600">{{ p.dismissed }}</text>
+        <!-- Dismissed point (slightly smaller radius to show concentric if overlapping) -->
+        <circle :cx="p.x" :cy="p.dismissedY" r="3.5" class="fill-white stroke-rose-500" stroke-width="2" />
+        <text v-if="p.dismissed > 0" :x="p.x" :y="p.dismissedY + 18" text-anchor="middle" class="text-[10px] font-bold fill-rose-600">{{ p.dismissed }}</text>
       </g>
     </svg>
     

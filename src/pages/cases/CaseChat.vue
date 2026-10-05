@@ -9,6 +9,7 @@ import { caseToken } from '@/shared/api/auth'
 import ChatHeader from '@/components/complex/chat/ChatHeader.vue'
 import MessageBubble from '@/components/complex/chat/MessageBubble.vue'
 import MessageComposer from '@/components/complex/chat/MessageComposer.vue'
+import { getReporterDashboard } from '@/features/cases/api'
 
 import {
   MessageSquareIcon,
@@ -22,6 +23,7 @@ const chatStore = useChatStore()
 
 const messageScrollRef = ref<HTMLDivElement | null>(null)
 const shouldAutoScroll = ref(true)
+const isClosed = ref(false)
 
 function scrollToBottom(smooth = false) {
   nextTick(() => {
@@ -72,6 +74,12 @@ onMounted(() => {
     router.push({ name: 'case-entry' })
     return
   }
+
+  getReporterDashboard().then(data => {
+    if (data.status === 'CLOSED') {
+      isClosed.value = true
+    }
+  }).catch(err => console.error('Failed to fetch case status for chat', err))
 
   // Loads history, then opens the live connection
   chatStore.start('REPORTER', authStore.caseId, token)
@@ -153,11 +161,18 @@ onUnmounted(() => {
 
       <!-- Message Composer Area -->
       <MessageComposer
+        v-if="!isClosed"
         :is-sending="chatStore.isSending"
         :is-socket-connected="chatStore.isSocketConnected"
         @send="handleSendMessage"
         @reconnect="handleReconnect"
       />
+      <div v-else class="p-4 bg-[#F2F4F7] text-xs text-muted-foreground flex items-center justify-center gap-2 border-t border-border">
+        <LockIcon class="size-4 text-muted-foreground shrink-0" />
+        <span>
+          <strong>Case Closed:</strong> This case has been closed. Chat is now read-only.
+        </span>
+      </div>
     </div>
   </div>
 </template>

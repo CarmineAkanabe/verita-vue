@@ -235,6 +235,8 @@ const isPendingAiProcessing = computed(() => {
   return (status === 'SUBMITTED' || status === 'AI_PROCESSING') && !caseData.value.aiSummary
 })
 
+const isClosed = computed(() => caseData.value?.status === 'CLOSED')
+
 const normalizedFindings = computed<string[]>(() => {
   if (!caseData.value?.aiFindings) return []
   if (Array.isArray(caseData.value.aiFindings)) {
@@ -865,6 +867,7 @@ const hasAiReviewData = computed(() => {
 
               <!-- Add Evidence quick button -->
               <button
+                v-if="!isClosed"
                 type="button"
                 class="w-full py-2.5 px-3 rounded-xl border border-border bg-[#FAF7F2] hover:bg-[#F4ECE1] text-xs font-semibold text-foreground flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
                 @click="isUploadBoxOpen = true"

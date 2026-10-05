@@ -783,7 +783,7 @@ onMounted(() => {
             </AppButton>
 
             <!-- Update Status Button (assigned department head only) -->
-            <AppButton v-if="!isManager && isAssignedToMe" variant="outline" size="sm" @click="openStatusModal">
+            <AppButton v-if="!isManager && isAssignedToMe && caseData?.status !== 'DISMISSED' && caseData?.status !== 'CLOSED'" variant="outline" size="sm" @click="openStatusModal">
               <CheckCircle2Icon class="size-4 mr-1.5" />
               Update Status
             </AppButton>
@@ -1350,10 +1350,10 @@ onMounted(() => {
             <label class="font-semibold text-foreground">Target Investigation Status *</label>
             <select v-model="targetStatus"
               class="w-full h-9 px-3 rounded border border-border bg-card text-foreground focus:outline-none focus:border-primary cursor-pointer text-xs">
-              <option value="UNDER_INVESTIGATION">UNDER_INVESTIGATION (Active Investigation)</option>
-              <option value="RESOLVED">RESOLVED (Findings Substantiated &amp; Action Taken)</option>
-              <option value="CLOSED">CLOSED (Administrative Case Closure)</option>
-              <option value="DISMISSED">DISMISSED (Unfounded / Insufficient Evidence)</option>
+              <option v-if="caseData?.status === 'AWAITING_REVIEW' || caseData?.status === 'UNDER_INVESTIGATION'" value="UNDER_INVESTIGATION">UNDER_INVESTIGATION (Active Investigation)</option>
+              <option v-if="caseData?.status === 'UNDER_INVESTIGATION' || caseData?.status === 'RESOLVED'" value="RESOLVED">RESOLVED (Findings Substantiated &amp; Action Taken)</option>
+              <option v-if="caseData?.status === 'RESOLVED' || caseData?.status === 'CLOSED'" value="CLOSED">CLOSED (Administrative Case Closure)</option>
+              <option v-if="caseData?.status === 'UNDER_INVESTIGATION'" value="DISMISSED">DISMISSED (Unfounded / Insufficient Evidence)</option>
             </select>
           </div>
 
